@@ -15,11 +15,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     const supabase = createClient()
 
-    // Set a timeout to ensure loading is set to false even if something goes wrong
+    // Set a shorter timeout to ensure loading is set to false even if something goes wrong
     const loadingTimeout = setTimeout(() => {
       console.log('AuthProvider - Loading timeout, setting loading to false')
       setLoading(false)
-    }, 5000) // 5 second timeout
+    }, 2000) // 2 second timeout
 
     // Load user profile function
     const loadUserProfile = async (userId: string) => {
@@ -101,10 +101,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('AuthProvider - Setting user:', session?.user?.id || 'null')
           setUser(session?.user ?? null)
           
-          // Fetch profile if user is authenticated
+          // Set loading to false immediately for better UX
+          setLoading(false)
+          clearTimeout(loadingTimeout)
+          
+          // Fetch profile if user is authenticated (in background)
           if (session?.user) {
             console.log('AuthProvider - Fetching profile for user:', session.user.id)
-            await loadUserProfile(session.user.id)
+            // Don't await this - let it run in background
+            loadUserProfile(session.user.id)
           } else {
             console.log('AuthProvider - No session user, setting profile to null')
             setProfile(null)
@@ -114,8 +119,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('AuthProvider - Auth load error:', err)
         setUser(null)
         setProfile(null)
-      } finally {
-        console.log('AuthProvider - Setting loading to false')
         setLoading(false)
         clearTimeout(loadingTimeout)
       }

@@ -10,7 +10,7 @@ import { ShoppingCart, User, Menu, Leaf } from 'lucide-react'
 
 export function Header() {
   const t = useTranslations('navigation')
-  const { user, profile, signOut, loading } = useAuthStore()
+  const { user, profile, signOut, loading, setUser, setProfile, setLoading } = useAuthStore()
 
   // Debug logging
   console.log('Header - Loading:', loading)
@@ -109,30 +109,31 @@ export function Header() {
                 <Button 
                   variant="outline" 
                   onClick={async () => {
-                    console.log('Logout button clicked')
+                    console.log('Logout button clicked - starting immediate logout')
+                    
+                    // Immediately update the UI state
+                    setUser(null)
+                    setProfile(null)
+                    setLoading(false)
+                    
                     try {
-                      // Direct Supabase logout
+                      // Direct Supabase logout (non-blocking)
                       const supabase = createClient()
-                      const { error } = await supabase.auth.signOut()
+                      supabase.auth.signOut().then(({ error }) => {
+                        if (error) {
+                          console.error('Supabase logout error:', error)
+                        } else {
+                          console.log('Supabase logout successful')
+                        }
+                      })
                       
-                      if (error) {
-                        console.error('Supabase logout error:', error)
-                        alert(`Logout failed: ${error.message}`)
-                        return
-                      }
-                      
-                      console.log('Supabase logout successful')
-                      
-                      // Update the store
-                      await signOut()
-                      console.log('Store signOut successful')
-                      
-                      // Force page reload to ensure clean state
+                      // Force immediate redirect
                       window.location.href = '/'
                       
                     } catch (error) {
                       console.error('Logout error:', error)
-                      alert(`Logout error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+                      // Still redirect even if there's an error
+                      window.location.href = '/'
                     }
                   }} 
                   className="hover:bg-green-50 hover:border-green-600 hover:text-green-600 text-xs sm:text-sm px-2 sm:px-4"
