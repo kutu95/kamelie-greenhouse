@@ -87,7 +87,7 @@ export default function AdminUsersPage() {
         .eq('id', user.id)
         .single()
 
-      if (profile?.user_roles?.name !== 'admin') {
+      if (!profile || (profile as any).user_roles?.name !== 'admin') {
         router.push('/admin/login')
         return
       }
@@ -143,7 +143,7 @@ export default function AdminUsersPage() {
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (user.company_name && user.company_name.toLowerCase().includes(searchTerm.toLowerCase()))
     
-    const matchesRole = filterRole === 'all' || user.user_roles.name === filterRole
+    const matchesRole = filterRole === 'all' || (user as any).user_roles.name === filterRole
     
     return matchesSearch && matchesRole
   })
@@ -304,7 +304,7 @@ export default function AdminUsersPage() {
                       <p className="text-sm text-gray-600">{user.email}</p>
                     </div>
                   </div>
-                  {getRoleBadge(user.user_roles.name)}
+                  {getRoleBadge((user as any).user_roles.name)}
                 </div>
 
                 <div className="space-y-2 mb-4">

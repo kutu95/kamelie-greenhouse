@@ -91,7 +91,10 @@ export async function getPlants(filters?: {
   }
 
   // Get total count for pagination
-  const { count } = await query.select('*', { count: 'exact', head: true })
+  const { count } = await supabase
+    .from('plants')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'available')
 
   // Apply pagination
   if (filters?.limit) {

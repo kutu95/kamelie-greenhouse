@@ -34,7 +34,7 @@ export function CatalogClient({
   const [plants, setPlants] = useState(initialPlants)
   const [species, setSpecies] = useState(initialSpecies)
   const [loading, setLoading] = useState(initialPlants.length === 0)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [total, setTotal] = useState(initialTotal)
   const [filters, setFilters] = useState(initialFilters)
   const [pagination, setPagination] = useState(initialPagination)

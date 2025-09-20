@@ -104,7 +104,7 @@ export default function EditPlantPage() {
         .eq('id', user.id)
         .single()
 
-      if (profile?.user_roles?.name !== 'admin') {
+      if (!profile || (profile as any).user_roles?.name !== 'admin') {
         router.push('/admin/login')
         return
       }
@@ -171,7 +171,7 @@ export default function EditPlantPage() {
         return
       }
 
-      setCultivars(cultivarsData || [])
+      setCultivars((cultivarsData as any) || [])
     } catch (err) {
       console.error('Error loading cultivars:', err)
     }

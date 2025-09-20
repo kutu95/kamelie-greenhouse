@@ -2,10 +2,19 @@
 
 import { Button } from '@/components/ui/button'
 import { Leaf, Search, Filter, Grid, List } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 
 export default function CatalogPage() {
-  const t = useTranslations('catalog')
+  // Hardcoded translations for non-localized version
+  const t = {
+    title: 'Kamelien-Katalog',
+    subtitle: 'Entdecken Sie unsere Sammlung von über 3.000 Kamelienpflanzen',
+    search_placeholder: 'Kamelien suchen...',
+    filter: 'Filter',
+    grid: 'Grid',
+    list: 'Liste',
+    load_more: 'Mehr Pflanzen laden',
+    details: 'Details'
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -13,17 +22,17 @@ export default function CatalogPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('title')}</h1>
-              <p className="text-gray-600">{t('subtitle')}</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
+              <p className="text-gray-600">{t.subtitle}</p>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm">
                 <Grid className="h-4 w-4 mr-2" />
-                {t('grid')}
+                {t.grid}
               </Button>
               <Button variant="outline" size="sm">
                 <List className="h-4 w-4 mr-2" />
-                {t('list')}
+                {t.list}
               </Button>
             </div>
           </div>
@@ -39,14 +48,14 @@ export default function CatalogPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder={t('search_placeholder')}
+                  placeholder={t.search_placeholder}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
             </div>
             <Button variant="outline" size="sm">
               <Filter className="h-4 w-4 mr-2" />
-              {t('filter')}
+              {t.filter}
             </Button>
           </div>
         </div>
@@ -69,7 +78,7 @@ export default function CatalogPage() {
                 <p className="text-sm text-gray-600 mb-3">Weiße gefüllte Blüte, sehr robuste Sorte</p>
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-bold text-green-600">€89,00</span>
-                  <Button size="sm">{t('details')}</Button>
+                  <Button size="sm">{t.details}</Button>
                 </div>
               </div>
             </div>
@@ -79,7 +88,7 @@ export default function CatalogPage() {
         {/* Load More */}
         <div className="text-center mt-12">
           <Button variant="outline" size="lg">
-            {t('load_more')}
+            {t.load_more}
           </Button>
         </div>
       </div>

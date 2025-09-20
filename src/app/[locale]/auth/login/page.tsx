@@ -59,7 +59,7 @@ export default function LoginPage() {
           .eq('id', data.user.id)
           .single()
 
-        if (profile?.user_roles?.name === 'admin') {
+        if ((profile as any)?.user_roles?.name === 'admin') {
           router.push('/admin/dashboard')
         } else {
           // Redirect regular users to catalog

@@ -75,7 +75,7 @@ export default function AdminPlantsPage() {
         .eq('id', user.id)
         .single()
 
-      if (profile?.user_roles?.name !== 'admin') {
+      if (!profile || (profile as any).user_roles?.name !== 'admin') {
         router.push('/admin/login')
         return
       }

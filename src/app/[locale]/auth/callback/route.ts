@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const locale = request.nextUrl.pathname.split('/')[1] || 'de'
 
   if (code) {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error) {

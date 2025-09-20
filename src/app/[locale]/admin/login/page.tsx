@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
           .eq('id', data.user.id)
           .single()
 
-        if (profile?.user_roles?.name === 'admin') {
+        if ((profile as any)?.user_roles?.name === 'admin') {
           router.push('/admin/dashboard')
         } else {
           setError('Access denied. Admin privileges required.')
