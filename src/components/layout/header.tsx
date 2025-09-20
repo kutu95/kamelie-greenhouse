@@ -100,7 +100,19 @@ export function Header() {
                 <Button variant="ghost" size="icon" className="hover:bg-green-50 hidden sm:flex">
                   <User className="h-5 w-5" />
                 </Button>
-                <Button variant="outline" onClick={signOut} className="hover:bg-green-50 hover:border-green-600 hover:text-green-600 text-xs sm:text-sm px-2 sm:px-4">
+                <Button 
+                  variant="outline" 
+                  onClick={async () => {
+                    console.log('Logout button clicked')
+                    try {
+                      await signOut()
+                      console.log('Logout successful')
+                    } catch (error) {
+                      console.error('Logout error:', error)
+                    }
+                  }} 
+                  className="hover:bg-green-50 hover:border-green-600 hover:text-green-600 text-xs sm:text-sm px-2 sm:px-4"
+                >
                   {t('logout')}
                 </Button>
               </div>
