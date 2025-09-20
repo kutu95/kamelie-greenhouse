@@ -5,13 +5,16 @@ import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/lib/store/auth'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { setUser, setProfile, setLoading, isLoggingOut } = useAuthStore()
+  const { setUser, setProfile, setLoading, isLoggingOut, resetLogoutState } = useAuthStore()
   const [hasMounted, setHasMounted] = useState(false)
   const profileFetchingRef = useRef(false)
 
   useEffect(() => {
     // Track when component has mounted (prevents hydration mismatch)
     setHasMounted(true)
+    
+    // Reset logout state when component mounts (fresh page load)
+    resetLogoutState()
     
     const supabase = createClient()
 
@@ -29,16 +32,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
+      if (!userId) {
+        console.log('AuthProvider - No userId provided, skipping profile fetch')
+        return
+      }
+
       try {
         profileFetchingRef.current = true
         console.log('AuthProvider - Loading profile for user:', userId)
         
-        // Fetch profile directly without timeout
-        const { data: profile, error } = await supabase
+        // Add timeout to prevent hanging
+        const profilePromise = supabase
           .from('user_profiles')
           .select('*')
           .eq('id', userId)
           .single()
+        
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+        )
+        
+        const { data: profile, error } = await Promise.race([profilePromise, timeoutPromise]) as any
 
         console.log('AuthProvider - Profile data:', profile)
         console.log('AuthProvider - Profile error:', error)
@@ -53,11 +67,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (profile?.role_id) {
             console.log('AuthProvider - Fetching role for role_id:', profile.role_id)
             try {
-              const { data: role, error: roleError } = await supabase
+              const rolePromise = supabase
                 .from('user_roles')
                 .select('name')
                 .eq('id', profile.role_id)
                 .single()
+              
+              const roleTimeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Role fetch timeout')), 5000)
+              )
+              
+              const { data: role, error: roleError } = await Promise.race([rolePromise, roleTimeoutPromise]) as any
               
               console.log('AuthProvider - Role data:', role)
               console.log('AuthProvider - Role error:', roleError)
@@ -82,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('AuthProvider - Profile fetch exception:', error)
         setProfile(null)
       } finally {
+        console.log('AuthProvider - Profile fetch completed, resetting ref')
         profileFetchingRef.current = false
       }
     }
@@ -108,8 +129,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Fetch profile if user is authenticated (in background)
           if (session?.user) {
             console.log('AuthProvider - Fetching profile for user:', session.user.id)
-            // Don't await this - let it run in background
-            loadUserProfile(session.user.id)
+            // Don't await this - let it run in background, but catch errors
+            loadUserProfile(session.user.id).catch((profileError) => {
+              console.error('AuthProvider - Background profile fetch error:', profileError)
+              // Don't set profile to null here as it might be a temporary error
+            })
           } else {
             console.log('AuthProvider - No session user, setting profile to null')
             setProfile(null)
@@ -124,39 +148,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    loadUser()
+    // Load user with error handling
+    loadUser().catch((error) => {
+      console.error('AuthProvider - Initial loadUser error:', error)
+      // Don't set loading to false here as it might be a temporary error
+    })
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('AuthProvider - Auth state change:', event, { hasUser: !!session?.user, userId: session?.user?.id })
-      
-      // Don't override logout state or if we're in the middle of a logout
-      const currentState = useAuthStore.getState()
-      if (currentState.isLoggingOut) {
-        console.log('AuthProvider - Currently logging out, ignoring auth state change')
-        return
-      }
-      
-      // Only process SIGNED_IN events, ignore others during potential logout
-      if (event === 'SIGNED_OUT') {
-        console.log('AuthProvider - User signed out, clearing state')
-        setUser(null)
-        setProfile(null)
-        setLoading(false)
-        return
-      }
-      
-      if (event === 'SIGNED_IN' && session?.user) {
-        setUser(session.user)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      try {
+        console.log('AuthProvider - Auth state change:', event, { hasUser: !!session?.user, userId: session?.user?.id })
         
-        // Only fetch profile if we don't already have a profile for this user
-        const currentProfile = currentState.profile
-        if (!currentProfile || currentProfile.id !== session.user.id) {
-          console.log('AuthProvider - Auth state change: Fetching profile for user:', session.user.id)
-          await loadUserProfile(session.user.id)
-        } else {
-          console.log('AuthProvider - Auth state change: Profile already loaded for user:', session.user.id)
+        // Always check current state to see if we're logging out
+        const currentState = useAuthStore.getState()
+        if (currentState.isLoggingOut) {
+          console.log('AuthProvider - Currently logging out, ignoring ALL auth state changes')
+          return
         }
+        
+        // Handle SIGNED_OUT event
+        if (event === 'SIGNED_OUT') {
+          console.log('AuthProvider - User signed out, clearing state')
+          setUser(null)
+          setProfile(null)
+          setLoading(false)
+          return
+        }
+        
+        // Only process SIGNED_IN events if we're not logging out
+        if (event === 'SIGNED_IN' && session?.user && !currentState.isLoggingOut) {
+          console.log('AuthProvider - User signed in, setting user')
+          setUser(session.user)
+          
+          // Only fetch profile if we don't already have a profile for this user
+          const currentProfile = currentState.profile
+          if (!currentProfile || currentProfile.id !== session.user.id) {
+            console.log('AuthProvider - Auth state change: Fetching profile for user:', session.user.id)
+            // Don't await this - let it run in background, but catch errors
+            loadUserProfile(session.user.id).catch((profileError) => {
+              console.error('AuthProvider - Auth state change profile fetch error:', profileError)
+              // Don't set profile to null here as it might be a temporary error
+            })
+          } else {
+            console.log('AuthProvider - Auth state change: Profile already loaded for user:', session.user.id)
+          }
+        }
+      } catch (error) {
+        console.error('AuthProvider - Auth state change handler error:', error)
+        // Don't rethrow the error to prevent it from being logged as unhandled
       }
     })
 

@@ -113,17 +113,26 @@ export function Header() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={() => {
+                  onClick={async () => {
                     console.log('Logout button clicked - starting immediate logout')
                     
-                    // Immediately clear all state and redirect
+                    // Set logging out state immediately
+                    setIsLoggingOut(true)
                     setUser(null)
                     setProfile(null)
                     setLoading(false)
-                    setIsLoggingOut(true)
                     
-                    // Clear any stored auth data
-                    localStorage.removeItem('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0] + '-auth-token')
+                    try {
+                      // Call Supabase logout
+                      const supabase = createClient()
+                      await supabase.auth.signOut()
+                      console.log('Supabase logout successful')
+                    } catch (error) {
+                      console.error('Supabase logout error:', error)
+                    }
+                    
+                    // Clear all stored data
+                    localStorage.clear()
                     sessionStorage.clear()
                     
                     // Force immediate redirect

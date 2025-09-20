@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Search, Filter, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -43,8 +43,8 @@ export function CatalogClient({
   const [filters, setFilters] = useState(initialFilters)
   const [pagination, setPagination] = useState(initialPagination)
 
-  // Simple fetch function without useCallback - fetch ALL plants to avoid pagination issues
-  const fetchPlants = async (newFilters = filters) => {
+  // Fetch function with useCallback to prevent infinite re-renders
+  const fetchPlants = useCallback(async (newFilters = filters) => {
     setLoading(true)
     setError(null)
     
@@ -76,10 +76,10 @@ export function CatalogClient({
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
 
-  // Simple fetch species function
-  const fetchSpecies = async () => {
+  // Fetch species function with useCallback
+  const fetchSpecies = useCallback(async () => {
     try {
       const response = await fetch('/api/species')
       if (response.ok) {
@@ -89,7 +89,7 @@ export function CatalogClient({
     } catch (error) {
       console.error('Error fetching species:', error)
     }
-  }
+  }, [])
 
   // Initial data fetch
   useEffect(() => {
@@ -97,7 +97,7 @@ export function CatalogClient({
       fetchPlants()
       fetchSpecies()
     }
-  }, []) // Empty dependency array to run only once
+  }, [fetchPlants, fetchSpecies, initialPlants.length]) // Add all dependencies
 
   const handleSearch = (searchTerm: string) => {
     const newFilters = { ...filters, search: searchTerm }
@@ -126,6 +126,11 @@ export function CatalogClient({
   }
 
   // No pagination - show all plants
+
+  // Calculate if filters are active
+  const hasActiveFilters = filters.search || filters.species || filters.color || 
+                          filters.size || filters.priceRange || filters.hardiness || 
+                          filters.status !== 'available'
 
   return (
     <>
@@ -175,29 +180,29 @@ export function CatalogClient({
                 </select>
               </div>
 
-              {/* Color Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('color') || 'Color'}
-                </label>
-                <select
-                  value={filters.color}
-                  onChange={(e) => {
-                    const newFilters = { ...filters, color: e.target.value }
-                    setFilters(newFilters)
-                    fetchPlants(newFilters)
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-                >
-                  <option value="">{t('all_colors') || 'All Colors'}</option>
-                  <option value="white">White</option>
-                  <option value="pink">Pink</option>
-                  <option value="red">Red</option>
-                  <option value="purple">Purple</option>
-                  <option value="yellow">Yellow</option>
-                  <option value="variegated">Variegated</option>
-                </select>
-              </div>
+         {/* Color Filter */}
+         <div>
+           <label className="block text-sm font-medium text-gray-700 mb-1">
+             {t('color') || 'Color'}
+           </label>
+           <select
+             value={filters.color}
+             onChange={(e) => {
+               const newFilters = { ...filters, color: e.target.value }
+               setFilters(newFilters)
+               fetchPlants(newFilters)
+             }}
+             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+           >
+             <option value="">{t('all_colors') || 'All Colors'}</option>
+             <option value="Rosa">{t('color_pink') || 'Pink'}</option>
+             <option value="Rot">{t('color_red') || 'Red'}</option>
+             <option value="Gelb-Weiß">{t('color_yellow_white') || 'Yellow-White'}</option>
+             <option value="Rosa-Weiß">{t('color_pink_white') || 'Pink-White'}</option>
+             <option value="Rot-Weiß">{t('color_red_white') || 'Red-White'}</option>
+             <option value="Mehrfarbig">{t('color_multicolored') || 'Multi-colored'}</option>
+           </select>
+         </div>
 
               {/* Size Filter */}
               <div>
@@ -246,7 +251,7 @@ export function CatalogClient({
               {/* Winter Hardiness Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('hardiness') || 'Hardiness'}
+                  {t('hardiness') || 'Winter Hardiness'}
                 </label>
                 <select
                   value={filters.hardiness}
@@ -258,11 +263,11 @@ export function CatalogClient({
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                 >
                   <option value="">{t('all_hardiness') || 'All Hardiness'}</option>
-                  <option value="zone-6">Zone 6 (-23°C)</option>
-                  <option value="zone-7">Zone 7 (-18°C)</option>
-                  <option value="zone-8">Zone 8 (-12°C)</option>
-                  <option value="zone-9">Zone 9 (-7°C)</option>
-                  <option value="zone-10">Zone 10 (-1°C)</option>
+                  <option value="5">★★★★★ (5 stars - Excellent)</option>
+                  <option value="4">★★★★ (4 stars - Very Good)</option>
+                  <option value="3">★★★ (3 stars - Good)</option>
+                  <option value="2">★★ (2 stars - Fair)</option>
+                  <option value="1">★ (1 star - Poor)</option>
                 </select>
               </div>
 
@@ -317,6 +322,23 @@ export function CatalogClient({
           </div>
         ) : (
           <>
+            {/* Results header */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {hasActiveFilters 
+                    ? (t('plants_found', { count: total }) || `${total} plants found`)
+                    : `${total} ${t('total_plants') || 'plants found'}`
+                  }
+                </h3>
+                {hasActiveFilters && (
+                  <Button variant="outline" size="sm" onClick={resetFilters}>
+                    {t('reset_filters')}
+                  </Button>
+                )}
+              </div>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {plants.map((plant) => (
                 <PlantCard key={plant.id} plant={plant} locale="de" />
@@ -326,7 +348,10 @@ export function CatalogClient({
             {/* Show total count */}
             <div className="text-center mt-8">
               <p className="text-gray-600">
-                {total} {t('total_plants') || 'plants found'}
+                {hasActiveFilters 
+                  ? `${t('plants_found', { count: total }) || `${total} plants found`} (${t('filter') || 'filtered'})`
+                  : `${total} ${t('total_plants') || 'plants found'}`
+                }
               </p>
             </div>
           </>

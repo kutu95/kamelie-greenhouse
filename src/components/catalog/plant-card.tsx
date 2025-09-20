@@ -64,26 +64,26 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
       <div className="p-4">
         <div className="mb-2">
           <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
-            {plant.cultivar.cultivar_name}
+            {plant.cultivar?.cultivar_name || 'Unknown Plant'}
           </h3>
                 <p className="text-sm text-gray-600 mb-2">
-                  {plant.cultivar.species.scientific_name}
+                  {plant.cultivar?.species?.scientific_name || 'Unknown Species'}
                 </p>
-                {(plant.cultivar.flower_color || plant.cultivar.flower_form) && (
+                {(plant.cultivar?.flower_color || plant.cultivar?.flower_form) && (
                   <div className="flex gap-2 mb-2">
-                    {plant.cultivar.flower_color && (
+                    {plant.cultivar?.flower_color && (
                       <Badge variant="secondary" className="text-xs">
                         {plant.cultivar.flower_color}
                       </Badge>
                     )}
-                    {plant.cultivar.flower_form && (
+                    {plant.cultivar?.flower_form && (
                       <Badge variant="outline" className="text-xs">
                         {plant.cultivar.flower_form}
                       </Badge>
                     )}
                   </div>
                 )}
-                {plant.cultivar.special_characteristics && (
+                {plant.cultivar?.special_characteristics && (
                   <p className="text-sm text-gray-500 line-clamp-2">
                     {plant.cultivar.special_characteristics}
                   </p>

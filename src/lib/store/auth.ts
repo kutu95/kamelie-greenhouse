@@ -15,6 +15,7 @@ interface AuthState {
   setLoading: (loading: boolean) => void
   setIsLoggingOut: (isLoggingOut: boolean) => void
   signOut: () => Promise<void>
+  resetLogoutState: () => void
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -53,11 +54,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     } catch (error) {
       console.error('AuthStore - SignOut exception:', error)
-    } finally {
-      // Always reset the logout state after a delay
-      setTimeout(() => {
-        set({ isLoggingOut: false })
-      }, 1000)
     }
+    
+    // Don't reset isLoggingOut here - let the page redirect handle it
+    // This prevents the AuthProvider from overriding the logout state
+  },
+  resetLogoutState: () => {
+    console.log('AuthStore - Resetting logout state')
+    set({ isLoggingOut: false })
   },
 }))

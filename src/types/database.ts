@@ -84,6 +84,7 @@ export interface Database {
           foliage_type: string | null
           growth_habit: string | null
           special_characteristics: string | null
+          hardiness_rating: number | null
           created_at: string
           updated_at: string
         }
@@ -99,6 +100,7 @@ export interface Database {
           foliage_type?: string | null
           growth_habit?: string | null
           special_characteristics?: string | null
+          hardiness_rating?: number | null
           created_at?: string
           updated_at?: string
         }
@@ -114,6 +116,7 @@ export interface Database {
           foliage_type?: string | null
           growth_habit?: string | null
           special_characteristics?: string | null
+          hardiness_rating?: number | null
           created_at?: string
           updated_at?: string
         }
