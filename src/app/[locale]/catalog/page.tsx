@@ -47,7 +47,11 @@ export default function CatalogPage() {
           initialFilters={{
             search: '',
             species: '',
-            status: 'available'
+            status: 'available',
+            color: '',
+            size: '',
+            priceRange: '',
+            hardiness: ''
           }}
           initialPagination={{
             page: 1,
