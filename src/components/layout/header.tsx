@@ -11,6 +11,11 @@ export function Header() {
   const t = useTranslations('navigation')
   const { user, profile, signOut } = useAuthStore()
 
+  // Debug logging
+  console.log('Header - User:', user?.email)
+  console.log('Header - Profile:', profile)
+  console.log('Header - User Role:', (profile as any)?.user_roles?.name)
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm">
       <div className="container mx-auto px-4">

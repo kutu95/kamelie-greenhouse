@@ -18,15 +18,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session.user)
         
         // Fetch user profile with role
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
           .from('user_profiles')
           .select(`
             *,
-            user_roles(*)
+            user_roles:role_id(*)
           `)
           .eq('id', session.user.id)
           .single()
         
+        console.log('AuthProvider - Profile data:', profile)
+        console.log('AuthProvider - Profile error:', error)
         setProfile(profile)
       } else {
         setUser(null)
@@ -44,15 +46,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session.user)
         
         // Fetch user profile with role
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
           .from('user_profiles')
           .select(`
             *,
-            user_roles(*)
+            user_roles:role_id(*)
           `)
           .eq('id', session.user.id)
           .single()
         
+        console.log('AuthProvider - Profile data:', profile)
+        console.log('AuthProvider - Profile error:', error)
         setProfile(profile)
       } else {
         setUser(null)
