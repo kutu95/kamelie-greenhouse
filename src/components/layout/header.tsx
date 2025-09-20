@@ -82,6 +82,12 @@ export function Header() {
 
             {user ? (
               <div className="flex items-center space-x-2">
+                {/* Admin Dashboard Link - only show for admins */}
+                {(profile as any)?.user_roles?.name === 'admin' && (
+                  <Button variant="outline" asChild className="hover:bg-green-50 hover:border-green-600 hover:text-green-600">
+                    <Link href="/admin/dashboard">{t('admin')}</Link>
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" className="hover:bg-green-50">
                   <User className="h-5 w-5" />
                 </Button>
