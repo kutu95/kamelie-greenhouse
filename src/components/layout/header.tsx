@@ -9,9 +9,10 @@ import { ShoppingCart, User, Menu, Leaf } from 'lucide-react'
 
 export function Header() {
   const t = useTranslations('navigation')
-  const { user, profile, signOut } = useAuthStore()
+  const { user, profile, signOut, loading } = useAuthStore()
 
   // Debug logging
+  console.log('Header - Loading:', loading)
   console.log('Header - User:', user?.email)
   console.log('Header - Profile:', profile)
   console.log('Header - Profile keys:', profile ? Object.keys(profile) : 'null')
@@ -89,7 +90,11 @@ export function Header() {
               </span>
             </Button>
 
-            {user ? (
+            {loading ? (
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <div className="text-sm text-gray-500">Loading...</div>
+              </div>
+            ) : user ? (
               <div className="flex items-center space-x-1 sm:space-x-2">
                 {/* Admin Dashboard Link - only show for admins */}
                 {(profile as any)?.user_roles?.name === 'admin' && (

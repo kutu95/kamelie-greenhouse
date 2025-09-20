@@ -15,6 +15,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     const supabase = createClient()
 
+    // Set a timeout to ensure loading is set to false even if something goes wrong
+    const loadingTimeout = setTimeout(() => {
+      console.log('AuthProvider - Loading timeout, setting loading to false')
+      setLoading(false)
+    }, 5000) // 5 second timeout
+
     // Load user profile function
     const loadUserProfile = async (userId: string) => {
       // Prevent duplicate profile fetches
@@ -111,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } finally {
         console.log('AuthProvider - Setting loading to false')
         setLoading(false)
+        clearTimeout(loadingTimeout)
       }
     }
 
@@ -138,7 +145,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     })
 
-    return () => subscription?.unsubscribe()
+    return () => {
+      subscription?.unsubscribe()
+      clearTimeout(loadingTimeout)
+    }
   }, [setUser, setProfile, setLoading])
 
   // Avoid hydration mismatch by delaying render
