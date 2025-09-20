@@ -8,11 +8,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, setProfile, setLoading } = useAuthStore()
 
   useEffect(() => {
+    console.log('AuthProvider - Starting auth check')
     const supabase = createClient()
 
     // Get initial session
     const getInitialSession = async () => {
+      console.log('AuthProvider - Getting session')
       const { data: { session } } = await supabase.auth.getSession()
+      console.log('AuthProvider - Session:', session?.user?.email)
       
       if (session?.user) {
         setUser(session.user)
@@ -69,5 +72,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [setUser, setProfile, setLoading])
 
+  console.log('AuthProvider - Rendering children')
   return <>{children}</>
 }

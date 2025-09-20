@@ -19,9 +19,18 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   profile: null,
   loading: true,
-  setUser: (user) => set({ user }),
-  setProfile: (profile) => set({ profile }),
-  setLoading: (loading) => set({ loading }),
+  setUser: (user) => {
+    console.log('AuthStore - Setting user:', user?.email)
+    set({ user })
+  },
+  setProfile: (profile) => {
+    console.log('AuthStore - Setting profile:', profile)
+    set({ profile })
+  },
+  setLoading: (loading) => {
+    console.log('AuthStore - Setting loading:', loading)
+    set({ loading })
+  },
   signOut: async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
