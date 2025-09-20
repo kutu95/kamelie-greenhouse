@@ -6,11 +6,13 @@ import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/lib/store/auth'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, User, Menu, Leaf } from 'lucide-react'
+import { ShoppingCart, User, Menu, Leaf, X } from 'lucide-react'
+import { useState } from 'react'
 
 export function Header() {
   const t = useTranslations('navigation')
   const { user, profile, signOut, loading, isLoggingOut, setUser, setProfile, setLoading, setIsLoggingOut } = useAuthStore()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Debug logging
   console.log('Header - Loading:', loading)
@@ -154,11 +156,151 @@ export function Header() {
               </div>
             )}
 
-            <Button variant="ghost" size="icon" className="lg:hidden hover:bg-green-50">
-              <Menu className="h-5 w-5" />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="lg:hidden hover:bg-green-50"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden border-t bg-white">
+            <div className="px-4 py-4 space-y-4">
+              {/* Navigation Links */}
+              <nav className="space-y-3">
+                <Link 
+                  href="/" 
+                  className="block text-base font-medium text-gray-700 hover:text-green-600 transition-colors duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {t('home')}
+                </Link>
+                <Link 
+                  href="/catalog" 
+                  className="block text-base font-medium text-gray-700 hover:text-green-600 transition-colors duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {t('catalog')}
+                </Link>
+                <Link 
+                  href="/services" 
+                  className="block text-base font-medium text-gray-700 hover:text-green-600 transition-colors duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {t('services')}
+                </Link>
+                <Link 
+                  href="/blog" 
+                  className="block text-base font-medium text-gray-700 hover:text-green-600 transition-colors duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {t('blog')}
+                </Link>
+                <Link 
+                  href="/contact" 
+                  className="block text-base font-medium text-gray-700 hover:text-green-600 transition-colors duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {t('contact')}
+                </Link>
+              </nav>
+
+              {/* Mobile Cart */}
+              <div className="pt-4 border-t">
+                <Button variant="ghost" className="w-full justify-start hover:bg-green-50">
+                  <ShoppingCart className="h-5 w-5 mr-3" />
+                  Shopping Cart (0)
+                </Button>
+              </div>
+
+              {/* Mobile Auth Section */}
+              <div className="pt-4 border-t">
+                {loading ? (
+                  <div className="text-sm text-gray-500">Loading...</div>
+                ) : isLoggingOut ? (
+                  <div className="text-sm text-gray-500">Logging out...</div>
+                ) : user ? (
+                  <div className="space-y-3">
+                    {/* Admin Dashboard Link - only show for admins */}
+                    {(profile as any)?.user_roles?.name === 'admin' && (
+                      <Button 
+                        variant="outline" 
+                        asChild 
+                        className="w-full justify-start hover:bg-green-50 hover:border-green-600 hover:text-green-600"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Link href="/admin/dashboard">{t('admin')}</Link>
+                      </Button>
+                    )}
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start hover:bg-green-50"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <User className="h-5 w-5 mr-3" />
+                      Profile
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={async () => {
+                        console.log('Mobile logout button clicked - starting immediate logout')
+                        
+                        // Set logging out state immediately
+                        setIsLoggingOut(true)
+                        setUser(null)
+                        setProfile(null)
+                        setLoading(false)
+                        setIsMobileMenuOpen(false)
+                        
+                        try {
+                          // Call Supabase logout
+                          const supabase = createClient()
+                          await supabase.auth.signOut()
+                          console.log('Supabase logout successful')
+                        } catch (error) {
+                          console.error('Supabase logout error:', error)
+                        }
+                        
+                        // Clear all stored data
+                        localStorage.clear()
+                        sessionStorage.clear()
+                        
+                        // Force immediate redirect
+                        window.location.href = '/'
+                      }} 
+                      className="w-full justify-start hover:bg-green-50 hover:border-green-600 hover:text-green-600"
+                    >
+                      {t('logout')}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <Button 
+                      variant="ghost" 
+                      asChild 
+                      className="w-full justify-start hover:bg-green-50 hover:text-green-600"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Link href="/auth/login">{t('login')}</Link>
+                    </Button>
+                    <Button 
+                      asChild 
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Link href="/auth/register">{t('register')}</Link>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   )
