@@ -113,28 +113,21 @@ export function Header() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={async () => {
+                  onClick={() => {
                     console.log('Logout button clicked - starting immediate logout')
                     
-                    // Set logging out state immediately
-                    setIsLoggingOut(true)
+                    // Immediately clear all state and redirect
                     setUser(null)
                     setProfile(null)
                     setLoading(false)
+                    setIsLoggingOut(true)
                     
-                    try {
-                      // Use the store's signOut method which handles the state properly
-                      await signOut()
-                      console.log('Logout successful')
-                      
-                      // Force immediate redirect
-                      window.location.href = '/'
-                      
-                    } catch (error) {
-                      console.error('Logout error:', error)
-                      // Still redirect even if there's an error
-                      window.location.href = '/'
-                    }
+                    // Clear any stored auth data
+                    localStorage.removeItem('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0] + '-auth-token')
+                    sessionStorage.clear()
+                    
+                    // Force immediate redirect
+                    window.location.href = '/'
                   }} 
                   className="hover:bg-green-50 hover:border-green-600 hover:text-green-600 text-xs sm:text-sm px-2 sm:px-4"
                 >

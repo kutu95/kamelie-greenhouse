@@ -130,28 +130,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('AuthProvider - Auth state change:', event, { hasUser: !!session?.user, userId: session?.user?.id })
       
-      // Don't override logout state
-      if (isLoggingOut) {
+      // Don't override logout state or if we're in the middle of a logout
+      const currentState = useAuthStore.getState()
+      if (currentState.isLoggingOut) {
         console.log('AuthProvider - Currently logging out, ignoring auth state change')
         return
       }
       
-      setUser(session?.user ?? null)
+      // Only process SIGNED_IN events, ignore others during potential logout
+      if (event === 'SIGNED_OUT') {
+        console.log('AuthProvider - User signed out, clearing state')
+        setUser(null)
+        setProfile(null)
+        setLoading(false)
+        return
+      }
       
-      // Only fetch profile if user is authenticated and we don't already have a profile
-      if (session?.user) {
-        // Check if we already have a profile for this user
-        const currentProfile = useAuthStore.getState().profile
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUser(session.user)
+        
+        // Only fetch profile if we don't already have a profile for this user
+        const currentProfile = currentState.profile
         if (!currentProfile || currentProfile.id !== session.user.id) {
           console.log('AuthProvider - Auth state change: Fetching profile for user:', session.user.id)
           await loadUserProfile(session.user.id)
         } else {
           console.log('AuthProvider - Auth state change: Profile already loaded for user:', session.user.id)
         }
-      } else {
-        console.log('AuthProvider - Auth state change: No user, setting profile to null')
-        setProfile(null)
-        profileFetchingRef.current = false
       }
     })
 

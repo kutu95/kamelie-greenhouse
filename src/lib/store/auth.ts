@@ -41,8 +41,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   signOut: async () => {
     console.log('AuthStore - SignOut called')
     set({ isLoggingOut: true, user: null, profile: null, loading: false })
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    set({ isLoggingOut: false })
+    
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) {
+        console.error('AuthStore - SignOut error:', error)
+      } else {
+        console.log('AuthStore - SignOut successful')
+      }
+    } catch (error) {
+      console.error('AuthStore - SignOut exception:', error)
+    } finally {
+      // Always reset the logout state after a delay
+      setTimeout(() => {
+        set({ isLoggingOut: false })
+      }, 1000)
+    }
   },
 }))

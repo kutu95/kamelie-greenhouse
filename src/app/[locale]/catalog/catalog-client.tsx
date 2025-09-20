@@ -14,6 +14,10 @@ interface CatalogClientProps {
     search: string
     species: string
     status: string
+    color: string
+    size: string
+    priceRange: string
+    hardiness: string
   }
   initialPagination: {
     page: number
@@ -49,6 +53,10 @@ export function CatalogClient({
       if (newFilters.search) params.append('search', newFilters.search)
       if (newFilters.species) params.append('species', newFilters.species)
       if (newFilters.status) params.append('status', newFilters.status)
+      if (newFilters.color) params.append('color', newFilters.color)
+      if (newFilters.size) params.append('size', newFilters.size)
+      if (newFilters.priceRange) params.append('priceRange', newFilters.priceRange)
+      if (newFilters.hardiness) params.append('hardiness', newFilters.hardiness)
       params.append('limit', '1000') // Fetch all plants at once
       params.append('offset', '0')
 
@@ -107,7 +115,11 @@ export function CatalogClient({
     const newFilters = {
       search: '',
       species: '',
-      status: 'available'
+      status: 'available',
+      color: '',
+      size: '',
+      priceRange: '',
+      hardiness: ''
     }
     setFilters(newFilters)
     fetchPlants(newFilters)
@@ -120,38 +132,160 @@ export function CatalogClient({
       {/* Filters */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex-1 min-w-64">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder={t('search_placeholder')}
-                  value={filters.search}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
+          <div className="space-y-4">
+            {/* Search Bar */}
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="flex-1 min-w-64">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder={t('search_placeholder')}
+                    value={filters.search}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
               </div>
+
+              <Button variant="outline" size="sm" onClick={resetFilters}>
+                <Filter className="h-4 w-4 mr-2" />
+                {t('reset_filters')}
+              </Button>
             </div>
 
-            {/* Species Filter */}
-            <select
-              value={filters.species}
-              onChange={(e) => handleSpeciesFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            >
-              <option value="">{t('all_species')}</option>
-              {species.map((spec) => (
-                <option key={spec.id} value={spec.scientific_name}>
-                  {spec.scientific_name}
-                </option>
-              ))}
-            </select>
+            {/* Filter Options */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {/* Species Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('species') || 'Species'}
+                </label>
+                <select
+                  value={filters.species}
+                  onChange={(e) => handleSpeciesFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                >
+                  <option value="">{t('all_species')}</option>
+                  {species.map((spec) => (
+                    <option key={spec.id} value={spec.scientific_name}>
+                      {spec.scientific_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <Button variant="outline" size="sm" onClick={resetFilters}>
-              <Filter className="h-4 w-4 mr-2" />
-              {t('filter')}
-            </Button>
+              {/* Color Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('color') || 'Color'}
+                </label>
+                <select
+                  value={filters.color}
+                  onChange={(e) => {
+                    const newFilters = { ...filters, color: e.target.value }
+                    setFilters(newFilters)
+                    fetchPlants(newFilters)
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                >
+                  <option value="">{t('all_colors') || 'All Colors'}</option>
+                  <option value="white">White</option>
+                  <option value="pink">Pink</option>
+                  <option value="red">Red</option>
+                  <option value="purple">Purple</option>
+                  <option value="yellow">Yellow</option>
+                  <option value="variegated">Variegated</option>
+                </select>
+              </div>
+
+              {/* Size Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('size') || 'Size'}
+                </label>
+                <select
+                  value={filters.size}
+                  onChange={(e) => {
+                    const newFilters = { ...filters, size: e.target.value }
+                    setFilters(newFilters)
+                    fetchPlants(newFilters)
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                >
+                  <option value="">{t('all_sizes') || 'All Sizes'}</option>
+                  <option value="small">Small (0-50cm)</option>
+                  <option value="medium">Medium (50-100cm)</option>
+                  <option value="large">Large (100-200cm)</option>
+                  <option value="extra-large">Extra Large (200cm+)</option>
+                </select>
+              </div>
+
+              {/* Price Range Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('price_range') || 'Price Range'}
+                </label>
+                <select
+                  value={filters.priceRange}
+                  onChange={(e) => {
+                    const newFilters = { ...filters, priceRange: e.target.value }
+                    setFilters(newFilters)
+                    fetchPlants(newFilters)
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                >
+                  <option value="">{t('all_prices') || 'All Prices'}</option>
+                  <option value="budget">Budget (€0-50)</option>
+                  <option value="standard">Standard (€50-150)</option>
+                  <option value="premium">Premium (€150-300)</option>
+                  <option value="luxury">Luxury (€300+)</option>
+                </select>
+              </div>
+
+              {/* Winter Hardiness Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('hardiness') || 'Hardiness'}
+                </label>
+                <select
+                  value={filters.hardiness}
+                  onChange={(e) => {
+                    const newFilters = { ...filters, hardiness: e.target.value }
+                    setFilters(newFilters)
+                    fetchPlants(newFilters)
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                >
+                  <option value="">{t('all_hardiness') || 'All Hardiness'}</option>
+                  <option value="zone-6">Zone 6 (-23°C)</option>
+                  <option value="zone-7">Zone 7 (-18°C)</option>
+                  <option value="zone-8">Zone 8 (-12°C)</option>
+                  <option value="zone-9">Zone 9 (-7°C)</option>
+                  <option value="zone-10">Zone 10 (-1°C)</option>
+                </select>
+              </div>
+
+              {/* Status Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('status') || 'Status'}
+                </label>
+                <select
+                  value={filters.status}
+                  onChange={(e) => {
+                    const newFilters = { ...filters, status: e.target.value }
+                    setFilters(newFilters)
+                    fetchPlants(newFilters)
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                >
+                  <option value="available">{t('available') || 'Available'}</option>
+                  <option value="reserved">{t('reserved') || 'Reserved'}</option>
+                  <option value="sold">{t('sold') || 'Sold'}</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
       </div>
