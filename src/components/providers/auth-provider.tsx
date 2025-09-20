@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/lib/store/auth'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { setUser, setProfile, setLoading } = useAuthStore()
+  const { setUser, setProfile, setLoading, isLoggingOut } = useAuthStore()
   const [hasMounted, setHasMounted] = useState(false)
   const profileFetchingRef = useRef(false)
 
@@ -129,6 +129,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('AuthProvider - Auth state change:', event, { hasUser: !!session?.user, userId: session?.user?.id })
+      
+      // Don't override logout state
+      if (isLoggingOut) {
+        console.log('AuthProvider - Currently logging out, ignoring auth state change')
+        return
+      }
+      
       setUser(session?.user ?? null)
       
       // Only fetch profile if user is authenticated and we don't already have a profile
@@ -152,7 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription?.unsubscribe()
       clearTimeout(loadingTimeout)
     }
-  }, [setUser, setProfile, setLoading])
+  }, [setUser, setProfile, setLoading, isLoggingOut])
 
   // Avoid hydration mismatch by delaying render
   if (!hasMounted) {

@@ -9,9 +9,11 @@ interface AuthState {
   user: User | null
   profile: UserProfile | null
   loading: boolean
+  isLoggingOut: boolean
   setUser: (user: User | null) => void
   setProfile: (profile: UserProfile | null) => void
   setLoading: (loading: boolean) => void
+  setIsLoggingOut: (isLoggingOut: boolean) => void
   signOut: () => Promise<void>
 }
 
@@ -19,6 +21,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   profile: null,
   loading: true,
+  isLoggingOut: false,
   setUser: (user) => {
     console.log('AuthStore - Setting user:', user?.email)
     set({ user })
@@ -31,9 +34,15 @@ export const useAuthStore = create<AuthState>((set) => ({
     console.log('AuthStore - Setting loading:', loading)
     set({ loading })
   },
+  setIsLoggingOut: (isLoggingOut) => {
+    console.log('AuthStore - Setting isLoggingOut:', isLoggingOut)
+    set({ isLoggingOut })
+  },
   signOut: async () => {
+    console.log('AuthStore - SignOut called')
+    set({ isLoggingOut: true, user: null, profile: null, loading: false })
     const supabase = createClient()
     await supabase.auth.signOut()
-    set({ user: null, profile: null })
+    set({ isLoggingOut: false })
   },
 }))

@@ -10,10 +10,11 @@ import { ShoppingCart, User, Menu, Leaf } from 'lucide-react'
 
 export function Header() {
   const t = useTranslations('navigation')
-  const { user, profile, signOut, loading, setUser, setProfile, setLoading } = useAuthStore()
+  const { user, profile, signOut, loading, isLoggingOut, setUser, setProfile, setLoading, setIsLoggingOut } = useAuthStore()
 
   // Debug logging
   console.log('Header - Loading:', loading)
+  console.log('Header - IsLoggingOut:', isLoggingOut)
   console.log('Header - User:', user?.email)
   console.log('Header - Profile:', profile)
   console.log('Header - Profile keys:', profile ? Object.keys(profile) : 'null')
@@ -95,6 +96,10 @@ export function Header() {
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <div className="text-sm text-gray-500">Loading...</div>
               </div>
+            ) : isLoggingOut ? (
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <div className="text-sm text-gray-500">Logging out...</div>
+              </div>
             ) : user ? (
               <div className="flex items-center space-x-1 sm:space-x-2">
                 {/* Admin Dashboard Link - only show for admins */}
@@ -111,21 +116,16 @@ export function Header() {
                   onClick={async () => {
                     console.log('Logout button clicked - starting immediate logout')
                     
-                    // Immediately update the UI state
+                    // Set logging out state immediately
+                    setIsLoggingOut(true)
                     setUser(null)
                     setProfile(null)
                     setLoading(false)
                     
                     try {
-                      // Direct Supabase logout (non-blocking)
-                      const supabase = createClient()
-                      supabase.auth.signOut().then(({ error }) => {
-                        if (error) {
-                          console.error('Supabase logout error:', error)
-                        } else {
-                          console.log('Supabase logout successful')
-                        }
-                      })
+                      // Use the store's signOut method which handles the state properly
+                      await signOut()
+                      console.log('Logout successful')
                       
                       // Force immediate redirect
                       window.location.href = '/'
