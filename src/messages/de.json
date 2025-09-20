@@ -90,6 +90,46 @@
           "reserved": "Reserviert",
           "sold": "Verkauft"
         },
+  "blog": {
+    "title": "Wissenswertes über Kamelien",
+    "subtitle": "Entdecken Sie Tipps, Tricks und Geschichten aus über 35 Jahren Kamelien-Erfahrung",
+    "badge": "Kamelie Blog",
+    "featured_post": "Empfohlener Artikel",
+    "read_article": "Artikel lesen",
+    "read": "Lesen",
+    "newsletter_title": "Bleiben Sie auf dem Laufenden",
+    "newsletter_subtitle": "Abonnieren Sie unseren Newsletter und erhalten Sie regelmäßig Tipps und Neuigkeiten rund um Kamelien.",
+    "newsletter_placeholder": "Ihre E-Mail-Adresse",
+    "newsletter_subscribe": "Abonnieren",
+    "contact_title": "Haben Sie Fragen zu Kamelien?",
+    "contact_subtitle": "Unser Team steht Ihnen gerne mit Rat und Tat zur Seite. Kontaktieren Sie uns für eine persönliche Beratung.",
+    "contact_phone": "Telefon",
+    "contact_email": "E-Mail",
+    "contact_visit": "Besuchen Sie uns",
+    "contact_cta": "Kontakt aufnehmen",
+    "posts": {
+      "care_timing": {
+        "title": "Die beste Zeit für Kamelien-Pflege",
+        "excerpt": "Erfahren Sie, wann und wie Sie Ihre Kamelien am besten pflegen sollten, um eine üppige Blüte zu erzielen.",
+        "category": "Pflege"
+      },
+      "garden_varieties": {
+        "title": "Kamelien-Sorten für den Garten",
+        "excerpt": "Entdecken Sie die vielfältigen Kamelien-Sorten, die sich perfekt für Ihren Garten eignen.",
+        "category": "Sorten"
+      },
+      "wintering": {
+        "title": "Überwinterung von Kamelien",
+        "excerpt": "Tipps und Tricks für die erfolgreiche Überwinterung Ihrer Kamelien im Gewächshaus.",
+        "category": "Überwinterung"
+      },
+      "history": {
+        "title": "Geschichte der Kamelien in Deutschland",
+        "excerpt": "Eine Reise durch die Geschichte der Kamelienzucht in Deutschland und unsere Rolle dabei.",
+        "category": "Geschichte"
+      }
+    }
+  },
   "common": {
     "since_1990": "Seit 1990 - Deutschlands größte Sammlung",
     "greenhouse_size": "2.000 m² Gewächshaus",

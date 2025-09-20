@@ -39,25 +39,24 @@ export default function ServicesPage() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
               <Star className="h-4 w-4 mr-2" />
-              Unsere Leistungen
+              {t('main_services')}
             </div>
             <h1 className="text-5xl font-bold text-gray-900 mb-6">
-              Professionelle Kamelien-Services
+              {t('title')}
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Von der Beratung bis zur Pflege - wir bieten Ihnen umfassende Services rund um Ihre Kamelien. 
-              Über 35 Jahre Erfahrung für Ihre Pflanzen.
+              {t('subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="text-lg px-8 py-4 h-auto" asChild>
                 <Link href="/contact" className="flex items-center">
-                  Beratung anfragen
+                  {t('cta_consultation')}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" className="text-lg px-8 py-4 h-auto" asChild>
                 <Link href="/catalog">
-                  Katalog ansehen
+                  {t('cta_catalog')}
                 </Link>
               </Button>
             </div>
@@ -71,10 +70,10 @@ export default function ServicesPage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Unsere Hauptleistungen
+                {t('main_services')}
               </h2>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Professionelle Services für alle Ihre Kamelien-Bedürfnisse
+                {t('main_services_subtitle')}
               </p>
             </div>
 
@@ -85,34 +84,34 @@ export default function ServicesPage() {
                   <div className="bg-gradient-to-br from-green-500 to-green-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                     <Users className="h-10 w-10 text-white" />
                   </div>
-                  <CardTitle className="text-2xl font-bold text-gray-900">Pflanzenberatung</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-gray-900">{t('consultation')}</CardTitle>
                   <CardDescription className="text-gray-600">
-                    Individuelle Beratung für Standort, Pflege und Sortenauswahl
+                    {t('consultation_desc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
                   <ul className="space-y-3 mb-6">
                     <li className="flex items-center text-gray-700">
                       <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                      Standortanalyse
+                      {t('consultation_feature1')}
                     </li>
                     <li className="flex items-center text-gray-700">
                       <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                      Sortenempfehlungen
+                      {t('consultation_feature2')}
                     </li>
                     <li className="flex items-center text-gray-700">
                       <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                      Pflegeanleitung
+                      {t('consultation_feature3')}
                     </li>
                     <li className="flex items-center text-gray-700">
                       <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                      Problemlösung
+                      {t('consultation_feature4')}
                     </li>
                   </ul>
                   <div className="text-center">
-                    <Badge variant="secondary" className="mb-4">Ab 50€</Badge>
+                    <Badge variant="secondary" className="mb-4">{t('consultation_price')}</Badge>
                     <Button className="w-full" asChild>
-                      <Link href="/contact">Beratung buchen</Link>
+                      <Link href="/contact">{t('consultation_book')}</Link>
                     </Button>
                   </div>
                 </CardContent>

@@ -90,6 +90,46 @@
           "reserved": "Reserved",
           "sold": "Sold"
         },
+  "blog": {
+    "title": "Camellia Knowledge",
+    "subtitle": "Discover tips, tricks and stories from over 35 years of camellia experience",
+    "badge": "Camellia Blog",
+    "featured_post": "Featured Article",
+    "read_article": "Read Article",
+    "read": "Read",
+    "newsletter_title": "Stay Updated",
+    "newsletter_subtitle": "Subscribe to our newsletter and receive regular tips and news about camellias.",
+    "newsletter_placeholder": "Your email address",
+    "newsletter_subscribe": "Subscribe",
+    "contact_title": "Have Questions About Camellias?",
+    "contact_subtitle": "Our team is happy to help you with advice and support. Contact us for personal consultation.",
+    "contact_phone": "Phone",
+    "contact_email": "Email",
+    "contact_visit": "Visit Us",
+    "contact_cta": "Get in Touch",
+    "posts": {
+      "care_timing": {
+        "title": "The Best Time for Camellia Care",
+        "excerpt": "Learn when and how to best care for your camellias to achieve lush blooms.",
+        "category": "Care"
+      },
+      "garden_varieties": {
+        "title": "Camellia Varieties for the Garden",
+        "excerpt": "Discover the diverse camellia varieties that are perfect for your garden.",
+        "category": "Varieties"
+      },
+      "wintering": {
+        "title": "Wintering Camellias",
+        "excerpt": "Tips and tricks for successfully wintering your camellias in the greenhouse.",
+        "category": "Wintering"
+      },
+      "history": {
+        "title": "History of Camellias in Germany",
+        "excerpt": "A journey through the history of camellia cultivation in Germany and our role in it.",
+        "category": "History"
+      }
+    }
+  },
   "common": {
     "since_1990": "Since 1990 - Germany's largest collection",
     "greenhouse_size": "2,000 m² Greenhouse",
