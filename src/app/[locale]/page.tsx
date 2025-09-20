@@ -31,8 +31,8 @@ export default function HomePage() {
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Text Content */}
-              <div className="text-center lg:text-left">
-                <div className="inline-flex items-center bg-green-600/20 text-green-100 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className="text-center lg:text-left px-4 sm:px-0">
+                <div className="inline-flex items-center bg-green-600/20 text-green-100 px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
                   <Image
                     src="/images/icons/April-Rose-icon-small.png"
                     alt="April Rose Camellia Icon"
@@ -42,24 +42,24 @@ export default function HomePage() {
                   />
                   {tCommon('since_1990')}
                 </div>
-                <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight">
                   {t('title')}
                 </h1>
-                <p className="text-xl md:text-2xl text-green-100 mb-6 font-light">
+                <p className="text-lg sm:text-xl md:text-2xl text-green-100 mb-4 sm:mb-6 font-light">
                   {t('subtitle')}
                 </p>
-                <p className="text-lg text-green-200 mb-12 max-w-2xl leading-relaxed">
+                <p className="text-base sm:text-lg text-green-200 mb-8 sm:mb-12 max-w-2xl leading-relaxed">
                   {t('description')}
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <Button size="lg" className="text-lg px-8 py-4 h-auto bg-green-600 hover:bg-green-700" asChild>
-                    <Link href="/catalog" className="flex items-center">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+                  <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 h-auto bg-green-600 hover:bg-green-700" asChild>
+                    <Link href="/catalog" className="flex items-center justify-center">
                       {t('cta_catalog')}
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" className="text-lg px-8 py-4 h-auto border-white text-white hover:bg-white hover:text-green-600" asChild>
-                    <Link href="/contact">
+                  <Button size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 h-auto border-white text-white hover:bg-white hover:text-green-600" asChild>
+                    <Link href="/contact" className="flex items-center justify-center">
                       {t('cta_contact')}
                     </Link>
                   </Button>
@@ -67,7 +67,7 @@ export default function HomePage() {
               </div>
               
               {/* Image Content */}
-              <div className="relative">
+              <div className="relative px-4 sm:px-0">
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                   <div className="aspect-[4/3] bg-gradient-to-br from-green-100 via-green-200 to-emerald-200 flex items-center justify-center relative overflow-hidden">
                     {/* Background Pattern */}
@@ -78,19 +78,19 @@ export default function HomePage() {
                     </div>
                     
                     {/* Main Content */}
-                    <div className="text-center relative z-10">
-                      <div className="bg-white/20 backdrop-blur-sm rounded-full p-8 mb-6 inline-block">
+                    <div className="text-center relative z-10 px-4">
+                      <div className="bg-white/20 backdrop-blur-sm rounded-full p-6 sm:p-8 mb-4 sm:mb-6 inline-block">
                         <Image
                           src="/images/icons/April-Rose-icon-small.png"
                           alt="April Rose Camellia Icon"
-                          width={96}
-                          height={96}
-                          className="mx-auto"
+                          width={80}
+                          height={80}
+                          className="mx-auto w-16 h-16 sm:w-24 sm:h-24"
                         />
                       </div>
-                      <h3 className="text-green-800 text-3xl font-bold mb-2">Kamelien-Sammlung</h3>
-                      <p className="text-green-700 text-xl mb-4">Deutschlands größte Sammlung</p>
-                      <div className="flex justify-center space-x-4 text-sm text-green-600">
+                      <h3 className="text-green-800 text-2xl sm:text-3xl font-bold mb-2">Kamelien-Sammlung</h3>
+                      <p className="text-green-700 text-lg sm:text-xl mb-4">Deutschlands größte Sammlung</p>
+                      <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-green-600">
                         <span className="bg-white/30 px-3 py-1 rounded-full">3.000+ Pflanzen</span>
                         <span className="bg-white/30 px-3 py-1 rounded-full">35+ Jahre</span>
                       </div>
@@ -99,14 +99,14 @@ export default function HomePage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                 </div>
                 
-                {/* Floating Cards */}
-                <div className="absolute -top-4 -left-4 bg-white rounded-xl p-4 shadow-xl border border-green-100">
+                {/* Floating Cards - Hidden on mobile to prevent overlap */}
+                <div className="hidden md:block absolute -top-4 -left-4 bg-white rounded-xl p-4 shadow-xl border border-green-100">
                   <div className="flex items-center space-x-3">
                     <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
                     <span className="text-sm font-semibold text-gray-800">{tCommon('greenhouse_size')}</span>
                   </div>
                 </div>
-                <div className="absolute -bottom-4 -right-4 bg-white rounded-xl p-4 shadow-xl border border-emerald-100">
+                <div className="hidden md:block absolute -bottom-4 -right-4 bg-white rounded-xl p-4 shadow-xl border border-emerald-100">
                   <div className="flex items-center space-x-3">
                     <div className="w-4 h-4 bg-emerald-500 rounded-full animate-pulse"></div>
                     <span className="text-sm font-semibold text-gray-800">{tCommon('plant_count')}</span>
@@ -119,66 +119,66 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-12 sm:py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Star className="h-4 w-4 mr-2" />
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center bg-green-100 text-green-800 px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
+              <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
               {t('features.title')}
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
               {t('features.subtitle')}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-base sm:text-xl text-gray-600 max-w-3xl mx-auto">
               {t('features.description')}
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            <div className="text-center group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-green-500 to-green-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Users className="h-10 w-10 text-white" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-12 sm:mb-16">
+            <div className="text-center group bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-gradient-to-br from-green-500 to-green-600 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <Users className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900">
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">
                 {t('features.expertise')}
               </h3>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                 {t('features.expertise_desc')}
               </p>
             </div>
 
-            <div className="text-center group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Leaf className="h-10 w-10 text-white" />
+            <div className="text-center group bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <Leaf className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900">
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">
                 {t('features.consulting')}
               </h3>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                 {t('features.consulting_desc')}
               </p>
             </div>
 
-            <div className="text-center group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-teal-500 to-teal-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Home className="h-10 w-10 text-white" />
+            <div className="text-center group bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-gradient-to-br from-teal-500 to-teal-600 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <Home className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900">
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">
                 {t('features.greenhouse')}
               </h3>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                 {t('features.greenhouse_desc')}
               </p>
             </div>
 
-            <div className="text-center group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-green-600 to-green-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Calendar className="h-10 w-10 text-white" />
+            <div className="text-center group bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-gradient-to-br from-green-600 to-green-700 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <Calendar className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900">
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">
                 {t('features.seasonal')}
               </h3>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                 {t('features.seasonal_desc')}
               </p>
             </div>
