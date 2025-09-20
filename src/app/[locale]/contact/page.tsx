@@ -137,15 +137,21 @@ export default function ContactPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500">{t('map_loading')}</p>
-                    </div>
+                  <div className="aspect-video rounded-lg overflow-hidden border">
+                    <iframe
+                      src="https://maps.google.com/maps?q=Kurfürstendeich+54,+21037+Hamburg,+Germany&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Kamelie Greenhouse Location"
+                    />
                   </div>
                   <div className="mt-4">
                     <Button variant="outline" className="w-full" asChild>
-                      <Link href="https://maps.google.com/?q=Kurfürstendeich+54,+21037+Hamburg" target="_blank">
+                      <Link href="https://maps.app.goo.gl/CmtU8H2Yvdzf7GxU9" target="_blank" rel="noopener noreferrer">
                         {t('open_in_maps')}
                       </Link>
                     </Button>
