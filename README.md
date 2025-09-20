@@ -1,137 +1,94 @@
-# Kamelie Greenhouse - Next.js App
+# Kamelie Greenhouse
 
-A modern web application for Kamelie Greenhouse, Germany's largest camellia collection. Built with Next.js 15, TypeScript, Tailwind CSS, and Supabase.
+A modern, multilingual Next.js application for Kamelie Greenhouse - Germany's largest camellia collection. Built with Next.js 14, TypeScript, Tailwind CSS, and Supabase.
 
-## Features
+## 🌸 Features
 
-- 🌍 **Internationalization** - German (default) and English support
-- 🛒 **E-commerce** - Plant catalog with shopping cart and order management
-- 👥 **User Management** - Authentication with role-based access control
-- 📱 **Responsive Design** - Mobile-first approach with Tailwind CSS
-- 🎨 **Modern UI** - Built with Radix UI components and shadcn/ui
-- 🔐 **Security** - Row Level Security (RLS) with Supabase
-- 📊 **Admin Dashboard** - Inventory and order management
-- 🌱 **Plant Management** - Complete plant lifecycle tracking
-- ❄️ **Winter Storage** - Service booking system
-- 💬 **Consulting** - Customer inquiry management
+- **Multilingual Support** - German and English with next-intl
+- **Plant Catalog** - Browse over 3,000 camellia plants with detailed information
+- **Admin Dashboard** - Complete plant, user, and order management
+- **User Authentication** - Secure registration and login with Supabase
+- **Services Page** - Professional camellia care services
+- **Responsive Design** - Beautiful UI that works on all devices
+- **Image Gallery** - Extensive collection of camellia photos
 
-## Tech Stack
+## 🚀 Tech Stack
 
-- **Framework**: Next.js 15 with App Router
+- **Framework**: Next.js 14 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **UI Components**: Radix UI + shadcn/ui
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth
-- **State Management**: Zustand
-- **Forms**: React Hook Form + Zod
 - **Internationalization**: next-intl
-- **Data Fetching**: TanStack Query
+- **UI Components**: Shadcn/UI
+- **State Management**: Zustand
+- **Icons**: Lucide React
 
-## Getting Started
+## 📦 Installation
 
-### Prerequisites
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/kamelie-greenhouse.git
+   cd kamelie-greenhouse
+   ```
 
-- Node.js 18+ 
-- npm or yarn
-- Supabase account
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### Installation
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Fill in your environment variables:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+   RESEND_API_KEY=your_resend_api_key
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   ```
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd kamelie-app
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Set up environment variables:
-```bash
-cp env.example .env.local
-```
-
-4. Configure your Supabase project:
+4. **Set up the database**
    - Create a new Supabase project
-   - Run the database schema from `../database_schema.sql`
-   - Add sample data from `../sample_data.sql`
-   - Update `.env.local` with your Supabase credentials
+   - Run the SQL scripts in the `database/` folder to set up the schema
+   - Configure Row Level Security (RLS) policies
 
-5. Start the development server:
-```bash
-npm run dev
-```
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+6. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-## Environment Variables
+## 🗄️ Database Schema
 
-```env
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+The application uses the following main tables:
+- `species` - Camellia species information
+- `cultivars` - Camellia cultivar details
+- `plants` - Individual plant records
+- `plant_photos` - Plant images
+- `user_profiles` - User account information
+- `orders` - Customer orders
+- `blog_posts` - Blog content
 
-# App Configuration
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_SITE_NAME="Kamelie Greenhouse"
-NEXT_PUBLIC_DEFAULT_LANGUAGE=de
-
-# Stripe Configuration (optional)
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-STRIPE_SECRET_KEY=your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
-```
-
-## Database Setup
-
-1. Create a new Supabase project
-2. Run the SQL schema from `../database_schema.sql`
-3. Import sample data from `../sample_data.sql`
-4. Configure Row Level Security policies
-5. Set up authentication providers
-
-## Project Structure
-
-```
-src/
-├── app/                    # Next.js App Router
-│   ├── [locale]/          # Internationalized routes
-│   ├── globals.css        # Global styles
-│   └── layout.tsx         # Root layout
-├── components/            # React components
-│   ├── ui/               # Reusable UI components
-│   └── layout/           # Layout components
-├── lib/                  # Utility libraries
-│   ├── supabase/         # Supabase configuration
-│   ├── store/            # Zustand stores
-│   └── utils.ts          # Utility functions
-├── messages/             # Internationalization files
-│   ├── de.json          # German translations
-│   └── en.json          # English translations
-└── types/               # TypeScript type definitions
-    └── database.ts      # Database types
-```
-
-## Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript type checking
-- `npm run db:generate-types` - Generate database types from Supabase
-
-## Deployment
+## 🌐 Deployment
 
 ### Vercel (Recommended)
 
-1. Connect your GitHub repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
+1. **Connect to GitHub**
+   - Push your code to GitHub
+   - Connect your repository to Vercel
+
+2. **Set environment variables**
+   - Add all required environment variables in Vercel dashboard
+   - Make sure to update `NEXT_PUBLIC_APP_URL` to your production domain
+
+3. **Deploy**
+   - Vercel will automatically deploy on every push to main branch
 
 ### Other Platforms
 
@@ -141,18 +98,70 @@ The app can be deployed to any platform that supports Next.js:
 - DigitalOcean App Platform
 - AWS Amplify
 
-## Contributing
+## 🔧 Configuration
+
+### Supabase Setup
+
+1. Create a new Supabase project
+2. Run the database schema scripts
+3. Set up authentication providers
+4. Configure email templates (optional - uses Resend for custom emails)
+
+### Email Configuration
+
+The app uses Resend for sending emails:
+1. Sign up for a Resend account
+2. Get your API key
+3. Add it to your environment variables
+4. Verify your domain (for production)
+
+## 📱 Pages
+
+- **Home** (`/`) - Landing page with hero section and features
+- **Catalog** (`/catalog`) - Browse and search camellia plants
+- **Services** (`/services`) - Professional camellia care services
+- **Admin** (`/admin`) - Administrative dashboard (admin only)
+- **Auth** (`/auth/login`, `/auth/register`) - User authentication
+
+## 🎨 Customization
+
+### Adding New Languages
+
+1. Create a new message file in `src/messages/`
+2. Add the locale to `src/lib/i18n.ts`
+3. Update the middleware configuration
+
+### Styling
+
+The app uses Tailwind CSS with custom components. Main styling files:
+- `src/app/globals.css` - Global styles
+- `src/components/ui/` - Reusable UI components
+- Component-specific styles use Tailwind classes
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## License
+## 📄 License
 
-This project is proprietary software owned by Kamelie Greenhouse.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
+## 📞 Support
 
-For support, please contact the development team or create an issue in the repository.
+For support, email info@kamelie.net or create an issue in the GitHub repository.
+
+## 🙏 Acknowledgments
+
+- [Next.js](https://nextjs.org/) - The React framework
+- [Supabase](https://supabase.com/) - Backend as a service
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [Shadcn/UI](https://ui.shadcn.com/) - UI component library
+- [Lucide](https://lucide.dev/) - Icon library
+
+---
+
+Built with ❤️ for Kamelie Greenhouse
