@@ -22,18 +22,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Admin role not found' })
     }
 
-    // Find user by email
-    const { data: user } = await supabase.auth.admin.getUserByEmail(email)
+    // Find user by email using the user_profiles table
+    const { data: userProfile } = await supabase
+      .from('user_profiles')
+      .select('id, email')
+      .eq('email', email)
+      .single()
     
-    if (!user.user) {
+    if (!userProfile) {
       return NextResponse.json({ error: 'User not found' })
     }
 
     // Update user profile with admin role
-    const { data: profile, error } = await supabase
+    const { data: updatedProfile, error } = await supabase
       .from('user_profiles')
       .update({ role_id: adminRole.id })
-      .eq('id', user.user.id)
+      .eq('id', userProfile.id)
       .select()
       .single()
 
@@ -44,7 +48,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ 
       success: true, 
       message: 'Admin role assigned successfully',
-      profile 
+      profile: updatedProfile 
     })
   } catch (error) {
     return NextResponse.json({ error: 'Failed to assign admin role' })
