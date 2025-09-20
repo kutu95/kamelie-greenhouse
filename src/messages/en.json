@@ -1,0 +1,80 @@
+{
+  "navigation": {
+    "home": "Home",
+    "catalog": "Catalog",
+    "services": "Services",
+    "blog": "Blog",
+    "contact": "Contact",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "home": {
+    "title": "Welcome to Kamelie Greenhouse",
+    "subtitle": "Germany's largest camellia collection",
+    "description": "Discover our exclusive collection of over 3,000 camellia plants. Over 35 years of experience in camellia cultivation and personal consultation.",
+    "cta_catalog": "Discover Catalog",
+    "cta_contact": "Get in Touch",
+    "features": {
+      "title": "Why Kamelie Greenhouse?",
+      "subtitle": "Over 35 years of passion for camellias",
+      "description": "From private passion to Germany's largest camellia collection - personal service and professional expertise since 1990",
+      "expertise": "35+ Years Expertise",
+      "expertise_desc": "Over 35 years of experience in camellia cultivation and continuous education",
+      "consulting": "Personal Consultation",
+      "consulting_desc": "Individual advice on location, care and variety selection",
+      "greenhouse": "2,000 m² Greenhouse",
+      "greenhouse_desc": "Visit our modern greenhouse with optimal conditions",
+      "seasonal": "Bloom Time Feb-Apr",
+      "seasonal_desc": "Experience the spectacular bloom time from February to April"
+    },
+    "gallery": {
+      "title": "A Look into Our Greenhouse",
+      "subtitle": "Discover the diversity of our camellia collection",
+      "collection": "Camellia Collection",
+      "blooming": "Blooming Camellias",
+      "greenhouse": "Greenhouse",
+      "tip": "💡 Tip: Click on the images for a larger view",
+      "view_all": "View All Images"
+    },
+    "contact": {
+      "title": "Visit Us",
+      "subtitle": "Opening hours during camellia season (March - May)",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email"
+    },
+    "cta": {
+      "title": "Discover Our Camellia Collection",
+      "subtitle": "Over 3,000 plants in various sizes and varieties. From classic varieties to rare rarities.",
+      "catalog": "View Catalog",
+      "services": "Our Services"
+    }
+  },
+  "catalog": {
+    "title": "Camellia Catalog",
+    "subtitle": "Discover our collection of over 3,000 camellia plants",
+    "search_placeholder": "Search camellias...",
+    "filter": "Filter",
+    "grid": "Grid",
+    "list": "List",
+    "load_more": "Load More Plants",
+    "details": "Details",
+    "all_species": "All Species",
+    "loading_plants": "Loading plants...",
+    "try_again": "Try again",
+    "no_plants_found": "No plants found",
+    "reset_filters": "Reset filters",
+    "loading": "Loading...",
+    "plants_found": "{count} plants found"
+  },
+  "common": {
+    "since_1990": "Since 1990 - Germany's largest collection",
+    "greenhouse_size": "2,000 m² Greenhouse",
+    "plant_count": "3,000+ Plants",
+    "opening_hours": "Opening Hours",
+    "march_may": "March - May",
+    "tue_sat": "Tue - Sat: 2:00 PM - 6:00 PM",
+    "closed": "Sunday & Monday: Closed"
+  }
+}
