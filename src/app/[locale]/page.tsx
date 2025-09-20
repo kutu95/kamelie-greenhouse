@@ -58,7 +58,7 @@ export default function HomePage() {
                       <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 h-auto border-white text-white hover:bg-white hover:text-green-600" asChild>
+                  <Button size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 h-auto border-2 border-white text-white bg-transparent hover:bg-white hover:text-green-600 font-semibold" asChild>
                     <Link href="/contact" className="flex items-center justify-center">
                       {t('cta_contact')}
                     </Link>
