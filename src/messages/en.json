@@ -67,7 +67,8 @@
     "no_plants_found": "No plants found",
     "reset_filters": "Reset filters",
     "loading": "Loading...",
-    "plants_found": "{count} plants found"
+    "plants_found": "{count} plants found",
+    "total_plants": "plants found"
   },
   "common": {
     "since_1990": "Since 1990 - Germany's largest collection",
