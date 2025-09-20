@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/lib/store/auth'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, User, Menu, Leaf } from 'lucide-react'
 
@@ -110,10 +111,28 @@ export function Header() {
                   onClick={async () => {
                     console.log('Logout button clicked')
                     try {
+                      // Direct Supabase logout
+                      const supabase = createClient()
+                      const { error } = await supabase.auth.signOut()
+                      
+                      if (error) {
+                        console.error('Supabase logout error:', error)
+                        alert(`Logout failed: ${error.message}`)
+                        return
+                      }
+                      
+                      console.log('Supabase logout successful')
+                      
+                      // Update the store
                       await signOut()
-                      console.log('Logout successful')
+                      console.log('Store signOut successful')
+                      
+                      // Force page reload to ensure clean state
+                      window.location.href = '/'
+                      
                     } catch (error) {
                       console.error('Logout error:', error)
+                      alert(`Logout error: ${error instanceof Error ? error.message : 'Unknown error'}`)
                     }
                   }} 
                   className="hover:bg-green-50 hover:border-green-600 hover:text-green-600 text-xs sm:text-sm px-2 sm:px-4"

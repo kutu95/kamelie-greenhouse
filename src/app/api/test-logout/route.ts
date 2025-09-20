@@ -4,43 +4,48 @@ import { NextResponse } from 'next/server'
 export async function POST() {
   try {
     const supabase = await createClient()
-
+    
     // Get current session
     const { data: { session }, error: sessionError } = await supabase.auth.getSession()
     
     if (sessionError) {
       return NextResponse.json({ 
-        error: 'Session error', 
+        success: false, 
+        error: 'Failed to get session', 
         details: sessionError.message 
-      }, { status: 500 })
-    }
-
-    if (!session?.user) {
-      return NextResponse.json({ 
-        message: 'No user logged in',
-        success: true
       })
     }
-
-    // Try to sign out
+    
+    if (!session) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'No active session found' 
+      })
+    }
+    
+    // Attempt to sign out
     const { error: signOutError } = await supabase.auth.signOut()
-
+    
     if (signOutError) {
       return NextResponse.json({ 
-        error: 'Sign out error', 
+        success: false, 
+        error: 'Failed to sign out', 
         details: signOutError.message 
-      }, { status: 500 })
+      })
     }
-
+    
     return NextResponse.json({ 
+      success: true, 
       message: 'Successfully signed out',
-      success: true
+      userEmail: session.user.email
     })
-
+    
   } catch (error) {
+    console.error('Test logout error:', error)
     return NextResponse.json({ 
-      error: 'Server error', 
-      details: error instanceof Error ? error.message : 'Unknown error' 
-    }, { status: 500 })
+      success: false, 
+      error: 'Unexpected error during logout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
   }
 }
