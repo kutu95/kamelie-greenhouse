@@ -66,10 +66,10 @@ export default function ContactPage() {
         <div className="container mx-auto px-4 py-8 sm:py-12">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
-              Kontaktieren Sie uns
+              {t('title')}
             </h1>
             <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto">
-              Haben Sie Fragen zu unseren Kamelien? Wir freuen uns auf Ihre Nachricht und helfen Ihnen gerne weiter.
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -85,14 +85,14 @@ export default function ContactPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Phone className="h-5 w-5 mr-2 text-green-600" />
-                    Kontaktinformationen
+                    {t('contact_info')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-start space-x-3">
                     <Phone className="h-5 w-5 text-green-600 mt-1" />
                     <div>
-                      <p className="font-semibold">Telefon</p>
+                      <p className="font-semibold">{t('phone')}</p>
                       <p className="text-gray-600">+49 40 220 94 58</p>
                       <p className="text-gray-600">+49 176 29 63 88 66</p>
                     </div>
@@ -100,14 +100,14 @@ export default function ContactPage() {
                   <div className="flex items-start space-x-3">
                     <Mail className="h-5 w-5 text-green-600 mt-1" />
                     <div>
-                      <p className="font-semibold">E-Mail</p>
+                      <p className="font-semibold">{t('email')}</p>
                       <p className="text-gray-600">info@kamelie.net</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
                     <MapPin className="h-5 w-5 text-green-600 mt-1" />
                     <div>
-                      <p className="font-semibold">Adresse</p>
+                      <p className="font-semibold">{t('address')}</p>
                       <p className="text-gray-600">
                         Kurfürstendeich 54<br />
                         21037 Hamburg
@@ -117,7 +117,7 @@ export default function ContactPage() {
                   <div className="flex items-start space-x-3">
                     <Clock className="h-5 w-5 text-green-600 mt-1" />
                     <div>
-                      <p className="font-semibold">Öffnungszeiten</p>
+                      <p className="font-semibold">{t('opening_hours')}</p>
                       <p className="text-gray-600">
                         {tCommon('march_may')}<br />
                         {tCommon('tue_sat')}<br />
@@ -131,22 +131,22 @@ export default function ContactPage() {
               {/* Map Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Unser Standort</CardTitle>
+                  <CardTitle>{t('location_title')}</CardTitle>
                   <CardDescription>
-                    Besuchen Sie uns in unserem Gewächshaus in Hamburg
+                    {t('location_desc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
                     <div className="text-center">
                       <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500">Karte wird geladen...</p>
+                      <p className="text-gray-500">{t('map_loading')}</p>
                     </div>
                   </div>
                   <div className="mt-4">
                     <Button variant="outline" className="w-full" asChild>
                       <Link href="https://maps.google.com/?q=Kurfürstendeich+54,+21037+Hamburg" target="_blank">
-                        In Google Maps öffnen
+                        {t('open_in_maps')}
                       </Link>
                     </Button>
                   </div>
@@ -156,19 +156,19 @@ export default function ContactPage() {
               {/* Quick Contact */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Schnelle Kontaktmöglichkeiten</CardTitle>
+                  <CardTitle>{t('quick_contact')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button className="w-full bg-green-600 hover:bg-green-700" asChild>
                     <Link href="tel:+49402209458">
                       <Phone className="h-4 w-4 mr-2" />
-                      Jetzt anrufen
+                      {t('call_now')}
                     </Link>
                   </Button>
                   <Button variant="outline" className="w-full" asChild>
                     <Link href="mailto:info@kamelie.net">
                       <Mail className="h-4 w-4 mr-2" />
-                      E-Mail senden
+                      {t('send_email')}
                     </Link>
                   </Button>
                 </CardContent>
@@ -180,9 +180,9 @@ export default function ContactPage() {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>Nachricht senden</CardTitle>
+                <CardTitle>{t('send_message')}</CardTitle>
                 <CardDescription>
-                  Füllen Sie das Formular aus und wir melden uns schnellstmöglich bei Ihnen zurück.
+                  {t('send_message_desc')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -190,17 +190,17 @@ export default function ContactPage() {
                   <div className="text-center py-8">
                     <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      Nachricht gesendet!
+                      {t('message_sent')}
                     </h3>
                     <p className="text-gray-600">
-                      Vielen Dank für Ihre Nachricht. Wir melden uns in Kürze bei Ihnen.
+                      {t('message_sent_desc')}
                     </p>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="name">Name *</Label>
+                        <Label htmlFor="name">{t('name')} *</Label>
                         <Input
                           id="name"
                           name="name"
@@ -211,7 +211,7 @@ export default function ContactPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="email">E-Mail *</Label>
+                        <Label htmlFor="email">{t('email')} *</Label>
                         <Input
                           id="email"
                           name="email"
@@ -226,7 +226,7 @@ export default function ContactPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="phone">Telefon</Label>
+                        <Label htmlFor="phone">{t('phone_label')}</Label>
                         <Input
                           id="phone"
                           name="phone"
@@ -237,24 +237,24 @@ export default function ContactPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="inquiryType">Anfrageart</Label>
+                        <Label htmlFor="inquiryType">{t('inquiry_type')}</Label>
                         <Select value={formData.inquiryType} onValueChange={handleSelectChange}>
                           <SelectTrigger className="mt-1">
-                            <SelectValue placeholder="Bitte wählen" />
+                            <SelectValue placeholder={t('select_placeholder')} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="general">Allgemeine Anfrage</SelectItem>
-                            <SelectItem value="plants">Pflanzenberatung</SelectItem>
-                            <SelectItem value="services">Services</SelectItem>
-                            <SelectItem value="visit">Besuchstermin</SelectItem>
-                            <SelectItem value="other">Sonstiges</SelectItem>
+                            <SelectItem value="general">{t('general_inquiry')}</SelectItem>
+                            <SelectItem value="plants">{t('plant_consultation')}</SelectItem>
+                            <SelectItem value="services">{t('services')}</SelectItem>
+                            <SelectItem value="visit">{t('visit_appointment')}</SelectItem>
+                            <SelectItem value="other">{t('other')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="subject">Betreff *</Label>
+                      <Label htmlFor="subject">{t('subject')} *</Label>
                       <Input
                         id="subject"
                         name="subject"
@@ -266,7 +266,7 @@ export default function ContactPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="message">Nachricht *</Label>
+                      <Label htmlFor="message">{t('message')} *</Label>
                       <Textarea
                         id="message"
                         name="message"
@@ -275,7 +275,7 @@ export default function ContactPage() {
                         required
                         rows={6}
                         className="mt-1"
-                        placeholder="Beschreiben Sie Ihre Anfrage oder Ihr Anliegen..."
+                        placeholder={t('message_placeholder')}
                       />
                     </div>
 
@@ -287,13 +287,13 @@ export default function ContactPage() {
                         className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                       />
                       <Label htmlFor="privacy" className="text-sm text-gray-600">
-                        Ich stimme der Verarbeitung meiner Daten gemäß der Datenschutzerklärung zu. *
+                        {t('privacy_consent')} *
                       </Label>
                     </div>
 
                     <Button type="submit" className="w-full bg-green-600 hover:bg-green-700">
                       <Send className="h-4 w-4 mr-2" />
-                      Nachricht senden
+                      {t('send_button')}
                     </Button>
                   </form>
                 )}
@@ -308,54 +308,50 @@ export default function ContactPage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-              Häufig gestellte Fragen
+              {t('faq_title')}
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Hier finden Sie Antworten auf die häufigsten Fragen zu unseren Kamelien und Services.
+              {t('faq_subtitle')}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Wann ist die beste Zeit für einen Besuch?</CardTitle>
+                <CardTitle className='text-lg'>{t('faq_visit_time')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  Die beste Zeit für einen Besuch ist während der Blütezeit von Februar bis April. 
-                  In dieser Zeit können Sie die volle Pracht unserer Kamelien erleben.
+                  {t('faq_visit_answer')}
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Bieten Sie auch Beratung an?</CardTitle>
+                <CardTitle className='text-lg'>{t('faq_consultation')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  Ja, wir bieten umfassende Beratung zu Standort, Pflege und Sortenauswahl. 
-                  Kontaktieren Sie uns für einen persönlichen Beratungstermin.
+                  {t('faq_consultation_answer')}
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Kann ich Pflanzen online bestellen?</CardTitle>
+                <CardTitle className='text-lg'>{t('faq_online_order')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  Derzeit bieten wir noch keinen Online-Shop an. Bitte kontaktieren Sie uns 
-                  direkt für Anfragen zu spezifischen Pflanzen.
+                  {t('faq_online_answer')}
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Gibt es Parkmöglichkeiten?</CardTitle>
+                <CardTitle className='text-lg'>{t('faq_parking')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  Ja, es gibt ausreichend Parkmöglichkeiten in der Nähe unseres Gewächshauses. 
-                  Weitere Details erhalten Sie bei der Terminvereinbarung.
+                  {t('faq_parking_answer')}
                 </p>
               </CardContent>
             </Card>
