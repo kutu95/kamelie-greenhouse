@@ -123,11 +123,12 @@
         "excerpt": "Tips and tricks for successfully wintering your camellias in the greenhouse.",
         "category": "Wintering"
       },
-      "history": {
-        "title": "History of Camellias in Germany",
-        "excerpt": "A journey through the history of camellia cultivation in Germany and our role in it.",
-        "category": "History"
-      }
+            "history": {
+              "title": "History of Camellias in Germany",
+              "excerpt": "A journey through the history of camellia cultivation in Germany and our role in it.",
+              "category": "History",
+              "content": "The history of camellias in Germany is a fascinating tale of botanical discovery and cultural exchange. Camellia japonica, the most famous species, first arrived in Europe in the early 18th century, brought by Portuguese and Dutch traders from Japan and China. German botanical gardens, particularly those in Dresden and Hamburg, played crucial roles in introducing these exotic plants to Central Europe. The Pillnitz Palace near Dresden became one of the first locations in Germany to successfully cultivate camellias in the 1730s, establishing the tradition of camellia cultivation that continues today. By the 19th century, camellias had become symbols of wealth and sophistication in German society, with elaborate greenhouse collections becoming status symbols among the aristocracy. The plant's ability to bloom during winter months made it especially prized in Germany's harsh climate. Today, Germany remains one of Europe's leading centers for camellia cultivation, with numerous botanical gardens and private collections preserving both historic and modern varieties. Our own collection at Kamelie Greenhouse continues this rich tradition, maintaining over 3,000 plants that represent both the historical legacy and future potential of camellia cultivation in Germany."
+            }
     }
   },
   "common": {

@@ -50,18 +50,18 @@ export default function BlogPage() {
       image: '/images/hero/quartier-grosspflanzen.jpg',
       featured: false
     },
-    {
-      id: 4,
-      title: t('posts.history.title'),
-      excerpt: t('posts.history.excerpt'),
-      content: 'Seit über 35 Jahren widmen wir uns der Kamelienzucht...',
-      author: 'Michael von Allesch',
-      date: '2024-01-01',
-      readTime: '8 min',
-      category: t('posts.history.category'),
-      image: '/images/hero/quartier-grosspflanzen.jpg',
-      featured: false
-    }
+           {
+             id: 4,
+             title: t('posts.history.title'),
+             excerpt: t('posts.history.excerpt'),
+             content: t('posts.history.content'),
+             author: 'Michael von Allesch',
+             date: '2024-01-01',
+             readTime: '8 min',
+             category: t('posts.history.category'),
+             image: '/images/hero/quartier-grosspflanzen.jpg',
+             featured: false
+           }
   ]
 
   const featuredPost = blogPosts.find(post => post.featured)

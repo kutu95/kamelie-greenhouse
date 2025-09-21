@@ -123,11 +123,12 @@
         "excerpt": "Tipps und Tricks für die erfolgreiche Überwinterung Ihrer Kamelien im Gewächshaus.",
         "category": "Überwinterung"
       },
-      "history": {
-        "title": "Geschichte der Kamelien in Deutschland",
-        "excerpt": "Eine Reise durch die Geschichte der Kamelienzucht in Deutschland und unsere Rolle dabei.",
-        "category": "Geschichte"
-      }
+            "history": {
+              "title": "Geschichte der Kamelien in Deutschland",
+              "excerpt": "Eine Reise durch die Geschichte der Kamelienzucht in Deutschland und unsere Rolle dabei.",
+              "category": "Geschichte",
+              "content": "Die Geschichte der Kamelien in Deutschland ist eine faszinierende Erzählung botanischer Entdeckungen und kulturellen Austauschs. Camellia japonica, die berühmteste Art, gelangte im frühen 18. Jahrhundert erstmals nach Europa, gebracht von portugiesischen und niederländischen Händlern aus Japan und China. Deutsche botanische Gärten, insbesondere die in Dresden und Hamburg, spielten eine entscheidende Rolle bei der Einführung dieser exotischen Pflanzen in Mitteleuropa. Das Schloss Pillnitz bei Dresden wurde in den 1730er Jahren zu einem der ersten Orte in Deutschland, der erfolgreich Kamelien kultivierte und damit die Tradition der Kamelienzucht begründete, die bis heute fortbesteht. Im 19. Jahrhundert wurden Kamelien zu Symbolen von Reichtum und Raffinesse in der deutschen Gesellschaft, wobei aufwendige Gewächshaussammlungen zu Statussymbolen unter der Aristokratie wurden. Die Fähigkeit der Pflanze, in den Wintermonaten zu blühen, machte sie besonders wertvoll in Deutschlands rauem Klima. Heute ist Deutschland eines der führenden Zentren für Kamelienzucht in Europa, mit zahlreichen botanischen Gärten und privaten Sammlungen, die sowohl historische als auch moderne Sorten bewahren. Unsere eigene Sammlung im Kamelie Greenhouse setzt diese reiche Tradition fort und bewahrt über 3.000 Pflanzen, die sowohl das historische Erbe als auch das zukünftige Potenzial der Kamelienzucht in Deutschland repräsentieren."
+            }
     }
   },
   "common": {

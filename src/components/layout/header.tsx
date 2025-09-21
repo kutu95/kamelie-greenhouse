@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, User, Menu, Leaf, X } from 'lucide-react'
 import { useState } from 'react'
+import { LanguageToggle } from '@/components/ui/language-toggle'
 
 export function Header() {
   const t = useTranslations('navigation')
@@ -87,6 +88,7 @@ export function Header() {
           </nav>
 
           <div className="flex items-center space-x-2 sm:space-x-4">
+            <LanguageToggle />
             <Button variant="ghost" size="icon" className="relative hover:bg-green-50 hidden sm:flex">
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -210,12 +212,15 @@ export function Header() {
                 </Link>
               </nav>
 
-              {/* Mobile Cart */}
-              <div className="pt-4 border-t">
+              {/* Mobile Cart and Language Toggle */}
+              <div className="pt-4 border-t space-y-3">
                 <Button variant="ghost" className="w-full justify-start hover:bg-green-50">
                   <ShoppingCart className="h-5 w-5 mr-3" />
                   Shopping Cart (0)
                 </Button>
+                <div className="flex justify-center">
+                  <LanguageToggle />
+                </div>
               </div>
 
               {/* Mobile Auth Section */}
