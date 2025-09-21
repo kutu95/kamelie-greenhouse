@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 })
     }
 
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Create a unique filename
     const fileExt = file.name.split('.').pop()

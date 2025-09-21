@@ -3,7 +3,11 @@ import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 
-type UserProfile = Database['public']['Tables']['user_profiles']['Row']
+type UserProfile = Database['public']['Tables']['user_profiles']['Row'] & {
+  user_roles?: {
+    name: string
+  } | null
+}
 
 interface AuthState {
   user: User | null

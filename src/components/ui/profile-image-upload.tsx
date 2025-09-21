@@ -96,6 +96,7 @@ export function ProfileImageUpload({
                   </DialogDescription>
                 </DialogHeader>
                 <ImageSelector
+                  isOpen={isImageSelectorOpen}
                   onSelect={handleImageSelect}
                   onClose={() => setIsImageSelectorOpen(false)}
                   folder="profile-images"
