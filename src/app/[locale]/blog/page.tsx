@@ -26,7 +26,7 @@ interface BlogPost {
   author: {
     first_name: string
     last_name: string
-  }
+  } | null
 }
 
 export default function BlogPage() {
@@ -154,7 +154,9 @@ export default function BlogPage() {
                     </div>
                     <div className="flex items-center">
                       <User className="h-4 w-4 mr-1" />
-                      {featuredPost.author.first_name} {featuredPost.author.last_name}
+                      {featuredPost.author?.first_name && featuredPost.author?.last_name 
+                        ? `${featuredPost.author.first_name} ${featuredPost.author.last_name}`
+                        : 'Unknown Author'}
                     </div>
                   </div>
                   <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
@@ -217,7 +219,9 @@ export default function BlogPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center text-sm text-gray-500">
                       <User className="h-4 w-4 mr-1" />
-                      {post.author.first_name} {post.author.last_name}
+                      {post.author?.first_name && post.author?.last_name 
+                        ? `${post.author.first_name} ${post.author.last_name}`
+                        : 'Unknown Author'}
                     </div>
                     <Button variant="ghost" size="sm" asChild className="text-green-600 hover:text-green-700">
                       <Link href={`/blog/${post.slug}`} className="flex items-center">
