@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     const size = searchParams.get('size')
     const priceRange = searchParams.get('priceRange')
     const hardiness = searchParams.get('hardiness')
+    const flowerShape = searchParams.get('flowerShape')
     
     const supabase = createClient()
     
@@ -81,6 +82,13 @@ export async function GET(request: Request) {
       console.log('Hardiness filter applied:', hardiness)
     }
     
+    // Add flower shape filter if provided
+    if (flowerShape) {
+      // For now, we'll filter after fetching the data
+      // This is not ideal for performance but will work
+      console.log('Flower shape filter applied:', flowerShape)
+    }
+    
     const { data: plants, error, count } = await query
 
     if (error) {
@@ -89,7 +97,7 @@ export async function GET(request: Request) {
     }
 
     // Debug logging
-    console.log('API - Query parameters:', { search, species, color, size, priceRange, hardiness, status })
+    console.log('API - Query parameters:', { search, species, color, size, priceRange, hardiness, flowerShape, status })
     console.log('API - Plants count before filtering:', count)
     console.log('API - Sample plant:', plants?.[0])
 
@@ -129,6 +137,18 @@ export async function GET(request: Request) {
         filteredCount = filteredPlants.length
         console.log('API - After hardiness filtering:', { hardiness, filteredCount })
       }
+    }
+
+    if (flowerShape) {
+      filteredPlants = filteredPlants.filter(plant => {
+        const plantFlowerShape = plant.cultivar?.flower_form
+        if (!plantFlowerShape) return false
+        
+        // Exact match for flower shape
+        return plantFlowerShape === flowerShape
+      })
+      filteredCount = filteredPlants.length
+      console.log('API - After flower shape filtering:', { flowerShape, filteredCount })
     }
 
     return NextResponse.json({ 

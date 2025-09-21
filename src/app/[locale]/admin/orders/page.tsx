@@ -38,7 +38,8 @@ interface Order {
   order_items: Array<{
     id: string
     quantity: number
-    price_per_unit: number
+    unit_price: number
+    total_price: number
     plant: {
       id: string
       plant_code: string
@@ -107,7 +108,8 @@ export default function AdminOrdersPage() {
           order_items(
             id,
             quantity,
-            price_per_unit,
+            unit_price,
+            total_price,
             plant:plants(
               id,
               plant_code,
@@ -334,10 +336,10 @@ export default function AdminOrdersPage() {
                             </div>
                             <div className="text-right">
                               <p className="font-medium text-gray-900">
-                                {item.quantity}x €{item.price_per_unit.toFixed(2)}
+                                {item.quantity}x €{item.unit_price.toFixed(2)}
                               </p>
                               <p className="text-sm text-gray-600">
-                                = €{(item.quantity * item.price_per_unit).toFixed(2)}
+                                = €{item.total_price.toFixed(2)}
                               </p>
                             </div>
                           </div>

@@ -88,11 +88,11 @@ export default function HomePage() {
                           className="mx-auto w-16 h-16 sm:w-24 sm:h-24"
                         />
                       </div>
-                      <h3 className="text-green-800 text-2xl sm:text-3xl font-bold mb-2">Kamelien-Sammlung</h3>
-                      <p className="text-green-700 text-lg sm:text-xl mb-4">Deutschlands größte Sammlung</p>
+                      <h3 className="text-green-800 text-2xl sm:text-3xl font-bold mb-2">{t('collection_card.title')}</h3>
+                      <p className="text-green-700 text-lg sm:text-xl mb-4">{t('collection_card.subtitle')}</p>
                       <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-green-600">
-                        <span className="bg-white/30 px-3 py-1 rounded-full">3.000+ Pflanzen</span>
-                        <span className="bg-white/30 px-3 py-1 rounded-full">35+ Jahre</span>
+                        <span className="bg-white/30 px-3 py-1 rounded-full">{t('collection_card.plants_count')}</span>
+                        <span className="bg-white/30 px-3 py-1 rounded-full">{t('collection_card.years_experience')}</span>
                       </div>
                     </div>
                   </div>
@@ -207,13 +207,13 @@ export default function HomePage() {
                       <Leaf className="h-12 w-12 text-green-600 mx-auto" />
                     </div>
                     <h4 className="text-green-800 font-bold text-lg mb-2">{t('gallery.collection')}</h4>
-                    <p className="text-green-700 text-sm">Über 3.000 Pflanzen</p>
+                    <p className="text-green-700 text-sm">{t('gallery.over_3000_plants')}</p>
                   </div>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-6">
                   <div className="text-white">
                     <p className="font-semibold text-lg mb-1">{t('gallery.collection')}</p>
-                    <p className="text-sm opacity-90">Über 3.000 verschiedene Pflanzen</p>
+                    <p className="text-sm opacity-90">{t('gallery.over_3000_different_plants')}</p>
                   </div>
                 </div>
               </div>
@@ -230,13 +230,13 @@ export default function HomePage() {
                       <Leaf className="h-12 w-12 text-pink-600 mx-auto" />
                     </div>
                     <h4 className="text-pink-800 font-bold text-lg mb-2">{t('gallery.blooming')}</h4>
-                    <p className="text-pink-700 text-sm">Februar - April</p>
+                    <p className="text-pink-700 text-sm">{t('gallery.blooming_period')}</p>
                   </div>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-6">
                   <div className="text-white">
-                    <p className="font-semibold text-lg mb-1">Blütezeit</p>
-                    <p className="text-sm opacity-90">Februar bis April</p>
+                    <p className="font-semibold text-lg mb-1">{t('gallery.blooming_time')}</p>
+                    <p className="text-sm opacity-90">{t('gallery.blooming_time_desc')}</p>
                   </div>
                 </div>
               </div>
@@ -253,13 +253,13 @@ export default function HomePage() {
                       <Home className="h-12 w-12 text-emerald-600 mx-auto" />
                     </div>
                     <h4 className="text-emerald-800 font-bold text-lg mb-2">{t('gallery.greenhouse')}</h4>
-                    <p className="text-emerald-700 text-sm">2.000 m² Fläche</p>
+                    <p className="text-emerald-700 text-sm">{t('gallery.greenhouse_area')}</p>
                   </div>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-6">
                   <div className="text-white">
                     <p className="font-semibold text-lg mb-1">{t('gallery.greenhouse')}</p>
-                    <p className="text-sm opacity-90">2.000 m² moderne Anlage</p>
+                    <p className="text-sm opacity-90">{t('gallery.modern_facility')}</p>
                   </div>
                 </div>
               </div>

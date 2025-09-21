@@ -112,8 +112,10 @@ export function Header() {
                     <Link href="/admin/dashboard">{t('admin')}</Link>
                   </Button>
                 )}
-                <Button variant="ghost" size="icon" className="hover:bg-green-50 hidden sm:flex">
-                  <User className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="hover:bg-green-50 hidden sm:flex" asChild>
+                  <Link href="/profile">
+                    <User className="h-5 w-5" />
+                  </Link>
                 </Button>
                 <Button 
                   variant="outline" 
@@ -244,11 +246,14 @@ export function Header() {
                     )}
                     <Button 
                       variant="ghost" 
+                      asChild
                       className="w-full justify-start hover:bg-green-50"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <User className="h-5 w-5 mr-3" />
-                      Profile
+                      <Link href="/profile">
+                        <User className="h-5 w-5 mr-3" />
+                        Profile
+                      </Link>
                     </Button>
                     <Button 
                       variant="outline" 

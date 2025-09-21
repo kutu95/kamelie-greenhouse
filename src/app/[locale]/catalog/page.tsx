@@ -3,11 +3,12 @@
 import { Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { Search, Filter, Grid, List, Loader2 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { CatalogClient } from './catalog-client'
 
 export default function CatalogPage() {
   const t = useTranslations('catalog')
+  const locale = useLocale()
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -44,20 +45,22 @@ export default function CatalogPage() {
           initialPlants={[]}
           initialSpecies={[]}
           initialTotal={0}
-          initialFilters={{
-            search: '',
-            species: '',
-            status: 'available',
-            color: '',
-            size: '',
-            priceRange: '',
-            hardiness: ''
-          }}
+                 initialFilters={{
+                   search: '',
+                   species: '',
+                   status: 'available',
+                   color: '',
+                   size: '',
+                   priceRange: '',
+                   hardiness: '',
+                   flowerShape: ''
+                 }}
           initialPagination={{
             page: 1,
             limit: 12,
             offset: 0
           }}
+          locale={locale}
         />
       </Suspense>
     </div>

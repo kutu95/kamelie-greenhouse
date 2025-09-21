@@ -18,12 +18,14 @@ interface CatalogClientProps {
     size: string
     priceRange: string
     hardiness: string
+    flowerShape: string
   }
   initialPagination: {
     page: number
     limit: number
     offset: number
   }
+  locale: string
 }
 
 export function CatalogClient({
@@ -31,7 +33,8 @@ export function CatalogClient({
   initialSpecies,
   initialTotal,
   initialFilters,
-  initialPagination
+  initialPagination,
+  locale
 }: CatalogClientProps) {
   const t = useTranslations('catalog')
   
@@ -57,6 +60,7 @@ export function CatalogClient({
       if (newFilters.size) params.append('size', newFilters.size)
       if (newFilters.priceRange) params.append('priceRange', newFilters.priceRange)
       if (newFilters.hardiness) params.append('hardiness', newFilters.hardiness)
+      if (newFilters.flowerShape) params.append('flowerShape', newFilters.flowerShape)
       params.append('limit', '1000') // Fetch all plants at once
       params.append('offset', '0')
 
@@ -119,7 +123,8 @@ export function CatalogClient({
       color: '',
       size: '',
       priceRange: '',
-      hardiness: ''
+      hardiness: '',
+      flowerShape: ''
     }
     setFilters(newFilters)
     fetchPlants(newFilters)
@@ -130,7 +135,7 @@ export function CatalogClient({
   // Calculate if filters are active
   const hasActiveFilters = filters.search || filters.species || filters.color || 
                           filters.size || filters.priceRange || filters.hardiness || 
-                          filters.status !== 'available'
+                          filters.flowerShape || filters.status !== 'available'
 
   return (
     <>
@@ -160,7 +165,7 @@ export function CatalogClient({
             </div>
 
             {/* Filter Options */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
               {/* Species Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -271,6 +276,30 @@ export function CatalogClient({
                 </select>
               </div>
 
+              {/* Flower Shape Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('flower_shape') || 'Flower Shape'}
+                </label>
+                <select
+                  value={filters.flowerShape}
+                  onChange={(e) => {
+                    const newFilters = { ...filters, flowerShape: e.target.value }
+                    setFilters(newFilters)
+                    fetchPlants(newFilters)
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                >
+                  <option value="">{t('all_shapes') || 'All Shapes'}</option>
+                  <option value="Einfach">{t('shape_single') || 'Single'}</option>
+                  <option value="Halb gefüllt">{t('shape_semi_double') || 'Semi-double'}</option>
+                  <option value="Vollständig gefüllt">{t('shape_double') || 'Fully Double'}</option>
+                  <option value="Päonienförmig">{t('shape_peony') || 'Peony Form'}</option>
+                  <option value="Anemonenförmig">{t('shape_anemone') || 'Anemone Form'}</option>
+                  <option value="Rosenförmig">{t('shape_rose') || 'Rose Form'}</option>
+                </select>
+              </div>
+
               {/* Status Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -341,7 +370,7 @@ export function CatalogClient({
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {plants.map((plant) => (
-                <PlantCard key={plant.id} plant={plant} locale="de" />
+                <PlantCard key={plant.id} plant={plant} locale={locale} />
               ))}
             </div>
             

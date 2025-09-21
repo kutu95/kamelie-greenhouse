@@ -192,6 +192,7 @@ export interface Database {
           is_b2b_customer: boolean
           b2b_discount_percentage: number
           notes: string | null
+          profile_image_url: string | null
           created_at: string
           updated_at: string
         }
@@ -212,6 +213,7 @@ export interface Database {
           is_b2b_customer?: boolean
           b2b_discount_percentage?: number
           notes?: string | null
+          profile_image_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -232,6 +234,7 @@ export interface Database {
           is_b2b_customer?: boolean
           b2b_discount_percentage?: number
           notes?: string | null
+          profile_image_url?: string | null
           created_at?: string
           updated_at?: string
         }

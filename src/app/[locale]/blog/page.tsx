@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -7,65 +8,100 @@ import { Calendar, Clock, User, ArrowRight, Leaf, Home, Phone, Mail, MapPin } fr
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
+import { createClient } from '@/lib/supabase/client'
+
+interface BlogPost {
+  id: string
+  title_de: string
+  title_en: string
+  slug: string
+  content_de: string
+  content_en: string
+  excerpt_de: string
+  excerpt_en: string
+  featured_image_url: string
+  status: string
+  published_at: string
+  tags: string[]
+  author: {
+    first_name: string
+    last_name: string
+  }
+}
 
 export default function BlogPage() {
   const t = useTranslations('blog')
   const tCommon = useTranslations('common')
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const supabase = createClient()
 
-  // Sample blog posts
-  const blogPosts = [
-    {
-      id: 1,
-      title: t('posts.care_timing.title'),
-      excerpt: t('posts.care_timing.excerpt'),
-      content: 'Die Kamelien-Pflege ist eine Kunst, die Geduld und Wissen erfordert...',
-      author: 'Michael von Allesch',
-      date: '2024-01-15',
-      readTime: '5 min',
-      category: t('posts.care_timing.category'),
-      image: '/images/hero/quartier-grosspflanzen.jpg',
-      featured: true
-    },
-    {
-      id: 2,
-      title: t('posts.garden_varieties.title'),
-      excerpt: t('posts.garden_varieties.excerpt'),
-      content: 'Mit über 3.000 verschiedenen Sorten in unserer Sammlung...',
-      author: 'Michael von Allesch',
-      date: '2024-01-10',
-      readTime: '7 min',
-      category: t('posts.garden_varieties.category'),
-      image: '/images/hero/quartier-grosspflanzen.jpg',
-      featured: false
-    },
-    {
-      id: 3,
-      title: t('posts.wintering.title'),
-      excerpt: t('posts.wintering.excerpt'),
-      content: 'Die Überwinterung ist ein entscheidender Faktor für gesunde Kamelien...',
-      author: 'Michael von Allesch',
-      date: '2024-01-05',
-      readTime: '6 min',
-      category: t('posts.wintering.category'),
-      image: '/images/hero/quartier-grosspflanzen.jpg',
-      featured: false
-    },
-    {
-      id: 4,
-      title: t('posts.history.title'),
-      excerpt: t('posts.history.excerpt'),
-      content: t('posts.history.content'),
-      author: 'Michael von Allesch',
-      date: '2024-01-01',
-      readTime: '8 min',
-      category: t('posts.history.category'),
-      image: '/images/hero/quartier-grosspflanzen.jpg',
-      featured: false
+  useEffect(() => {
+    fetchBlogPosts()
+  }, [])
+
+  const fetchBlogPosts = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select(`
+          *,
+          author:user_profiles!blog_posts_author_id_fkey(
+            first_name,
+            last_name
+          )
+        `)
+        .eq('status', 'published')
+        .order('published_at', { ascending: false })
+
+      if (error) throw error
+      setBlogPosts(data || [])
+    } catch (err) {
+      console.error('Error fetching blog posts:', err)
+      setError('Failed to load blog posts')
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
 
-  const featuredPost = blogPosts.find(post => post.featured)
-  const regularPosts = blogPosts.filter(post => !post.featured)
+  const getLocalizedContent = (post: BlogPost, field: 'title' | 'excerpt' | 'content') => {
+    const locale = typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : 'de'
+    const suffix = locale === 'en' ? '_en' : '_de'
+    return post[`${field}${suffix}` as keyof BlogPost] as string
+  }
+
+  const calculateReadTime = (content: string) => {
+    const wordsPerMinute = 200
+    const wordCount = content.split(' ').length
+    return Math.ceil(wordCount / wordsPerMinute)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading blog posts...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Error</h1>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const featuredPost = blogPosts.find(post => post.tags.includes('featured'))
+  const regularPosts = blogPosts.filter(post => !post.tags.includes('featured'))
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -95,14 +131,14 @@ export default function BlogPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 <div className="relative h-64 lg:h-auto">
                   <Image
-                    src={featuredPost.image}
-                    alt={featuredPost.title}
+                    src={featuredPost.featured_image_url || '/images/hero/quartier-grosspflanzen.jpg'}
+                    alt={getLocalizedContent(featuredPost, 'title')}
                     fill
                     className="object-cover"
                   />
                   <div className="absolute top-4 left-4">
                     <Badge className="bg-green-600 text-white">
-                      {featuredPost.category}
+                      {featuredPost.tags[0] || 'Featured'}
                     </Badge>
                   </div>
                 </div>
@@ -110,25 +146,25 @@ export default function BlogPage() {
                   <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
-                      {new Date(featuredPost.date).toLocaleDateString('de-DE')}
+                      {new Date(featuredPost.published_at).toLocaleDateString('de-DE')}
                     </div>
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 mr-1" />
-                      {featuredPost.readTime}
+                      {calculateReadTime(getLocalizedContent(featuredPost, 'content'))} min
                     </div>
                     <div className="flex items-center">
                       <User className="h-4 w-4 mr-1" />
-                      {featuredPost.author}
+                      {featuredPost.author.first_name} {featuredPost.author.last_name}
                     </div>
                   </div>
                   <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-                    {featuredPost.title}
+                    {getLocalizedContent(featuredPost, 'title')}
                   </h2>
                   <p className="text-gray-600 mb-6 leading-relaxed">
-                    {featuredPost.excerpt}
+                    {getLocalizedContent(featuredPost, 'excerpt')}
                   </p>
                   <Button className="bg-green-600 hover:bg-green-700" asChild>
-                    <Link href={`/blog/${featuredPost.id}`} className="flex items-center">
+                    <Link href={`/blog/${featuredPost.slug}`} className="flex items-center">
                       {t('read_article')}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
@@ -148,14 +184,14 @@ export default function BlogPage() {
               <Card key={post.id} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
                 <div className="relative h-48 overflow-hidden rounded-t-lg">
                   <Image
-                    src={post.image}
-                    alt={post.title}
+                    src={post.featured_image_url || '/images/hero/quartier-grosspflanzen.jpg'}
+                    alt={getLocalizedContent(post, 'title')}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute top-4 left-4">
                     <Badge className="bg-green-600 text-white">
-                      {post.category}
+                      {post.tags[0] || 'Article'}
                     </Badge>
                   </div>
                 </div>
@@ -163,28 +199,28 @@ export default function BlogPage() {
                   <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
                     <div className="flex items-center">
                       <Calendar className="h-3 w-3 mr-1" />
-                      {new Date(post.date).toLocaleDateString('de-DE')}
+                      {new Date(post.published_at).toLocaleDateString('de-DE')}
                     </div>
                     <div className="flex items-center">
                       <Clock className="h-3 w-3 mr-1" />
-                      {post.readTime}
+                      {calculateReadTime(getLocalizedContent(post, 'content'))} min
                     </div>
                   </div>
                   <CardTitle className="text-lg sm:text-xl line-clamp-2 group-hover:text-green-600 transition-colors">
-                    {post.title}
+                    {getLocalizedContent(post, 'title')}
                   </CardTitle>
                   <CardDescription className="line-clamp-3">
-                    {post.excerpt}
+                    {getLocalizedContent(post, 'excerpt')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center text-sm text-gray-500">
                       <User className="h-4 w-4 mr-1" />
-                      {post.author}
+                      {post.author.first_name} {post.author.last_name}
                     </div>
                     <Button variant="ghost" size="sm" asChild className="text-green-600 hover:text-green-700">
-                      <Link href={`/blog/${post.id}`} className="flex items-center">
+                      <Link href={`/blog/${post.slug}`} className="flex items-center">
                         {t('read')}
                         <ArrowRight className="ml-1 h-3 w-3" />
                       </Link>

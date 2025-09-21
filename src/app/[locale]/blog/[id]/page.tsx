@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,69 +10,91 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { notFound } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+
+interface BlogPost {
+  id: string
+  title_de: string
+  title_en: string
+  slug: string
+  content_de: string
+  content_en: string
+  excerpt_de: string
+  excerpt_en: string
+  featured_image_url: string
+  status: string
+  published_at: string
+  tags: string[]
+  author: {
+    first_name: string
+    last_name: string
+  }
+}
 
 export default function BlogPostPage() {
   const t = useTranslations('blog')
   const tCommon = useTranslations('common')
   const params = useParams()
-  const postId = parseInt(params.id as string)
+  const postSlug = params.id as string
+  const [post, setPost] = useState<BlogPost | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const supabase = createClient()
 
-  // Sample blog posts data (same as in main blog page)
-  const blogPosts = [
-    {
-      id: 1,
-      title: t('posts.care_timing.title'),
-      excerpt: t('posts.care_timing.excerpt'),
-      content: 'Die Kamelien-Pflege ist eine Kunst, die Geduld und Wissen erfordert. Der beste Zeitpunkt für die Pflege Ihrer Kamelien hängt von verschiedenen Faktoren ab. Im Frühjahr, wenn die Pflanze aus ihrer Winterruhe erwacht, ist der ideale Zeitpunkt für den Rückschnitt und die Düngung. Der Sommer eignet sich besonders gut für das Umtopfen und die Vermehrung. Im Herbst sollten Sie Ihre Kamelien auf den Winter vorbereiten, während der Winter selbst eine Ruhephase für die Pflanzen darstellt.',
-      author: 'Michael von Allesch',
-      date: '2024-01-15',
-      readTime: '5 min',
-      category: t('posts.care_timing.category'),
-      image: '/images/hero/quartier-grosspflanzen.jpg',
-      featured: true
-    },
-    {
-      id: 2,
-      title: t('posts.garden_varieties.title'),
-      excerpt: t('posts.garden_varieties.excerpt'),
-      content: 'Mit über 3.000 verschiedenen Sorten in unserer Sammlung bieten wir eine beeindruckende Vielfalt für jeden Garten. Von kompakten Sorten für kleine Gärten bis hin zu imposanten Exemplaren für große Landschaften - die Auswahl ist grenzenlos. Besonders beliebt sind die winterharten Sorten, die auch in kälteren Regionen Deutschlands gedeihen. Wir beraten Sie gerne bei der Auswahl der passenden Sorte für Ihren Standort und Ihre Bedürfnisse.',
-      author: 'Michael von Allesch',
-      date: '2024-01-10',
-      readTime: '7 min',
-      category: t('posts.garden_varieties.category'),
-      image: '/images/hero/quartier-grosspflanzen.jpg',
-      featured: false
-    },
-    {
-      id: 3,
-      title: t('posts.wintering.title'),
-      excerpt: t('posts.wintering.excerpt'),
-      content: 'Die Überwinterung ist ein entscheidender Faktor für gesunde Kamelien. In unserem Gewächshaus sorgen wir für optimale Bedingungen während der kalten Monate. Die Temperatur wird konstant zwischen 5-10°C gehalten, und wir achten auf ausreichende Luftfeuchtigkeit. Regelmäßige Kontrollen auf Schädlinge und Krankheiten sind unerlässlich. Mit über 35 Jahren Erfahrung haben wir die besten Methoden für die erfolgreiche Überwinterung entwickelt.',
-      author: 'Michael von Allesch',
-      date: '2024-01-05',
-      readTime: '6 min',
-      category: t('posts.wintering.category'),
-      image: '/images/hero/quartier-grosspflanzen.jpg',
-      featured: false
-    },
-    {
-      id: 4,
-      title: t('posts.history.title'),
-      excerpt: t('posts.history.excerpt'),
-      content: t('posts.history.content'),
-      author: 'Michael von Allesch',
-      date: '2024-01-01',
-      readTime: '8 min',
-      category: t('posts.history.category'),
-      image: '/images/hero/quartier-grosspflanzen.jpg',
-      featured: false
+  useEffect(() => {
+    fetchBlogPost()
+  }, [postSlug])
+
+  const fetchBlogPost = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select(`
+          *,
+          author:user_profiles!blog_posts_author_id_fkey(
+            first_name,
+            last_name
+          )
+        `)
+        .eq('slug', postSlug)
+        .eq('status', 'published')
+        .single()
+
+      if (error) throw error
+      setPost(data)
+    } catch (err) {
+      console.error('Error fetching blog post:', err)
+      setError('Failed to load blog post')
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
 
-  // Find the blog post by ID
-  const post = blogPosts.find(p => p.id === postId)
+  const getLocalizedContent = (post: BlogPost, field: 'title' | 'excerpt' | 'content') => {
+    const locale = typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : 'de'
+    const suffix = locale === 'en' ? '_en' : '_de'
+    return post[`${field}${suffix}` as keyof BlogPost] as string
+  }
 
-  if (!post) {
+  const calculateReadTime = (content: string) => {
+    const wordsPerMinute = 200
+    const wordCount = content.split(' ').length
+    return Math.ceil(wordCount / wordsPerMinute)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading blog post...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !post) {
     notFound()
   }
 
@@ -96,10 +119,10 @@ export default function BlogPostPage() {
                 {t('badge')}
               </div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
-                {post.title}
+                {getLocalizedContent(post, 'title')}
               </h1>
               <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto">
-                {post.excerpt}
+                {getLocalizedContent(post, 'excerpt')}
               </p>
             </div>
           </div>
@@ -113,14 +136,14 @@ export default function BlogPostPage() {
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
               <div className="relative h-64 lg:h-96">
                 <Image
-                  src={post.image}
-                  alt={post.title}
+                  src={post.featured_image_url || '/images/hero/quartier-grosspflanzen.jpg'}
+                  alt={getLocalizedContent(post, 'title')}
                   fill
                   className="object-cover"
                 />
                 <div className="absolute top-4 left-4">
                   <Badge className="bg-green-600 text-white">
-                    {post.category}
+                    {post.tags[0] || 'Article'}
                   </Badge>
                 </div>
               </div>
@@ -130,22 +153,22 @@ export default function BlogPostPage() {
                 <div className="flex items-center space-x-4 text-sm text-gray-500 mb-6">
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
-                    {new Date(post.date).toLocaleDateString('de-DE')}
+                    {new Date(post.published_at).toLocaleDateString('de-DE')}
                   </div>
                   <div className="flex items-center">
                     <Clock className="h-4 w-4 mr-1" />
-                    {post.readTime}
+                    {calculateReadTime(getLocalizedContent(post, 'content'))} min
                   </div>
                   <div className="flex items-center">
                     <User className="h-4 w-4 mr-1" />
-                    {post.author}
+                    {post.author.first_name} {post.author.last_name}
                   </div>
                 </div>
 
                 {/* Article Content */}
                 <div className="prose prose-lg max-w-none">
                   <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                    {post.content}
+                    {getLocalizedContent(post, 'content')}
                   </div>
                 </div>
               </div>
