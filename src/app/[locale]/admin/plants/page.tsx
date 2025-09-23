@@ -167,7 +167,7 @@ export default function AdminPlantsPage() {
   }
 
   const filteredPlants = plants.filter(plant => {
-    const matchesSearch = plant.plant_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = (plant.plant_code?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
                          plant.cultivar.cultivar_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          plant.cultivar.species.scientific_name.toLowerCase().includes(searchTerm.toLowerCase())
     
