@@ -9,7 +9,7 @@ import Image from 'next/image'
 import { getCultivarPriceRange, formatPrice, getPriceGroupDescription } from '@/lib/supabase/pricing'
 import { PriceRange } from '@/lib/supabase/pricing'
 import { translateFlowerColor, translateFlowerForm, translateGrowthHabit, translateFoliageType } from '@/lib/utils/translations'
-import { PlantSelectionModal } from './plant-selection-modal'
+import { AvailabilityRequestModal } from './availability-request-modal'
 
 interface PlantDetailsModalProps {
   plant: Plant | null
@@ -265,7 +265,7 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                   </Button>
                   <Button className="flex-1" onClick={handleSelectPlant}>
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    {isGerman ? 'Pflanze auswählen' : 'Select Plant'}
+                    {isGerman ? 'Verfügbarkeit anfragen' : 'Contact for Availability'}
                   </Button>
                 </div>
               </div>
@@ -274,8 +274,8 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
         </div>
       </div>
 
-      {/* Plant Selection Modal */}
-      <PlantSelectionModal
+      {/* Availability Request Modal */}
+      <AvailabilityRequestModal
         cultivarId={cultivar?.id}
         isOpen={showPlantSelection}
         onClose={onClose}
