@@ -35,6 +35,9 @@ interface Plant {
     flower_form: string
     special_characteristics: string
     price_group: 'A' | 'B' | 'C' | null
+    photo_url: string | null
+    photo_alt_text_de: string | null
+    photo_alt_text_en: string | null
     species: {
       scientific_name: string
     }
@@ -103,6 +106,9 @@ export default function AdminPlantsPage() {
             flower_form,
             special_characteristics,
             price_group,
+            photo_url,
+            photo_alt_text_de,
+            photo_alt_text_en,
             species:species(scientific_name)
           ),
           photos:plant_photos(*)
@@ -294,15 +300,13 @@ export default function AdminPlantsPage() {
         {/* Plants Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredPlants.map((plant) => {
-            const featuredPhoto = plant.photos?.find(photo => photo.is_primary) || plant.photos?.[0]
-            
             return (
               <Card key={plant.id} className="overflow-hidden">
                 <div className="aspect-square relative bg-gradient-to-br from-green-100 to-green-200">
-                  {featuredPhoto && featuredPhoto.photo_url ? (
+                  {plant.cultivar.photo_url ? (
                     <Image
-                      src={featuredPhoto.photo_url}
-                      alt={plant.cultivar.cultivar_name}
+                      src={plant.cultivar.photo_url}
+                      alt={plant.cultivar.photo_alt_text_de || plant.cultivar.cultivar_name}
                       fill
                       className="object-cover"
                     />
