@@ -100,16 +100,27 @@ export default function NewPlant() {
       return
     }
 
+    if (!formData.age_years || parseInt(formData.age_years) < 0) {
+      setError(locale === 'de' ? 'Alter muss angegeben werden und größer als 0 sein' : 'Age must be specified and greater than 0')
+      return
+    }
+
     setSaving(true)
     setError(null)
     setSuccess(null)
 
     try {
+      const cultivarId = parseInt(formData.cultivar_id)
+      if (isNaN(cultivarId)) {
+        setError(locale === 'de' ? 'Ungültige Sorte ausgewählt' : 'Invalid variety selected')
+        return
+      }
+
       const { error } = await supabase
         .from('plants')
         .insert({
-          cultivar_id: parseInt(formData.cultivar_id),
-          age_years: formData.age_years ? parseInt(formData.age_years) : null,
+          cultivar_id: cultivarId,
+          age_years: parseInt(formData.age_years), // Required field
           height_cm: formData.height_cm ? parseInt(formData.height_cm) : null,
           pot_size: formData.pot_size || null,
           plant_code: formData.plant_code || null,
@@ -130,7 +141,8 @@ export default function NewPlant() {
       }, 2000)
     } catch (err) {
       console.error('Error creating plant:', err)
-      setError(locale === 'de' ? 'Fehler beim Erstellen der Pflanze' : 'Error creating plant')
+      console.error('Form data:', formData)
+      setError(locale === 'de' ? `Fehler beim Erstellen der Pflanze: ${err instanceof Error ? err.message : JSON.stringify(err)}` : `Error creating plant: ${err instanceof Error ? err.message : JSON.stringify(err)}`)
     } finally {
       setSaving(false)
     }
@@ -228,11 +240,13 @@ export default function NewPlant() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="age_years">
-                      {locale === 'de' ? 'Alter (Jahre)' : 'Age (Years)'}
+                      {locale === 'de' ? 'Alter (Jahre) *' : 'Age (Years) *'}
                     </Label>
                     <Input
                       id="age_years"
                       type="number"
+                      required
+                      min="0"
                       value={formData.age_years}
                       onChange={(e) => handleInputChange('age_years', e.target.value)}
                       placeholder="3"
