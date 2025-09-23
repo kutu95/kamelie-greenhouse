@@ -86,6 +86,9 @@ export interface Database {
           special_characteristics: string | null
           hardiness_rating: number | null
           price_group: 'A' | 'B' | 'C' | null
+          photo_url: string | null
+          photo_alt_text_de: string | null
+          photo_alt_text_en: string | null
           created_at: string
           updated_at: string
         }
@@ -103,6 +106,9 @@ export interface Database {
           special_characteristics?: string | null
           hardiness_rating?: number | null
           price_group?: 'A' | 'B' | 'C' | null
+          photo_url?: string | null
+          photo_alt_text_de?: string | null
+          photo_alt_text_en?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -120,6 +126,9 @@ export interface Database {
           special_characteristics?: string | null
           hardiness_rating?: number | null
           price_group?: 'A' | 'B' | 'C' | null
+          photo_url?: string | null
+          photo_alt_text_de?: string | null
+          photo_alt_text_en?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -332,6 +341,86 @@ export interface Database {
           billing_address?: Json | null
           notes?: string | null
           admin_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      products: {
+        Row: {
+          id: string
+          name_de: string
+          name_en: string
+          description_de: string | null
+          description_en: string | null
+          category: string
+          sku: string
+          price_euros: number
+          stock_quantity: number
+          min_stock_level: number
+          weight_kg: number | null
+          dimensions_cm: string | null
+          image_url: string | null
+          image_alt_text_de: string | null
+          image_alt_text_en: string | null
+          is_active: boolean
+          is_featured: boolean
+          sort_order: number
+          seo_title_de: string | null
+          seo_title_en: string | null
+          seo_description_de: string | null
+          seo_description_en: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name_de: string
+          name_en: string
+          description_de?: string | null
+          description_en?: string | null
+          category: string
+          sku: string
+          price_euros: number
+          stock_quantity?: number
+          min_stock_level?: number
+          weight_kg?: number | null
+          dimensions_cm?: string | null
+          image_url?: string | null
+          image_alt_text_de?: string | null
+          image_alt_text_en?: string | null
+          is_active?: boolean
+          is_featured?: boolean
+          sort_order?: number
+          seo_title_de?: string | null
+          seo_title_en?: string | null
+          seo_description_de?: string | null
+          seo_description_en?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name_de?: string
+          name_en?: string
+          description_de?: string | null
+          description_en?: string | null
+          category?: string
+          sku?: string
+          price_euros?: number
+          stock_quantity?: number
+          min_stock_level?: number
+          weight_kg?: number | null
+          dimensions_cm?: string | null
+          image_url?: string | null
+          image_alt_text_de?: string | null
+          image_alt_text_en?: string | null
+          is_active?: boolean
+          is_featured?: boolean
+          sort_order?: number
+          seo_title_de?: string | null
+          seo_title_en?: string | null
+          seo_description_de?: string | null
+          seo_description_en?: string | null
           created_at?: string
           updated_at?: string
         }

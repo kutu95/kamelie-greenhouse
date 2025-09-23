@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Search, Filter, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { PlantCard } from '@/components/catalog/plant-card'
+import { CultivarCard } from '@/components/catalog/cultivar-card'
 
 interface CatalogClientProps {
   initialPlants: any[]
@@ -38,7 +38,7 @@ export function CatalogClient({
 }: CatalogClientProps) {
   const t = useTranslations('catalog')
   
-  const [plants, setPlants] = useState(initialPlants)
+  const [cultivars, setCultivars] = useState(initialPlants) // Using cultivars instead of plants
   const [species, setSpecies] = useState(initialSpecies)
   const [loading, setLoading] = useState(initialPlants.length === 0)
   const [error, setError] = useState<string | null>(null)
@@ -47,36 +47,53 @@ export function CatalogClient({
   const [pagination, setPagination] = useState(initialPagination)
 
   // Fetch function with useCallback to prevent infinite re-renders
-  const fetchPlants = useCallback(async (newFilters = filters) => {
+  const fetchCultivars = useCallback(async (newFilters = filters) => {
     setLoading(true)
     setError(null)
     
     try {
-      const params = new URLSearchParams()
-      if (newFilters.search) params.append('search', newFilters.search)
-      if (newFilters.species) params.append('species', newFilters.species)
-      if (newFilters.status) params.append('status', newFilters.status)
-      if (newFilters.color) params.append('color', newFilters.color)
-      if (newFilters.size) params.append('size', newFilters.size)
-      if (newFilters.priceRange) params.append('priceRange', newFilters.priceRange)
-      if (newFilters.hardiness) params.append('hardiness', newFilters.hardiness)
-      if (newFilters.flowerShape) params.append('flowerShape', newFilters.flowerShape)
-      params.append('limit', '1000') // Fetch all plants at once
-      params.append('offset', '0')
-
-      const url = `/api/plants?${params.toString()}`
-      const response = await fetch(url)
-
+      // Fetch all cultivars first
+      const response = await fetch('/api/cultivars')
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch plants')
+        throw new Error('Failed to fetch cultivars')
       }
       
       const data = await response.json()
-      setPlants(data.plants || [])
-      setTotal(data.total || 0)
+      let allCultivars = data.cultivars || []
+      
+      // Apply client-side filtering since we're fetching all cultivars
+      if (newFilters.search) {
+        const searchTerm = newFilters.search.toLowerCase()
+        allCultivars = allCultivars.filter((cultivar: any) => 
+          cultivar.cultivar_name.toLowerCase().includes(searchTerm) ||
+          cultivar.species?.scientific_name.toLowerCase().includes(searchTerm)
+        )
+      }
+      
+      if (newFilters.species) {
+        allCultivars = allCultivars.filter((cultivar: any) => 
+          cultivar.species?.scientific_name === newFilters.species
+        )
+      }
+      
+      if (newFilters.color) {
+        allCultivars = allCultivars.filter((cultivar: any) => 
+          cultivar.flower_color === newFilters.color
+        )
+      }
+      
+      if (newFilters.flowerShape) {
+        allCultivars = allCultivars.filter((cultivar: any) => 
+          cultivar.flower_form === newFilters.flowerShape
+        )
+      }
+      
+      setCultivars(allCultivars)
+      setTotal(allCultivars.length)
     } catch (error) {
-      console.error('Error fetching plants:', error)
-      setError(error instanceof Error ? error.message : 'Failed to fetch plants')
+      console.error('Error fetching cultivars:', error)
+      setError(error instanceof Error ? error.message : 'Failed to fetch cultivars')
     } finally {
       setLoading(false)
     }
@@ -98,21 +115,21 @@ export function CatalogClient({
   // Initial data fetch
   useEffect(() => {
     if (initialPlants.length === 0) {
-      fetchPlants()
+      fetchCultivars()
       fetchSpecies()
     }
-  }, [fetchPlants, fetchSpecies, initialPlants.length]) // Add all dependencies
+  }, [fetchCultivars, fetchSpecies, initialPlants.length]) // Add all dependencies
 
   const handleSearch = (searchTerm: string) => {
     const newFilters = { ...filters, search: searchTerm }
     setFilters(newFilters)
-    fetchPlants(newFilters)
+    fetchCultivars(newFilters)
   }
 
   const handleSpeciesFilter = (speciesName: string) => {
     const newFilters = { ...filters, species: speciesName }
     setFilters(newFilters)
-    fetchPlants(newFilters)
+    fetchCultivars(newFilters)
   }
 
   const resetFilters = () => {
@@ -127,7 +144,7 @@ export function CatalogClient({
       flowerShape: ''
     }
     setFilters(newFilters)
-    fetchPlants(newFilters)
+    fetchCultivars(newFilters)
   }
 
   // No pagination - show all plants
@@ -195,7 +212,7 @@ export function CatalogClient({
              onChange={(e) => {
                const newFilters = { ...filters, color: e.target.value }
                setFilters(newFilters)
-               fetchPlants(newFilters)
+               fetchCultivars(newFilters)
              }}
              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
            >
@@ -219,7 +236,7 @@ export function CatalogClient({
                   onChange={(e) => {
                     const newFilters = { ...filters, size: e.target.value }
                     setFilters(newFilters)
-                    fetchPlants(newFilters)
+                    fetchCultivars(newFilters)
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                 >
@@ -241,7 +258,7 @@ export function CatalogClient({
                   onChange={(e) => {
                     const newFilters = { ...filters, priceRange: e.target.value }
                     setFilters(newFilters)
-                    fetchPlants(newFilters)
+                    fetchCultivars(newFilters)
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                 >
@@ -263,7 +280,7 @@ export function CatalogClient({
                   onChange={(e) => {
                     const newFilters = { ...filters, hardiness: e.target.value }
                     setFilters(newFilters)
-                    fetchPlants(newFilters)
+                    fetchCultivars(newFilters)
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                 >
@@ -286,7 +303,7 @@ export function CatalogClient({
                   onChange={(e) => {
                     const newFilters = { ...filters, flowerShape: e.target.value }
                     setFilters(newFilters)
-                    fetchPlants(newFilters)
+                    fetchCultivars(newFilters)
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                 >
@@ -300,25 +317,6 @@ export function CatalogClient({
                 </select>
               </div>
 
-              {/* Status Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('status') || 'Status'}
-                </label>
-                <select
-                  value={filters.status}
-                  onChange={(e) => {
-                    const newFilters = { ...filters, status: e.target.value }
-                    setFilters(newFilters)
-                    fetchPlants(newFilters)
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-                >
-                  <option value="available">{t('available') || 'Available'}</option>
-                  <option value="reserved">{t('reserved') || 'Reserved'}</option>
-                  <option value="sold">{t('sold') || 'Sold'}</option>
-                </select>
-              </div>
             </div>
           </div>
         </div>
@@ -326,7 +324,7 @@ export function CatalogClient({
 
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
-        {loading && plants.length === 0 ? (
+        {loading && cultivars.length === 0 ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-green-600" />
             <span className="ml-2 text-gray-600">
@@ -336,11 +334,11 @@ export function CatalogClient({
         ) : error ? (
           <div className="text-center py-12">
             <p className="text-red-600 mb-4">{error}</p>
-            <Button onClick={() => fetchPlants()}>
+            <Button onClick={() => fetchCultivars()}>
               {t('try_again')}
             </Button>
           </div>
-        ) : plants.length === 0 ? (
+        ) : cultivars.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600 mb-4">
               {t('no_plants_found')}
@@ -369,8 +367,8 @@ export function CatalogClient({
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {plants.map((plant) => (
-                <PlantCard key={plant.id} plant={plant} locale={locale} />
+              {cultivars.map((cultivar) => (
+                <CultivarCard key={cultivar.id} cultivar={cultivar} locale={locale} />
               ))}
             </div>
             

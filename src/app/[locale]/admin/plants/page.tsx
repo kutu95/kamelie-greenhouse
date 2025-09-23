@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { 
   Plus, 
   Search, 
@@ -60,6 +60,7 @@ export default function AdminPlantsPage() {
   const [filterPriceGroup, setFilterPriceGroup] = useState('all')
   const [calculatingPrices, setCalculatingPrices] = useState(false)
   const router = useRouter()
+  const params = useParams()
   const supabase = createClient()
 
   useEffect(() => {
@@ -220,7 +221,7 @@ export default function AdminPlantsPage() {
                 <p className="text-gray-600">Manage your plant inventory</p>
               </div>
             </div>
-            <Button onClick={() => router.push('/admin/plants/new')}>
+            <Button onClick={() => router.push(`/${params.locale}/admin/plants/new`)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Plant
             </Button>

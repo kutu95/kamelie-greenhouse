@@ -18,7 +18,9 @@ import {
   LogOut,
   Plus,
   Calculator,
-  DollarSign
+  DollarSign,
+  Flower,
+  Package
 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
@@ -193,20 +195,38 @@ export default function AdminDashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/admin/plants')}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push(`/${locale}/admin/varieties`)}>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <TreeDeciduous className="h-5 w-5 mr-2" />
-                {t('plants')}
+                <Flower className="h-5 w-5 mr-2" />
+                {locale === 'de' ? 'Sortenverwaltung' : 'Variety Management'}
               </CardTitle>
               <CardDescription>
-                {t('manage_plants_desc')}
+                {locale === 'de' ? 'Verwalten Sie Ihre Kameliensorten' : 'Manage your camellia varieties'}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="w-full">
-                <Eye className="h-4 w-4 mr-2" />
-                {t('manage_plants')}
+                <Flower className="h-4 w-4 mr-2" />
+                {locale === 'de' ? 'Sorten verwalten' : 'Manage Varieties'}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push(`/${locale}/admin/plants`)}>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <TreeDeciduous className="h-5 w-5 mr-2" />
+                {locale === 'de' ? 'Inventarverwaltung' : 'Inventory Management'}
+              </CardTitle>
+              <CardDescription>
+                {locale === 'de' ? 'Verwalten Sie Ihre Pflanzenbestände' : 'Manage your plant inventory'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                <TreeDeciduous className="h-4 w-4 mr-2" />
+                {locale === 'de' ? 'Inventar verwalten' : 'Manage Inventory'}
               </Button>
             </CardContent>
           </Card>
@@ -283,7 +303,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/admin/cultivars')}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push(`/${locale}/admin/cultivars`)}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <DollarSign className="h-5 w-5 mr-2" />
@@ -297,6 +317,24 @@ export default function AdminDashboard() {
               <Button className="w-full">
                 <DollarSign className="h-4 w-4 mr-2" />
                 {t('manage_cultivar_groups')}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push(`/${locale}/admin/products`)}>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Package className="h-5 w-5 mr-2" />
+                {locale === 'de' ? 'Produktverwaltung' : 'Product Management'}
+              </CardTitle>
+              <CardDescription>
+                {locale === 'de' ? 'Verwalten Sie Produkte wie Erde, Töpfe und Zubehör' : 'Manage products like soil, pots, and accessories'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                <Package className="h-4 w-4 mr-2" />
+                {locale === 'de' ? 'Produkte verwalten' : 'Manage Products'}
               </Button>
             </CardContent>
           </Card>

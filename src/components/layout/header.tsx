@@ -9,9 +9,12 @@ import { Button } from '@/components/ui/button'
 import { ShoppingCart, User, Menu, Leaf, X } from 'lucide-react'
 import { useState } from 'react'
 import { LanguageToggle } from '@/components/ui/language-toggle'
+import { useParams } from 'next/navigation'
 
 export function Header() {
   const t = useTranslations('navigation')
+  const params = useParams()
+  const locale = params.locale as string
   const { user, profile, signOut, loading, isLoggingOut, setUser, setProfile, setLoading, setIsLoggingOut } = useAuthStore()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -62,6 +65,13 @@ export function Header() {
               className="text-sm font-medium text-gray-700 hover:text-green-600 transition-colors duration-200 relative group"
             >
               {t('catalog')}
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-green-600 group-hover:w-full transition-all duration-200"></span>
+            </Link>
+            <Link 
+              href="/products" 
+              className="text-sm font-medium text-gray-700 hover:text-green-600 transition-colors duration-200 relative group"
+            >
+              {locale === 'de' ? 'Produkte' : 'Products'}
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-green-600 group-hover:w-full transition-all duration-200"></span>
             </Link>
             <Link 
@@ -190,6 +200,13 @@ export function Header() {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {t('catalog')}
+                </Link>
+                <Link 
+                  href="/products" 
+                  className="block text-base font-medium text-gray-700 hover:text-green-600 transition-colors duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {locale === 'de' ? 'Produkte' : 'Products'}
                 </Link>
                 <Link 
                   href="/services" 

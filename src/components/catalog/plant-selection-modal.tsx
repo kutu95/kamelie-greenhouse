@@ -65,7 +65,8 @@ export function PlantSelectionModal({
           .from('plants')
           .select(`
             *,
-            cultivar (*)
+            cultivar (*),
+            photos (*)
           `)
           .eq('cultivar_id', cultivarId)
           .eq('status', 'available')
@@ -259,54 +260,92 @@ export function PlantSelectionModal({
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {availablePlants.map((plantSelection) => (
-                    <div
-                      key={plantSelection.plant.id}
-                      className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                        selectedPlant?.plant.id === plantSelection.plant.id
-                          ? 'border-green-600 bg-green-50'
-                          : 'border-gray-200 hover:border-green-300'
-                      }`}
-                      onClick={() => setSelectedPlant(plantSelection)}
-                    >
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center space-x-2">
-                          <Package className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm font-medium">{plantSelection.plant.pot_size}</span>
+                  {availablePlants.map((plantSelection) => {
+                    const featuredPhoto = plantSelection.plant.photos?.find(photo => photo.is_primary) || plantSelection.plant.photos?.[0]
+                    
+                    return (
+                      <div
+                        key={plantSelection.plant.id}
+                        className={`border-2 rounded-lg overflow-hidden cursor-pointer transition-all ${
+                          selectedPlant?.plant.id === plantSelection.plant.id
+                            ? 'border-green-600 bg-green-50'
+                            : 'border-gray-200 hover:border-green-300'
+                        }`}
+                        onClick={() => setSelectedPlant(plantSelection)}
+                      >
+                        {/* Plant Image */}
+                        <div className="aspect-square relative bg-gradient-to-br from-green-100 to-green-200">
+                          {featuredPhoto && featuredPhoto.photo_url ? (
+                            <Image
+                              src={featuredPhoto.photo_url}
+                              alt={isGerman ? featuredPhoto.alt_text_de : featuredPhoto.alt_text_en}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="flex items-center justify-center h-full">
+                              <div className="text-center">
+                                <Leaf className="h-12 w-12 text-green-600 mx-auto mb-2" />
+                                <p className="text-green-700 font-medium text-sm">
+                                  {isGerman ? 'Kamelie' : 'Camellia'}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Selection indicator */}
+                          {selectedPlant?.plant.id === plantSelection.plant.id && (
+                            <div className="absolute top-2 right-2">
+                              <div className="bg-green-600 text-white rounded-full p-1">
+                                <Check className="h-4 w-4" />
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        {selectedPlant?.plant.id === plantSelection.plant.id && (
-                          <Check className="h-5 w-5 text-green-600" />
-                        )}
-                      </div>
 
-                      <div className="space-y-2 mb-3">
-                        <div className="flex items-center space-x-2 text-sm">
-                          <Calendar className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-600">
-                            {plantSelection.plant.age_years} {isGerman ? 'Jahre' : 'years'}
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2 text-sm">
-                          <Leaf className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-600">
-                            {plantSelection.plant.height_cm} cm {isGerman ? 'Höhe' : 'height'}
-                          </span>
-                        </div>
+                        {/* Plant Details */}
+                        <div className="p-4">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex items-center space-x-2">
+                              <Package className="h-4 w-4 text-gray-400" />
+                              <span className="text-sm font-medium">{plantSelection.plant.pot_size}</span>
+                            </div>
+                          </div>
 
-                        <div className="flex items-center space-x-2">
-                          <Euro className="h-4 w-4 text-green-600" />
-                          <span className="text-lg font-bold text-green-600">
-                            {formatPrice(plantSelection.calculatedPrice, isGerman ? 'de-DE' : 'en-US')}
-                          </span>
+                          <div className="space-y-2 mb-3">
+                            <div className="flex items-center space-x-2 text-sm">
+                              <Calendar className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-600">
+                                {plantSelection.plant.age_years} {isGerman ? 'Jahre' : 'years'}
+                              </span>
+                            </div>
+                            
+                            {plantSelection.plant.height_cm && (
+                              <div className="flex items-center space-x-2 text-sm">
+                                <Leaf className="h-4 w-4 text-gray-400" />
+                                <span className="text-gray-600">
+                                  {plantSelection.plant.height_cm} cm {isGerman ? 'Höhe' : 'height'}
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="flex items-center space-x-2">
+                              <Euro className="h-4 w-4 text-green-600" />
+                              <span className="text-lg font-bold text-green-600">
+                                {formatPrice(plantSelection.calculatedPrice, isGerman ? 'de-DE' : 'en-US')}
+                              </span>
+                            </div>
+                          </div>
+
+                          {plantSelection.plant.plant_code && (
+                            <div className="text-xs text-gray-500">
+                              {isGerman ? 'Code' : 'Code'}: {plantSelection.plant.plant_code}
+                            </div>
+                          )}
                         </div>
                       </div>
-
-                      <div className="text-xs text-gray-500">
-                        {isGerman ? 'Code' : 'Code'}: {plantSelection.plant.plant_code}
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
 
                 {availablePlants.length === 0 && !calculatingPrices && (
