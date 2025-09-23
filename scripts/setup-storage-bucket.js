@@ -79,3 +79,4 @@ async function setupStorageBucket() {
 
 // Run the setup
 setupStorageBucket()
+

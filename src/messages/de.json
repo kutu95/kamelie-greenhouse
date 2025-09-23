@@ -50,58 +50,108 @@
     "no_image": "Kein Profilbild festgelegt"
   },
   "home": {
-    "title": "Willkommen bei Kamelie Greenhouse",
-    "subtitle": "Deutschlands größte Kameliensammlung",
-    "description": "Entdecken Sie unsere exklusive Sammlung von über 3.000 Kamelienpflanzen. Über 35 Jahre Erfahrung in der Kamelienzucht und persönliche Beratung.",
-    "cta_catalog": "Katalog entdecken",
-    "cta_contact": "Kontakt aufnehmen",
+    "hero": {
+      "badge": "Seit 1990 - Deutschlands größte Sammlung",
+      "title": "Willkommen bei Kamelie Greenhouse",
+      "subtitle": "Deutschlands größte Kameliensammlung",
+      "description": "Über 3.000 Kamelienpflanzen in unserem Gewächshaus",
+      "detailedDescription": "Entdecken Sie unsere exklusive Sammlung von über 3.000 Kamelienpflanzen. Über 35 Jahre Erfahrung in der Kamelienzucht und persönliche Beratung.",
+      "catalogButton": "Katalog entdecken",
+      "contactButton": "Kontakt aufnehmen",
+      "collectionTitle": "Kamelien-Sammlung",
+      "collectionSubtitle": "Deutschlands größte Sammlung",
+      "plantCount": "3.000+ Pflanzen",
+      "experience": "35+ Jahre",
+      "greenhouseSize": "2.000 m² Gewächshaus"
+    },
     "features": {
-      "title": "Warum Kamelie Greenhouse?",
-      "subtitle": "Über 35 Jahre Leidenschaft für Kamelien",
-      "description": "Von der privaten Leidenschaft zu Deutschlands größter Kameliensammlung - persönlicher Service und fachliche Expertise seit 1990",
-      "expertise": "35+ Jahre Expertise",
-      "expertise_desc": "Über 35 Jahre Erfahrung in der Kamelienzucht und kontinuierliche Weiterbildung",
-      "consulting": "Persönliche Beratung",
-      "consulting_desc": "Individuelle Beratung zu Standort, Pflege und Sortenauswahl",
-      "greenhouse": "2.000 m² Gewächshaus",
-      "greenhouse_desc": "Besuchen Sie unser modernes Gewächshaus mit optimalen Bedingungen",
-      "seasonal": "Blütezeit Feb-Apr",
-      "seasonal_desc": "Erleben Sie die spektakuläre Blütezeit von Februar bis April"
+      "badge": "Warum Kamelie Greenhouse?",
+      "title": "Über 35 Jahre Leidenschaft für Kamelien",
+      "subtitle": "Von der privaten Leidenschaft zu Deutschlands größter Kameliensammlung - persönlicher Service und fachliche Expertise seit 1990",
+      "expertise": {
+        "title": "35+ Jahre Expertise",
+        "description": "Über 35 Jahre Erfahrung in der Kamelienzucht und kontinuierliche Weiterbildung"
+      },
+      "consultation": {
+        "title": "Persönliche Beratung",
+        "description": "Individuelle Beratung zu Standort, Pflege und Sortenauswahl"
+      },
+      "greenhouse": {
+        "title": "2.000 m² Gewächshaus",
+        "description": "Besuchen Sie unser modernes Gewächshaus mit optimalen Bedingungen"
+      },
+      "blooming": {
+        "title": "Blütezeit Feb-Apr",
+        "description": "Erleben Sie die spektakuläre Blütezeit von Februar bis April"
+      }
+    },
+    "stats": {
+      "varieties": "Sorten",
+      "years": "Jahre Erfahrung",
+      "quality": "Qualitätsgarantie"
+    },
+    "services": {
+      "title": "Unsere Leistungen",
+      "subtitle": "Professionelle Kamelien-Services mit über 35 Jahren Erfahrung",
+      "growing": {
+        "title": "Anzucht & Kultivierung",
+        "description": "Professionelle Kultivierung von Kamelien mit optimalen Pflegebedingungen"
+      },
+      "consultation": {
+        "title": "Persönliche Beratung",
+        "description": "Individuelle Beratung zu Standort, Pflege und Sortenauswahl"
+      },
+      "varieties": {
+        "title": "Seltene Sorten",
+        "description": "Zugang zu exklusiven und seltenen Kameliensorten"
+      },
+      "community": {
+        "title": "Kamelien-Community",
+        "description": "Vernetzen Sie sich mit anderen Kamelien-Enthusiasten und Experten"
+      }
     },
     "gallery": {
       "title": "Ein Blick in unser Gewächshaus",
       "subtitle": "Entdecken Sie die Vielfalt unserer Kameliensammlung",
-      "collection": "Kamelien-Sammlung",
-      "blooming": "Blühende Kamelien",
-      "greenhouse": "Gewächshaus",
+      "collection": {
+        "title": "Kamelien-Sammlung",
+        "subtitle": "Über 3.000 Pflanzen",
+        "description": "Über 3.000 verschiedene Pflanzen"
+      },
+      "blooming": {
+        "title": "Blühende Kamelien",
+        "subtitle": "Februar - April",
+        "description": "Februar bis April"
+      },
+      "greenhouse": {
+        "title": "Gewächshaus",
+        "subtitle": "2.000 m² Fläche",
+        "description": "2.000 m² moderne Anlage"
+      },
       "tip": "💡 Tipp: Klicken Sie auf die Bilder für eine größere Ansicht",
-      "view_all": "Alle Bilder ansehen",
-      "over_3000_plants": "Über 3.000 Pflanzen",
-      "over_3000_different_plants": "Über 3.000 verschiedene Pflanzen",
-      "blooming_period": "Februar - April",
-      "blooming_time": "Blütezeit",
-      "blooming_time_desc": "Februar bis April",
-      "greenhouse_area": "2.000 m² Fläche",
-      "modern_facility": "2.000 m² moderne Anlage"
-    },
-    "collection_card": {
-      "title": "Kamelien-Sammlung",
-      "subtitle": "Deutschlands größte Sammlung",
-      "plants_count": "3.000+ Pflanzen",
-      "years_experience": "35+ Jahre"
+      "viewAllButton": "Alle Bilder ansehen"
     },
     "contact": {
       "title": "Besuchen Sie uns",
       "subtitle": "Öffnungszeiten während der Kameliensaison (März - Mai)",
-      "address": "Adresse",
-      "phone": "Telefon",
-      "email": "E-Mail"
+      "address": {
+        "title": "Adresse",
+        "content": "Kurfürstendeich 54<br />21037 Hamburg"
+      },
+      "phone": {
+        "title": "Telefon",
+        "content": "+49 40 220 94 58<br />+49 176 29 63 88 66"
+      },
+      "email": {
+        "title": "E-Mail",
+        "content": "info@kamelie.net"
+      }
     },
     "cta": {
       "title": "Entdecken Sie unsere Kameliensammlung",
       "subtitle": "Über 3.000 Pflanzen in verschiedenen Größen und Sorten. Von klassischen Sorten bis zu seltenen Raritäten.",
-      "catalog": "Katalog ansehen",
-      "services": "Unsere Leistungen"
+      "catalogButton": "Katalog ansehen",
+      "servicesButton": "Unsere Leistungen"
     }
   },
         "catalog": {
@@ -362,19 +412,40 @@
     "login_button": "Anmelden",
     "back_to_site": "Zurück zur Website",
     "dashboard_title": "Admin-Dashboard",
-    "overview": "Übersicht",
+    "overview": "Verwalten Sie Ihr Kamelie-Gewächshaus",
     "plants": "Pflanzen",
     "users": "Benutzer",
     "orders": "Bestellungen",
     "blog": "Blog",
     "settings": "Einstellungen",
-    "loading_dashboard": "Lade Dashboard...",
-    "error_title": "Fehler",
-    "back_to_login": "Zurück zur Anmeldung",
+    "loading_dashboard": "Dashboard wird geladen...",
+    "error_title": "Fehler beim Laden der Dashboard-Daten",
+    "back_to_login": "Abmelden",
     "total_plants": "Pflanzen gesamt",
     "total_users": "Benutzer gesamt",
     "total_orders": "Bestellungen gesamt",
     "total_blog_posts": "Blog-Artikel gesamt",
+    "available_in_catalog": "Im Katalog verfügbar",
+    "registered_customers": "Registrierte Kunden",
+    "all_time_orders": "Alle Bestellungen",
+    "published_articles": "Veröffentlichte Artikel",
+    "manage_plants": "Pflanzen verwalten",
+    "manage_plants_desc": "Pflanzenbestand hinzufügen, bearbeiten und verwalten",
+    "manage_users": "Benutzer verwalten",
+    "manage_users_desc": "Benutzerkonten und Rollen verwalten",
+    "manage_orders": "Bestellungen verwalten",
+    "manage_orders_desc": "Kundenbestellungen anzeigen und bearbeiten",
+    "manage_blog": "Blog verwalten",
+    "manage_blog_desc": "Blog-Beiträge erstellen und verwalten",
+    "manage_pricing": "Preise verwalten",
+    "manage_pricing_desc": "A/B/C-Preisgruppen und Preisberechnungen verwalten",
+    "pricing_matrix": "Preismatrix",
+    "manage_cultivar_groups": "Gruppen verwalten",
+    "manage_settings": "Einstellungen",
+    "manage_settings_desc": "Systemeinstellungen und Präferenzen konfigurieren",
+    "view_catalog": "Katalog anzeigen",
+    "view_catalog_desc": "Den öffentlichen Katalog anzeigen",
+    "view_public_site": "Öffentliche Website anzeigen",
     "add_new_plant": "Neue Pflanze hinzufügen",
     "search_plants_placeholder": "Pflanzen suchen...",
     "all_species": "Alle Arten",
@@ -386,6 +457,45 @@
     "status": "Status",
     "actions": "Aktionen",
     "confirm_delete_plant": "Sind Sie sicher, dass Sie diese Pflanze löschen möchten?",
-    "loading_plants_data": "Lade Pflanzendaten..."
+    "loading_plants_data": "Lade Pflanzendaten...",
+    "cultivar_price_groups": "Kultivar-Preisgruppen",
+    "cultivar_price_groups_desc": "Preisgruppen für Ihre Kultivare zuweisen und verwalten (A, B, C)",
+    "back_to_dashboard": "Zurück zum Dashboard",
+    "cultivars": "Kultivare",
+    "cultivar_price_group_management": "Kultivar-Preisgruppen-Verwaltung",
+    "search_cultivars_placeholder": "Nach Kultivar-Name oder Art suchen...",
+    "filter_by_group": "Nach Gruppe filtern",
+    "all_groups": "Alle Gruppen",
+    "group_a": "Gruppe A",
+    "group_b": "Gruppe B",
+    "group_c": "Gruppe C",
+    "no_group_assigned": "Keine Gruppe zugewiesen",
+    "cultivar_name": "Kultivar-Name",
+    "scientific_name": "Wissenschaftlicher Name",
+    "current_price_group": "Aktuelle Preisgruppe",
+    "select_group": "Gruppe auswählen",
+    "no_group": "Keine Gruppe",
+    "group_a_standard": "Gruppe A (Standard)",
+    "group_b_premium": "Gruppe B (Premium)",
+    "group_c_rare": "Gruppe C (Selten)",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "edit": "Bearbeiten",
+    "cultivars_total": "Kultivare ({count} gesamt)",
+    "select_cultivars_desc": "Kultivare auswählen, um Preisgruppen in größeren Mengen zu aktualisieren, oder einzeln bearbeiten",
+    "cultivars_selected": "{count} Kultivar{count, plural, one {} other {}} ausgewählt",
+    "set_to": "Setzen auf:",
+    "remove_group": "Gruppe entfernen",
+    "apply": "Anwenden",
+    "clear_selection": "Auswahl löschen",
+    "price_group_updated": "Kultivar-Preisgruppe erfolgreich aktualisiert",
+    "bulk_updated": "{count} Kultivare auf Gruppe {group} aktualisiert",
+    "failed_to_update": "Fehler beim Aktualisieren des Kultivars",
+    "failed_to_update_bulk": "Fehler beim Aktualisieren der Kultivare",
+    "unexpected_error": "Ein unerwarteter Fehler ist aufgetreten",
+    "loading_cultivars": "Lade Kultivare...",
+    "no_cultivars_found": "Keine Kultivare gefunden",
+    "adjust_search_filter": "Versuchen Sie, Ihre Such- oder Filterkriterien anzupassen.",
+    "no_cultivars_available": "Keine Kultivare verfügbar."
   }
 }

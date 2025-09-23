@@ -1,11 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { X, Leaf, Calendar, Ruler, Package, Euro, ShoppingCart, Heart } from 'lucide-react'
+import { X, Leaf, Calendar, Euro, ShoppingCart, Heart, Users } from 'lucide-react'
 import { Plant } from '@/lib/supabase/plants'
 import Image from 'next/image'
+import { getCultivarPriceRange, formatPrice, getPriceGroupDescription } from '@/lib/supabase/pricing'
+import { PriceRange } from '@/lib/supabase/pricing'
+import { translateFlowerColor, translateFlowerForm, translateGrowthHabit, translateFoliageType } from '@/lib/utils/translations'
+import { PlantSelectionModal } from './plant-selection-modal'
 
 interface PlantDetailsModalProps {
   plant: Plant | null
@@ -15,181 +19,268 @@ interface PlantDetailsModalProps {
 }
 
 export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetailsModalProps) {
-  if (!isOpen || !plant) return null
+  const [priceRange, setPriceRange] = useState<PriceRange | null>(null)
+  const [loadingPrice, setLoadingPrice] = useState(true)
+  const [showPlantSelection, setShowPlantSelection] = useState(false)
 
   const isGerman = locale === 'de'
-  const featuredPhoto = plant.photos?.find(photo => photo.is_primary) || plant.photos?.[0]
+  const featuredPhoto = plant?.photos?.find(photo => photo.is_primary) || plant?.photos?.[0]
+
+  // Load price range when modal opens
+  useEffect(() => {
+    async function loadPriceRange() {
+      if (plant?.cultivar?.price_group) {
+        try {
+          const range = await getCultivarPriceRange(plant.cultivar.price_group)
+          setPriceRange(range)
+        } catch (error) {
+          console.error('Error loading price range:', error)
+        } finally {
+          setLoadingPrice(false)
+        }
+      } else {
+        setLoadingPrice(false)
+      }
+    }
+    
+    if (isOpen && plant) {
+      loadPriceRange()
+    }
+  }, [isOpen, plant?.cultivar?.price_group])
+
+  const handleSelectPlant = () => {
+    setShowPlantSelection(true)
+  }
+
+  const handleBackToVariety = () => {
+    setShowPlantSelection(false)
+  }
+
+  if (!isOpen || !plant) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {plant.cultivar.cultivar_name}
-          </h2>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
+    <>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          {/* Header */}
+          <div className="flex justify-between items-center p-6 border-b">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {plant.cultivar.cultivar_name}
+            </h2>
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
 
-        <div className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Image Section */}
-            <div className="space-y-4">
-              <div className="aspect-square relative bg-gradient-to-br from-green-100 to-green-200 rounded-lg overflow-hidden">
-                {featuredPhoto && featuredPhoto.photo_url ? (
-                  <Image
-                    src={featuredPhoto.photo_url}
-                    alt={isGerman ? featuredPhoto.alt_text_de : featuredPhoto.alt_text_en}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <Leaf className="h-24 w-24 text-green-600 mx-auto mb-4" />
-                      <p className="text-green-700 font-medium text-lg">
-                        {isGerman ? 'Kamelie' : 'Camellia'}
-                      </p>
+          <div className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Image Section */}
+              <div className="space-y-4">
+                <div className="aspect-square relative bg-gradient-to-br from-green-100 to-green-200 rounded-lg overflow-hidden">
+                  {featuredPhoto && featuredPhoto.photo_url ? (
+                    <Image
+                      src={featuredPhoto.photo_url}
+                      alt={isGerman ? featuredPhoto.alt_text_de : featuredPhoto.alt_text_en}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <Leaf className="h-24 w-24 text-green-600 mx-auto mb-4" />
+                        <p className="text-green-700 font-medium text-lg">
+                          {isGerman ? 'Kamelie' : 'Camellia'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Additional Photos */}
-              {plant.photos && plant.photos.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {plant.photos.slice(1, 5).map((photo, index) => (
-                    <div key={index} className="aspect-square relative bg-gray-100 rounded overflow-hidden">
-                      <Image
-                        src={photo.photo_url}
-                        alt={isGerman ? photo.alt_text_de : photo.alt_text_en}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Details Section */}
-            <div className="space-y-6">
-              {/* Basic Info */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {plant.cultivar.species.scientific_name}
-                </h3>
-                {plant.cultivar.special_characteristics && (
-                  <p className="text-gray-600 mb-4">
-                    {plant.cultivar.special_characteristics}
-                  </p>
-                )}
-
-                {/* Badges */}
-                <div className="flex gap-2 mb-4">
-                  {plant.is_quick_buy && (
-                    <Badge className="bg-green-600 text-white">
-                      {isGerman ? 'Schnellkauf' : 'Quick Buy'}
-                    </Badge>
                   )}
-                  <Badge variant="secondary">
-                    {plant.price_band}
-                  </Badge>
                 </div>
+
+                {/* Additional Photos */}
+                {plant.photos && plant.photos.length > 1 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {plant.photos.slice(1, 5).map((photo, index) => (
+                      <div key={index} className="aspect-square relative bg-gray-100 rounded overflow-hidden">
+                        <Image
+                          src={photo.photo_url}
+                          alt={isGerman ? photo.alt_text_de : photo.alt_text_en}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Plant Details */}
-              <div className="grid grid-cols-2 gap-4">
-                {plant.cultivar.flower_color && (
+              {/* Details Section */}
+              <div className="space-y-6">
+                {/* Basic Info */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {plant.cultivar.species.scientific_name}
+                  </h3>
+                  {plant.cultivar.special_characteristics && (
+                    <p className="text-gray-600 mb-4">
+                      {plant.cultivar.special_characteristics}
+                    </p>
+                  )}
+
+                  {/* Badges */}
+                  <div className="flex gap-2 mb-4">
+                    {plant.is_quick_buy && (
+                      <Badge className="bg-green-600 text-white">
+                        {isGerman ? 'Schnellkauf' : 'Quick Buy'}
+                      </Badge>
+                    )}
+                    {plant.cultivar?.price_group && (
+                      <Badge variant="secondary">
+                        {getPriceGroupDescription(plant.cultivar.price_group, locale)}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                {/* Variety Details */}
+                <div className="grid grid-cols-2 gap-4">
+                  {plant.cultivar.flower_color && (
+                    <div className="flex items-center space-x-2">
+                      <div className="h-5 w-5 rounded-full border-2 border-gray-300 bg-gradient-to-r from-pink-400 to-red-400"></div>
+                      <div>
+                        <p className="text-sm text-gray-500">{isGerman ? 'Blütenfarbe' : 'Flower Color'}</p>
+                        <p className="font-medium">{translateFlowerColor(plant.cultivar.flower_color, locale)}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {plant.cultivar.flower_form && (
+                    <div className="flex items-center space-x-2">
+                      <Leaf className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500">{isGerman ? 'Blütenform' : 'Flower Form'}</p>
+                        <p className="font-medium">{translateFlowerForm(plant.cultivar.flower_form, locale)}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {plant.cultivar.growth_habit && (
+                    <div className="flex items-center space-x-2">
+                      <Leaf className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500">{isGerman ? 'Wuchsform' : 'Growth Habit'}</p>
+                        <p className="font-medium">{translateGrowthHabit(plant.cultivar.growth_habit, locale)}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {plant.cultivar.foliage_type && (
+                    <div className="flex items-center space-x-2">
+                      <Leaf className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500">{isGerman ? 'Laub' : 'Foliage'}</p>
+                        <p className="font-medium">{translateFoliageType(plant.cultivar.foliage_type, locale)}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {plant.cultivar.breeder && plant.cultivar.breeder !== 'Unknown' && (
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500">{isGerman ? 'Züchter' : 'Breeder'}</p>
+                        <p className="font-medium">{plant.cultivar.breeder}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {plant.cultivar.year_introduced && (
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500">{isGerman ? 'Einführungsjahr' : 'Year Introduced'}</p>
+                        <p className="font-medium">{plant.cultivar.year_introduced}</p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center space-x-2">
-                    <div className="h-5 w-5 rounded-full border-2 border-gray-300 bg-gradient-to-r from-pink-400 to-red-400"></div>
+                    <Euro className="h-5 w-5 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-500">{isGerman ? 'Blütenfarbe' : 'Flower Color'}</p>
-                      <p className="font-medium">{plant.cultivar.flower_color}</p>
+                      <p className="text-sm text-gray-500">{isGerman ? 'Preisbereich' : 'Price Range'}</p>
+                      {loadingPrice ? (
+                        <div className="text-sm text-gray-400">
+                          {isGerman ? 'Preis wird geladen...' : 'Loading price...'}
+                        </div>
+                      ) : priceRange ? (
+                        <div>
+                          <p className="font-medium text-green-600">
+                            {priceRange.min_price === priceRange.max_price 
+                              ? formatPrice(priceRange.min_price, isGerman ? 'de-DE' : 'en-US')
+                              : `${formatPrice(priceRange.min_price, isGerman ? 'de-DE' : 'en-US')} - ${formatPrice(priceRange.max_price, isGerman ? 'de-DE' : 'en-US')}`
+                            }
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {isGerman ? 'Je nach Größe/Alter' : 'Depending on size/age'}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="font-medium text-green-600">
+                          {formatPrice(plant.price_euros || 0, isGerman ? 'de-DE' : 'en-US')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hardiness Information */}
+                {plant.cultivar.hardiness_rating && (
+                  <div>
+                    <p className="text-sm text-gray-500">{isGerman ? 'Winterhärte' : 'Hardiness'}</p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <div className="flex space-x-1">
+                        {[1, 2, 3, 4, 5].map((rating) => (
+                          <div
+                            key={rating}
+                            className={`w-4 h-4 rounded-full ${
+                              rating <= plant.cultivar.hardiness_rating!
+                                ? 'bg-green-500'
+                                : 'bg-gray-200'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm text-gray-600">
+                        {plant.cultivar.hardiness_rating}/5
+                      </span>
                     </div>
                   </div>
                 )}
 
-                {plant.cultivar.flower_form && (
-                  <div className="flex items-center space-x-2">
-                    <Leaf className="h-5 w-5 text-gray-400" />
-                    <div>
-                      <p className="text-sm text-gray-500">{isGerman ? 'Blütenform' : 'Flower Form'}</p>
-                      <p className="font-medium">{plant.cultivar.flower_form}</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center space-x-2">
-                  <Calendar className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-500">{isGerman ? 'Alter' : 'Age'}</p>
-                    <p className="font-medium">{plant.age_years} {isGerman ? 'Jahre' : 'years'}</p>
-                  </div>
+                {/* Actions */}
+                <div className="flex gap-3 pt-4">
+                  <Button variant="outline" className="flex-1">
+                    <Heart className="h-4 w-4 mr-2" />
+                    {isGerman ? 'Zu Favoriten' : 'Add to Favorites'}
+                  </Button>
+                  <Button className="flex-1" onClick={handleSelectPlant}>
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    {isGerman ? 'Pflanze auswählen' : 'Select Plant'}
+                  </Button>
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <Ruler className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-500">{isGerman ? 'Höhe' : 'Height'}</p>
-                    <p className="font-medium">{plant.height_cm} cm</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Package className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-500">{isGerman ? 'Topf' : 'Pot'}</p>
-                    <p className="font-medium">{plant.pot_size}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Euro className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-500">{isGerman ? 'Preis' : 'Price'}</p>
-                    <p className="font-medium text-green-600">€{plant.price_euros.toFixed(2)}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Plant Code */}
-              <div>
-                <p className="text-sm text-gray-500">{isGerman ? 'Pflanzen-Code' : 'Plant Code'}</p>
-                <p className="font-mono text-lg">{plant.plant_code}</p>
-              </div>
-
-              {/* Status */}
-              <div>
-                <p className="text-sm text-gray-500">{isGerman ? 'Status' : 'Status'}</p>
-                <Badge 
-                  variant={plant.status === 'available' ? 'default' : 'secondary'}
-                  className={plant.status === 'available' ? 'bg-green-600 text-white' : ''}
-                >
-                  {isGerman 
-                    ? (plant.status === 'available' ? 'Verfügbar' : 'Nicht verfügbar')
-                    : (plant.status === 'available' ? 'Available' : 'Unavailable')
-                  }
-                </Badge>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3 pt-4">
-                <Button className="flex-1">
-                  <Heart className="h-4 w-4 mr-2" />
-                  {isGerman ? 'Zu Favoriten' : 'Add to Favorites'}
-                </Button>
-                <Button className="flex-1">
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  {isGerman ? 'In den Warenkorb' : 'Add to Cart'}
-                </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Plant Selection Modal */}
+      <PlantSelectionModal
+        cultivarId={plant.cultivar.id}
+        isOpen={showPlantSelection}
+        onClose={onClose}
+        onBackToVariety={handleBackToVariety}
+        locale={locale}
+      />
+    </>
   )
 }

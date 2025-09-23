@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Image from 'next/image'
+import { getCultivarPriceRange, formatPrice, getPriceGroupDescription } from '@/lib/supabase/pricing'
 
 interface Plant {
   id: string
@@ -28,10 +29,12 @@ interface Plant {
   status: string
   is_quick_buy: boolean
   cultivar: {
+    id: string
     cultivar_name: string
     flower_color: string
     flower_form: string
     special_characteristics: string
+    price_group: 'A' | 'B' | 'C' | null
     species: {
       scientific_name: string
     }
@@ -43,12 +46,19 @@ interface Plant {
   }>
 }
 
+interface PlantWithCalculatedPrice extends Plant {
+  calculatedPrice?: number
+  priceRange?: { min_price: number; max_price: number }
+}
+
 export default function AdminPlantsPage() {
-  const [plants, setPlants] = useState<Plant[]>([])
+  const [plants, setPlants] = useState<PlantWithCalculatedPrice[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
+  const [filterPriceGroup, setFilterPriceGroup] = useState('all')
+  const [calculatingPrices, setCalculatingPrices] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -86,10 +96,12 @@ export default function AdminPlantsPage() {
         .select(`
           *,
           cultivar:cultivars(
+            id,
             cultivar_name,
             flower_color,
             flower_form,
             special_characteristics,
+            price_group,
             species:species(scientific_name)
           ),
           photos:plant_photos(*)
@@ -101,11 +113,55 @@ export default function AdminPlantsPage() {
         return
       }
 
-      setPlants(plantsData || [])
+      // Calculate prices for each plant
+      setCalculatingPrices(true)
+      const plantsWithPrices = await Promise.all(
+        (plantsData || []).map(async (plant) => {
+          try {
+            let calculatedPrice = plant.price_euros // fallback to existing price
+            let priceRange = null
+
+            // If cultivar has a price group, calculate the price
+            if (plant.cultivar.price_group) {
+              try {
+                // Get price range for the cultivar
+                priceRange = await getCultivarPriceRange(plant.cultivar.price_group)
+                
+                // Calculate specific price based on age and pot size
+                const { calculatePlantPrice } = await import('@/lib/supabase/pricing')
+                calculatedPrice = await calculatePlantPrice(
+                  plant.cultivar.price_group,
+                  plant.age_years,
+                  plant.pot_size
+                )
+              } catch (priceError) {
+                console.error(`Error calculating price for plant ${plant.id}:`, priceError)
+                // Keep fallback price
+              }
+            }
+
+            return {
+              ...plant,
+              calculatedPrice,
+              priceRange
+            }
+          } catch (error) {
+            console.error(`Error processing plant ${plant.id}:`, error)
+            return {
+              ...plant,
+              calculatedPrice: plant.price_euros,
+              priceRange: null
+            }
+          }
+        })
+      )
+
+      setPlants(plantsWithPrices)
     } catch (err) {
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)
+      setCalculatingPrices(false)
     }
   }
 
@@ -115,8 +171,9 @@ export default function AdminPlantsPage() {
                          plant.cultivar.species.scientific_name.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesStatus = filterStatus === 'all' || plant.status === filterStatus
+    const matchesPriceGroup = filterPriceGroup === 'all' || plant.cultivar.price_group === filterPriceGroup
     
-    return matchesSearch && matchesStatus
+    return matchesSearch && matchesStatus && matchesPriceGroup
   })
 
   const getStatusBadge = (status: string) => {
@@ -205,10 +262,33 @@ export default function AdminPlantsPage() {
                   <option value="reserved">Reserved</option>
                   <option value="sold">Sold</option>
                 </select>
+                <select
+                  value={filterPriceGroup}
+                  onChange={(e) => setFilterPriceGroup(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="all">All Price Groups</option>
+                  <option value="A">Group A (Standard)</option>
+                  <option value="B">Group B (Premium)</option>
+                  <option value="C">Group C (Rare)</option>
+                  <option value="null">No Price Group</option>
+                </select>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Price Calculation Status */}
+        {calculatingPrices && (
+          <Card className="mb-6">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600 mr-3"></div>
+                <span className="text-gray-600">Calculating prices for all plants...</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Plants Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -240,8 +320,13 @@ export default function AdminPlantsPage() {
                     </Badge>
                   )}
                   
-                  <div className="absolute top-2 right-2 flex gap-1">
+                  <div className="absolute top-2 right-2 flex flex-col gap-1">
                     {getStatusBadge(plant.status)}
+                    {plant.cultivar.price_group && (
+                      <Badge variant="secondary" className="text-xs">
+                        {getPriceGroupDescription(plant.cultivar.price_group, 'en')}
+                      </Badge>
+                    )}
                   </div>
                 </div>
 
@@ -276,10 +361,30 @@ export default function AdminPlantsPage() {
 
                   {/* Price and Actions */}
                   <div className="flex justify-between items-center">
-                    <div>
-                      <span className="text-lg font-bold text-green-600">
-                        €{plant.price_euros.toFixed(2)}
-                      </span>
+                    <div className="flex flex-col">
+                      {calculatingPrices ? (
+                        <div className="text-sm text-gray-400">Calculating...</div>
+                      ) : plant.calculatedPrice !== undefined ? (
+                        <div>
+                          <span className="text-lg font-bold text-green-600">
+                            €{formatPrice(plant.calculatedPrice, 'en-US')}
+                          </span>
+                          {plant.calculatedPrice !== plant.price_euros && (
+                            <div className="text-xs text-gray-500 line-through">
+                              Old: €{formatPrice(plant.price_euros, 'en-US')}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-lg font-bold text-green-600">
+                          €{formatPrice(plant.price_euros, 'en-US')}
+                        </span>
+                      )}
+                      {plant.priceRange && (
+                        <div className="text-xs text-gray-500">
+                          Range: €{formatPrice(plant.priceRange.min_price, 'en-US')} - €{formatPrice(plant.priceRange.max_price, 'en-US')}
+                        </div>
+                      )}
                     </div>
                     <div className="flex gap-1">
                       <Button 

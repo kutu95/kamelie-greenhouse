@@ -115,3 +115,4 @@ async function testCatalogLocalization() {
 
 // Run the test
 testCatalogLocalization()
+

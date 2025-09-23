@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Leaf, ShoppingCart, Heart, Eye } from 'lucide-react'
@@ -8,6 +8,8 @@ import { Plant } from '@/lib/supabase/plants'
 import Image from 'next/image'
 import { PlantDetailsModal } from './plant-details-modal'
 import Link from 'next/link'
+import { getCultivarPriceRange, formatPrice, getPriceGroupDescription } from '@/lib/supabase/pricing'
+import { PriceRange } from '@/lib/supabase/pricing'
 
 interface PlantCardProps {
   plant: Plant
@@ -16,8 +18,32 @@ interface PlantCardProps {
 
 export function PlantCard({ plant, locale }: PlantCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [priceRange, setPriceRange] = useState<PriceRange | null>(null)
+  const [loadingPrice, setLoadingPrice] = useState(true)
   const featuredPhoto = plant.photos?.find(photo => photo.is_primary) || plant.photos?.[0]
   const isGerman = locale === 'de'
+
+  // Load price range when component mounts
+  useEffect(() => {
+    async function loadPriceRange() {
+      if (plant.cultivar?.price_group) {
+        try {
+          const range = await getCultivarPriceRange(plant.cultivar.price_group)
+          setPriceRange(range)
+        } catch (error) {
+          console.error('Error loading price range:', error)
+          // The pricing function now handles fallback internally
+        } finally {
+          setLoadingPrice(false)
+        }
+      } else {
+        setLoadingPrice(false)
+      }
+    }
+    
+    loadPriceRange()
+  }, [plant.cultivar?.price_group])
+
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group">
@@ -51,13 +77,15 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
           </Badge>
         )}
         
-        {/* Price Band Badge */}
-        <Badge 
-          variant="secondary" 
-          className="absolute top-2 right-2 bg-white/90 text-gray-700"
-        >
-          {plant.price_band}
-        </Badge>
+        {/* Price Group Badge */}
+        {plant.cultivar?.price_group && (
+          <Badge 
+            variant="secondary" 
+            className="absolute top-2 right-2 bg-white/90 text-gray-700"
+          >
+            {getPriceGroupDescription(plant.cultivar.price_group, locale)}
+          </Badge>
+        )}
       </div>
 
       {/* Content */}
@@ -109,12 +137,32 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
         {/* Price and Actions */}
         <div className="flex justify-between items-center">
           <div>
-            <span className="text-lg font-bold text-green-600">
-              €{plant.price_euros.toFixed(2)}
-            </span>
-            <p className="text-xs text-gray-500">
-              {plant.plant_code}
-            </p>
+            {loadingPrice ? (
+              <div className="text-sm text-gray-400">
+                {isGerman ? 'Preis wird geladen...' : 'Loading price...'}
+              </div>
+            ) : priceRange ? (
+              <div>
+                <div className="text-lg font-bold text-green-600">
+                  {priceRange.min_price === priceRange.max_price 
+                    ? formatPrice(priceRange.min_price, isGerman ? 'de-DE' : 'en-US')
+                    : `${formatPrice(priceRange.min_price, isGerman ? 'de-DE' : 'en-US')} - ${formatPrice(priceRange.max_price, isGerman ? 'de-DE' : 'en-US')}`
+                  }
+                </div>
+                <p className="text-xs text-gray-500">
+                  {isGerman ? 'Je nach Größe/Alter' : 'Depending on size/age'}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <span className="text-lg font-bold text-green-600">
+                  {formatPrice(plant.price_euros || 0, isGerman ? 'de-DE' : 'en-US')}
+                </span>
+                <p className="text-xs text-gray-500">
+                  {plant.plant_code}
+                </p>
+              </div>
+            )}
           </div>
           <div className="flex gap-1">
             <Button size="sm" variant="outline" className="h-8 w-8 p-0">

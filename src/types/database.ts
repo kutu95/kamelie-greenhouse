@@ -85,6 +85,7 @@ export interface Database {
           growth_habit: string | null
           special_characteristics: string | null
           hardiness_rating: number | null
+          price_group: 'A' | 'B' | 'C' | null
           created_at: string
           updated_at: string
         }
@@ -101,6 +102,7 @@ export interface Database {
           growth_habit?: string | null
           special_characteristics?: string | null
           hardiness_rating?: number | null
+          price_group?: 'A' | 'B' | 'C' | null
           created_at?: string
           updated_at?: string
         }
@@ -117,6 +119,39 @@ export interface Database {
           growth_habit?: string | null
           special_characteristics?: string | null
           hardiness_rating?: number | null
+          price_group?: 'A' | 'B' | 'C' | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      pricing_matrix: {
+        Row: {
+          id: string
+          price_group: 'A' | 'B' | 'C'
+          age_years: number
+          pot_size: string
+          base_price_euros: number
+          is_available: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          price_group: 'A' | 'B' | 'C'
+          age_years: number
+          pot_size: string
+          base_price_euros: number
+          is_available?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          price_group?: 'A' | 'B' | 'C'
+          age_years?: number
+          pot_size?: string
+          base_price_euros?: number
+          is_available?: boolean
           created_at?: string
           updated_at?: string
         }

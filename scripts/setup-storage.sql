@@ -24,3 +24,4 @@ FOR DELETE USING (
   bucket_id = 'images' 
   AND auth.role() = 'authenticated'
 );
+

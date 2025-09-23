@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
+import { getCultivarPriceRange, formatPrice, getPriceGroupDescription, calculatePlantPrice } from '@/lib/supabase/pricing'
 
 interface PlantData {
   id: string
@@ -26,7 +27,6 @@ interface PlantData {
   height_cm: number | null
   width_cm: number | null
   pot_size: string | null
-  price_band: 'budget' | 'standard' | 'premium' | 'luxury' | null
   price_euros: number | null
   status: 'available' | 'reserved' | 'sold' | 'maintenance'
   location: string | null
@@ -35,6 +35,7 @@ interface PlantData {
   cultivar: {
     id: string
     cultivar_name: string
+    price_group: 'A' | 'B' | 'C' | null
     species: {
       id: string
       scientific_name: string
@@ -45,6 +46,7 @@ interface PlantData {
 interface Cultivar {
   id: string
   cultivar_name: string
+  price_group: 'A' | 'B' | 'C' | null
   species: {
     id: string
     scientific_name: string
@@ -58,6 +60,9 @@ export default function EditPlantPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
+  const [priceRange, setPriceRange] = useState<{ min_price: number; max_price: number } | null>(null)
+  const [loadingPrice, setLoadingPrice] = useState(false)
   
   const router = useRouter()
   const params = useParams()
@@ -72,7 +77,6 @@ export default function EditPlantPage() {
     height_cm: '',
     width_cm: '',
     pot_size: '',
-    price_band: '',
     price_euros: '',
     status: 'available',
     location: '',
@@ -84,6 +88,48 @@ export default function EditPlantPage() {
     loadPlantData()
     loadCultivars()
   }, [plantId])
+
+  useEffect(() => {
+    calculatePrice()
+  }, [formData.cultivar_id, formData.age_years, formData.pot_size, cultivars])
+
+  const calculatePrice = async () => {
+    if (!formData.cultivar_id || !formData.age_years || !formData.pot_size) {
+      setCalculatedPrice(null)
+      setPriceRange(null)
+      return
+    }
+
+    try {
+      setLoadingPrice(true)
+      
+      // Find the selected cultivar from the cultivars list
+      const selectedCultivar = cultivars.find(c => c.id === formData.cultivar_id)
+      if (!selectedCultivar || !selectedCultivar.price_group) {
+        setCalculatedPrice(null)
+        setPriceRange(null)
+        return
+      }
+
+      // Get price range for the cultivar
+      const range = await getCultivarPriceRange(selectedCultivar.price_group)
+      setPriceRange(range)
+
+      // Calculate specific price based on age and pot size
+      const calculated = await calculatePlantPrice(
+        selectedCultivar.price_group,
+        formData.age_years,
+        formData.pot_size
+      )
+      setCalculatedPrice(calculated)
+    } catch (error) {
+      console.error('Error calculating price:', error)
+      setCalculatedPrice(null)
+      setPriceRange(null)
+    } finally {
+      setLoadingPrice(false)
+    }
+  }
 
   const loadPlantData = async () => {
     try {
@@ -117,6 +163,7 @@ export default function EditPlantPage() {
           cultivar:cultivars(
             id,
             cultivar_name,
+            price_group,
             species:species(id, scientific_name)
           )
         `)
@@ -141,7 +188,6 @@ export default function EditPlantPage() {
         height_cm: plantData.height_cm?.toString() || '',
         width_cm: plantData.width_cm?.toString() || '',
         pot_size: plantData.pot_size || '',
-        price_band: plantData.price_band || '',
         price_euros: plantData.price_euros?.toString() || '',
         status: plantData.status,
         location: plantData.location || '',
@@ -162,6 +208,7 @@ export default function EditPlantPage() {
         .select(`
           id,
           cultivar_name,
+          price_group,
           species:species(id, scientific_name)
         `)
         .order('cultivar_name')
@@ -209,7 +256,6 @@ export default function EditPlantPage() {
         height_cm: formData.height_cm ? parseInt(formData.height_cm) : null,
         width_cm: formData.width_cm ? parseInt(formData.width_cm) : null,
         pot_size: formData.pot_size || null,
-        price_band: formData.price_band || null,
         price_euros: formData.price_euros ? parseFloat(formData.price_euros) : null,
         status: formData.status,
         location: formData.location || null,
@@ -332,6 +378,7 @@ export default function EditPlantPage() {
                     {cultivars.map((cultivar) => (
                       <SelectItem key={cultivar.id} value={cultivar.id}>
                         {cultivar.cultivar_name} - {cultivar.species.scientific_name}
+                        {cultivar.price_group && ` (${getPriceGroupDescription(cultivar.price_group, 'en')})`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -442,26 +489,77 @@ export default function EditPlantPage() {
           <Card>
             <CardHeader>
               <CardTitle>Pricing</CardTitle>
-              <CardDescription>Price band and actual price</CardDescription>
+              <CardDescription>Price calculation and manual override</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="price_band">Price Band</Label>
-                <Select value={formData.price_band} onValueChange={(value) => handleInputChange('price_band', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select price band" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="budget">Budget</SelectItem>
-                    <SelectItem value="standard">Standard</SelectItem>
-                    <SelectItem value="premium">Premium</SelectItem>
-                    <SelectItem value="luxury">Luxury</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Price Group Display */}
+              {plant?.cultivar.price_group ? (
+                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium text-blue-900">Price Group</Label>
+                      <div className="text-lg font-semibold text-blue-900">
+                        {getPriceGroupDescription(plant.cultivar.price_group, 'en')}
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                      {plant.cultivar.price_group}
+                    </Badge>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <div className="text-sm text-yellow-800">
+                    ⚠️ This cultivar has no price group assigned. Please assign a price group (A, B, or C) in the cultivar management.
+                  </div>
+                </div>
+              )}
 
+              {/* Calculated Price Display */}
+              {plant?.cultivar.price_group && (
+                <>
+                  {loadingPrice ? (
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600 mr-2"></div>
+                        <span className="text-gray-600">Calculating price...</span>
+                      </div>
+                    </div>
+                  ) : calculatedPrice !== null ? (
+                    <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-green-900">Calculated Price</Label>
+                        <div className="text-2xl font-bold text-green-700">
+                          €{formatPrice(calculatedPrice, 'en-US')}
+                        </div>
+                        <div className="text-xs text-green-600">
+                          Based on: {formData.age_years} years, {formData.pot_size} pot
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                      <div className="text-sm text-yellow-800">
+                        Unable to calculate price. Please ensure age and pot size are set correctly.
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Price Range Display */}
+                  {priceRange && (
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <Label className="text-sm font-medium text-gray-900">Price Range for Group {plant.cultivar.price_group}</Label>
+                      <div className="text-sm text-gray-600">
+                        €{formatPrice(priceRange.min_price, 'en-US')} - €{formatPrice(priceRange.max_price, 'en-US')}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Manual Price Override */}
               <div className="space-y-2">
-                <Label htmlFor="price_euros">Price (€)</Label>
+                <Label htmlFor="price_euros">Manual Price Override (€)</Label>
                 <Input
                   id="price_euros"
                   type="number"
@@ -470,6 +568,12 @@ export default function EditPlantPage() {
                   onChange={(e) => handleInputChange('price_euros', e.target.value)}
                   placeholder="0.00"
                 />
+                <p className="text-xs text-gray-500">
+                  {calculatedPrice !== null 
+                    ? `Override calculated price (€${formatPrice(calculatedPrice, 'en-US')}) if needed. Leave empty to use calculated price.`
+                    : 'Enter a manual price if automatic calculation is not available.'
+                  }
+                </p>
               </div>
             </CardContent>
           </Card>

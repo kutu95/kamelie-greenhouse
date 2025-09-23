@@ -50,58 +50,83 @@
     "no_image": "No profile image set"
   },
   "home": {
-    "title": "Welcome to Kamelie Greenhouse",
-    "subtitle": "Germany's largest camellia collection",
-    "description": "Discover our exclusive collection of over 3,000 camellia plants. Over 35 years of experience in camellia cultivation and personal consultation.",
-    "cta_catalog": "Discover Catalog",
-    "cta_contact": "Get in Touch",
+    "hero": {
+      "badge": "Since 1990 - Germany's largest collection",
+      "title": "Welcome to Kamelie Greenhouse",
+      "subtitle": "Germany's largest camellia collection",
+      "description": "Over 3,000 camellia plants in our greenhouse",
+      "detailedDescription": "Discover our exclusive collection of over 3,000 camellia plants. Over 35 years of experience in camellia cultivation and personal consultation.",
+      "catalogButton": "Discover Catalog",
+      "contactButton": "Get in Touch",
+      "collectionTitle": "Camellia Collection",
+      "collectionSubtitle": "Germany's largest collection",
+      "plantCount": "3,000+ Plants",
+      "experience": "35+ Years",
+      "greenhouseSize": "2,000 m² Greenhouse"
+    },
     "features": {
-      "title": "Why Kamelie Greenhouse?",
-      "subtitle": "Over 35 years of passion for camellias",
-      "description": "From private passion to Germany's largest camellia collection - personal service and professional expertise since 1990",
-      "expertise": "35+ Years Expertise",
-      "expertise_desc": "Over 35 years of experience in camellia cultivation and continuous education",
-      "consulting": "Personal Consultation",
-      "consulting_desc": "Individual advice on location, care and variety selection",
-      "greenhouse": "2,000 m² Greenhouse",
-      "greenhouse_desc": "Visit our modern greenhouse with optimal conditions",
-      "seasonal": "Bloom Time Feb-Apr",
-      "seasonal_desc": "Experience the spectacular bloom time from February to April"
+      "badge": "Why Kamelie Greenhouse?",
+      "title": "Over 35 years of passion for camellias",
+      "subtitle": "From private passion to Germany's largest camellia collection - personal service and professional expertise since 1990",
+      "expertise": {
+        "title": "35+ Years Expertise",
+        "description": "Over 35 years of experience in camellia cultivation and continuous education"
+      },
+      "consultation": {
+        "title": "Personal Consultation",
+        "description": "Individual advice on location, care and variety selection"
+      },
+      "greenhouse": {
+        "title": "2,000 m² Greenhouse",
+        "description": "Visit our modern greenhouse with optimal conditions"
+      },
+      "blooming": {
+        "title": "Blooming Season Feb-Apr",
+        "description": "Experience the spectacular blooming season from February to April"
+      }
     },
     "gallery": {
       "title": "A Look into Our Greenhouse",
       "subtitle": "Discover the diversity of our camellia collection",
-      "collection": "Camellia Collection",
-      "blooming": "Blooming Camellias",
-      "greenhouse": "Greenhouse",
+      "collection": {
+        "title": "Camellia Collection",
+        "subtitle": "Over 3,000 plants",
+        "description": "Over 3,000 different plants"
+      },
+      "blooming": {
+        "title": "Blooming Camellias",
+        "subtitle": "February - April",
+        "description": "February to April"
+      },
+      "greenhouse": {
+        "title": "Greenhouse",
+        "subtitle": "2,000 m² area",
+        "description": "2,000 m² modern facility"
+      },
       "tip": "💡 Tip: Click on the images for a larger view",
-      "view_all": "View All Images",
-      "over_3000_plants": "Over 3,000 Plants",
-      "over_3000_different_plants": "Over 3,000 different plants",
-      "blooming_period": "February - April",
-      "blooming_time": "Blooming Time",
-      "blooming_time_desc": "February to April",
-      "greenhouse_area": "2,000 m² Area",
-      "modern_facility": "2,000 m² modern facility"
-    },
-    "collection_card": {
-      "title": "Camellia Collection",
-      "subtitle": "Germany's largest collection",
-      "plants_count": "3,000+ Plants",
-      "years_experience": "35+ Years"
+      "viewAllButton": "View All Images"
     },
     "contact": {
       "title": "Visit Us",
-      "subtitle": "Opening hours during camellia season (March - May)",
-      "address": "Address",
-      "phone": "Phone",
-      "email": "Email"
+      "subtitle": "Opening hours during the camellia season (March - May)",
+      "address": {
+        "title": "Address",
+        "content": "Kurfürstendeich 54<br />21037 Hamburg"
+      },
+      "phone": {
+        "title": "Phone",
+        "content": "+49 40 220 94 58<br />+49 176 29 63 88 66"
+      },
+      "email": {
+        "title": "Email",
+        "content": "info@kamelie.net"
+      }
     },
     "cta": {
       "title": "Discover Our Camellia Collection",
       "subtitle": "Over 3,000 plants in various sizes and varieties. From classic varieties to rare rarities.",
-      "catalog": "View Catalog",
-      "services": "Our Services"
+      "catalogButton": "View Catalog",
+      "servicesButton": "Our Services"
     }
   },
         "catalog": {
@@ -362,19 +387,40 @@
     "login_button": "Sign In",
     "back_to_site": "Back to Website",
     "dashboard_title": "Admin Dashboard",
-    "overview": "Overview",
+    "overview": "Manage your Kamelie Greenhouse",
     "plants": "Plants",
     "users": "Users",
     "orders": "Orders",
     "blog": "Blog",
     "settings": "Settings",
-    "loading_dashboard": "Loading Dashboard...",
-    "error_title": "Error",
-    "back_to_login": "Back to Login",
+    "loading_dashboard": "Loading dashboard...",
+    "error_title": "Failed to load dashboard data",
+    "back_to_login": "Sign Out",
     "total_plants": "Total Plants",
     "total_users": "Total Users",
     "total_orders": "Total Orders",
-    "total_blog_posts": "Total Blog Posts",
+    "total_blog_posts": "Blog Posts",
+    "available_in_catalog": "Available in catalog",
+    "registered_customers": "Registered customers",
+    "all_time_orders": "All time orders",
+    "published_articles": "Published articles",
+    "manage_plants": "Manage Plants",
+    "manage_plants_desc": "Add, edit, and manage plant inventory",
+    "manage_users": "Manage Users",
+    "manage_users_desc": "Manage user accounts and roles",
+    "manage_orders": "Manage Orders",
+    "manage_orders_desc": "View and process customer orders",
+    "manage_blog": "Manage Blog",
+    "manage_blog_desc": "Create and manage blog posts",
+    "manage_pricing": "Manage Pricing",
+    "manage_pricing_desc": "Manage A/B/C pricing groups and price calculations",
+    "pricing_matrix": "Pricing Matrix",
+    "manage_cultivar_groups": "Manage Groups",
+    "manage_settings": "Settings",
+    "manage_settings_desc": "Configure system settings and preferences",
+    "view_catalog": "View Catalog",
+    "view_catalog_desc": "Preview the public catalog",
+    "view_public_site": "View Public Site",
     "add_new_plant": "Add New Plant",
     "search_plants_placeholder": "Search plants...",
     "all_species": "All Species",
@@ -386,6 +432,45 @@
     "status": "Status",
     "actions": "Actions",
     "confirm_delete_plant": "Are you sure you want to delete this plant?",
-    "loading_plants_data": "Loading plant data..."
+    "loading_plants_data": "Loading plant data...",
+    "cultivar_price_groups": "Cultivar Price Groups",
+    "cultivar_price_groups_desc": "Assign and manage price groups for your cultivars (A, B, C)",
+    "back_to_dashboard": "Back to Dashboard",
+    "cultivars": "Cultivars",
+    "cultivar_price_group_management": "Cultivar Price Group Management",
+    "search_cultivars_placeholder": "Search by cultivar name or species...",
+    "filter_by_group": "Filter by Group",
+    "all_groups": "All Groups",
+    "group_a": "Group A",
+    "group_b": "Group B",
+    "group_c": "Group C",
+    "no_group_assigned": "No Group Assigned",
+    "cultivar_name": "Cultivar Name",
+    "scientific_name": "Scientific Name",
+    "current_price_group": "Current Price Group",
+    "select_group": "Select group",
+    "no_group": "No Group",
+    "group_a_standard": "Group A (Standard)",
+    "group_b_premium": "Group B (Premium)",
+    "group_c_rare": "Group C (Rare)",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "cultivars_total": "Cultivars ({count} total)",
+    "select_cultivars_desc": "Select cultivars to bulk update price groups, or edit individually",
+    "cultivars_selected": "{count} cultivar{count, plural, one {} other {s}} selected",
+    "set_to": "Set to:",
+    "remove_group": "Remove Group",
+    "apply": "Apply",
+    "clear_selection": "Clear Selection",
+    "price_group_updated": "Cultivar price group updated successfully",
+    "bulk_updated": "Updated {count} cultivars to Group {group}",
+    "failed_to_update": "Failed to update cultivar",
+    "failed_to_update_bulk": "Failed to update cultivars",
+    "unexpected_error": "An unexpected error occurred",
+    "loading_cultivars": "Loading cultivars...",
+    "no_cultivars_found": "No cultivars found",
+    "adjust_search_filter": "Try adjusting your search or filter criteria.",
+    "no_cultivars_available": "No cultivars available."
   }
 }

@@ -8,8 +8,6 @@ import { useTranslations } from 'next-intl'
 
 export default function HomePage() {
   const t = useTranslations('home')
-  const tCommon = useTranslations('common')
-
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -31,8 +29,8 @@ export default function HomePage() {
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Text Content */}
-              <div className="text-center lg:text-left px-4 sm:px-0">
-                <div className="inline-flex items-center bg-green-600/20 text-green-100 px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
+              <div className="text-center lg:text-left">
+                <div className="inline-flex items-center bg-green-600/20 text-green-100 px-4 py-2 rounded-full text-sm font-medium mb-6">
                   <Image
                     src="/images/icons/April-Rose-icon-small.png"
                     alt="April Rose Camellia Icon"
@@ -40,34 +38,34 @@ export default function HomePage() {
                     height={16}
                     className="mr-2"
                   />
-                  {tCommon('since_1990')}
+                  {t('hero.badge')}
                 </div>
-                <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-                  {t('title')}
+                <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                  {t('hero.title')}
                 </h1>
-                <p className="text-lg sm:text-xl md:text-2xl text-green-100 mb-4 sm:mb-6 font-light">
-                  {t('subtitle')}
+                <p className="text-xl md:text-2xl text-green-100 mb-6 font-light">
+                  {t('hero.subtitle')}
                 </p>
-                <p className="text-base sm:text-lg text-green-200 mb-8 sm:mb-12 max-w-2xl leading-relaxed">
-                  {t('description')}
+                <p className="text-lg text-green-200 mb-12 max-w-2xl leading-relaxed">
+                  {t('hero.detailedDescription')}
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
-                  <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 h-auto bg-green-600 hover:bg-green-700" asChild>
-                    <Link href="/catalog" className="flex items-center justify-center">
-                      {t('cta_catalog')}
-                      <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                  <Button size="lg" className="text-lg px-8 py-4 h-auto bg-green-600 hover:bg-green-700" asChild>
+                    <Link href="/catalog" className="flex items-center">
+                      {t('hero.catalogButton')}
+                      <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 h-auto border-2 border-white text-white bg-transparent hover:bg-white hover:text-green-600 font-semibold" asChild>
-                    <Link href="/contact" className="flex items-center justify-center">
-                      {t('cta_contact')}
+                  <Button size="lg" variant="outline" className="text-lg px-8 py-4 h-auto border-2 border-white text-white bg-transparent hover:bg-white hover:text-green-600 font-semibold" asChild>
+                    <Link href="/contact">
+                      {t('hero.contactButton')}
                     </Link>
                   </Button>
                 </div>
               </div>
               
               {/* Image Content */}
-              <div className="relative px-4 sm:px-0">
+              <div className="relative">
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                   <div className="aspect-[4/3] bg-gradient-to-br from-green-100 via-green-200 to-emerald-200 flex items-center justify-center relative overflow-hidden">
                     {/* Background Pattern */}
@@ -78,38 +76,38 @@ export default function HomePage() {
                     </div>
                     
                     {/* Main Content */}
-                    <div className="text-center relative z-10 px-4">
-                      <div className="bg-white/20 backdrop-blur-sm rounded-full p-6 sm:p-8 mb-4 sm:mb-6 inline-block">
+                    <div className="text-center relative z-10">
+                      <div className="bg-white/20 backdrop-blur-sm rounded-full p-8 mb-6 inline-block">
                         <Image
                           src="/images/icons/April-Rose-icon-small.png"
                           alt="April Rose Camellia Icon"
-                          width={80}
-                          height={80}
-                          className="mx-auto w-16 h-16 sm:w-24 sm:h-24"
+                          width={96}
+                          height={96}
+                          className="mx-auto"
                         />
                       </div>
-                      <h3 className="text-green-800 text-2xl sm:text-3xl font-bold mb-2">{t('collection_card.title')}</h3>
-                      <p className="text-green-700 text-lg sm:text-xl mb-4">{t('collection_card.subtitle')}</p>
-                      <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-green-600">
-                        <span className="bg-white/30 px-3 py-1 rounded-full">{t('collection_card.plants_count')}</span>
-                        <span className="bg-white/30 px-3 py-1 rounded-full">{t('collection_card.years_experience')}</span>
+                      <h3 className="text-green-800 text-3xl font-bold mb-2">{t('hero.collectionTitle')}</h3>
+                      <p className="text-green-700 text-xl mb-4">{t('hero.collectionSubtitle')}</p>
+                      <div className="flex justify-center space-x-4 text-sm text-green-600">
+                        <span className="bg-white/30 px-3 py-1 rounded-full">{t('hero.plantCount')}</span>
+                        <span className="bg-white/30 px-3 py-1 rounded-full">{t('hero.experience')}</span>
                       </div>
                     </div>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                 </div>
                 
-                {/* Floating Cards - Hidden on mobile to prevent overlap */}
-                <div className="hidden md:block absolute -top-4 -left-4 bg-white rounded-xl p-4 shadow-xl border border-green-100">
+                {/* Floating Cards */}
+                <div className="absolute -top-4 -left-4 bg-white rounded-xl p-4 shadow-xl border border-green-100">
                   <div className="flex items-center space-x-3">
                     <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-semibold text-gray-800">{tCommon('greenhouse_size')}</span>
+                    <span className="text-sm font-semibold text-gray-800">{t('hero.greenhouseSize')}</span>
                   </div>
                 </div>
-                <div className="hidden md:block absolute -bottom-4 -right-4 bg-white rounded-xl p-4 shadow-xl border border-emerald-100">
+                <div className="absolute -bottom-4 -right-4 bg-white rounded-xl p-4 shadow-xl border border-emerald-100">
                   <div className="flex items-center space-x-3">
                     <div className="w-4 h-4 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-semibold text-gray-800">{tCommon('plant_count')}</span>
+                    <span className="text-sm font-semibold text-gray-800">{t('hero.plantCount')}</span>
                   </div>
                 </div>
               </div>
@@ -119,67 +117,67 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-12 sm:py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12 sm:mb-16">
-            <div className="inline-flex items-center bg-green-100 text-green-800 px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
-              <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-              {t('features.title')}
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <Star className="h-4 w-4 mr-2" />
+              {t('features.badge')}
             </div>
-            <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-              {t('features.subtitle')}
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              {t('features.title')}
             </h2>
-            <p className="text-base sm:text-xl text-gray-600 max-w-3xl mx-auto">
-              {t('features.description')}
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              {t('features.subtitle')}
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-12 sm:mb-16">
-            <div className="text-center group bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-green-500 to-green-600 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Users className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            <div className="text-center group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-gradient-to-br from-green-500 to-green-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <Users className="h-10 w-10 text-white" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">
-                {t('features.expertise')}
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                {t('features.expertise.title')}
               </h3>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                {t('features.expertise_desc')}
+              <p className="text-gray-600 leading-relaxed">
+                {t('features.expertise.description')}
               </p>
             </div>
 
-            <div className="text-center group bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Leaf className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+            <div className="text-center group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <Leaf className="h-10 w-10 text-white" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">
-                {t('features.consulting')}
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                {t('features.consultation.title')}
               </h3>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                {t('features.consulting_desc')}
+              <p className="text-gray-600 leading-relaxed">
+                {t('features.consultation.description')}
               </p>
             </div>
 
-            <div className="text-center group bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-teal-500 to-teal-600 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Home className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+            <div className="text-center group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-gradient-to-br from-teal-500 to-teal-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <Home className="h-10 w-10 text-white" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">
-                {t('features.greenhouse')}
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                {t('features.greenhouse.title')}
               </h3>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                {t('features.greenhouse_desc')}
+              <p className="text-gray-600 leading-relaxed">
+                {t('features.greenhouse.description')}
               </p>
             </div>
 
-            <div className="text-center group bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-green-600 to-green-700 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Calendar className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+            <div className="text-center group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+              <div className="bg-gradient-to-br from-green-600 to-green-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <Calendar className="h-10 w-10 text-white" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">
-                {t('features.seasonal')}
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                {t('features.blooming.title')}
               </h3>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                {t('features.seasonal_desc')}
+              <p className="text-gray-600 leading-relaxed">
+                {t('features.blooming.description')}
               </p>
             </div>
           </div>
@@ -206,14 +204,14 @@ export default function HomePage() {
                     <div className="bg-white/30 backdrop-blur-sm rounded-full p-6 mb-4 inline-block">
                       <Leaf className="h-12 w-12 text-green-600 mx-auto" />
                     </div>
-                    <h4 className="text-green-800 font-bold text-lg mb-2">{t('gallery.collection')}</h4>
-                    <p className="text-green-700 text-sm">{t('gallery.over_3000_plants')}</p>
+                    <h4 className="text-green-800 font-bold text-lg mb-2">{t('gallery.collection.title')}</h4>
+                    <p className="text-green-700 text-sm">{t('gallery.collection.subtitle')}</p>
                   </div>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-6">
                   <div className="text-white">
-                    <p className="font-semibold text-lg mb-1">{t('gallery.collection')}</p>
-                    <p className="text-sm opacity-90">{t('gallery.over_3000_different_plants')}</p>
+                    <p className="font-semibold text-lg mb-1">{t('gallery.collection.title')}</p>
+                    <p className="text-sm opacity-90">{t('gallery.collection.description')}</p>
                   </div>
                 </div>
               </div>
@@ -229,14 +227,14 @@ export default function HomePage() {
                     <div className="bg-white/30 backdrop-blur-sm rounded-full p-6 mb-4 inline-block">
                       <Leaf className="h-12 w-12 text-pink-600 mx-auto" />
                     </div>
-                    <h4 className="text-pink-800 font-bold text-lg mb-2">{t('gallery.blooming')}</h4>
-                    <p className="text-pink-700 text-sm">{t('gallery.blooming_period')}</p>
+                    <h4 className="text-pink-800 font-bold text-lg mb-2">{t('gallery.blooming.title')}</h4>
+                    <p className="text-pink-700 text-sm">{t('gallery.blooming.subtitle')}</p>
                   </div>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-6">
                   <div className="text-white">
-                    <p className="font-semibold text-lg mb-1">{t('gallery.blooming_time')}</p>
-                    <p className="text-sm opacity-90">{t('gallery.blooming_time_desc')}</p>
+                    <p className="font-semibold text-lg mb-1">{t('gallery.blooming.title')}</p>
+                    <p className="text-sm opacity-90">{t('gallery.blooming.description')}</p>
                   </div>
                 </div>
               </div>
@@ -252,14 +250,14 @@ export default function HomePage() {
                     <div className="bg-white/30 backdrop-blur-sm rounded-full p-6 mb-4 inline-block">
                       <Home className="h-12 w-12 text-emerald-600 mx-auto" />
                     </div>
-                    <h4 className="text-emerald-800 font-bold text-lg mb-2">{t('gallery.greenhouse')}</h4>
-                    <p className="text-emerald-700 text-sm">{t('gallery.greenhouse_area')}</p>
+                    <h4 className="text-emerald-800 font-bold text-lg mb-2">{t('gallery.greenhouse.title')}</h4>
+                    <p className="text-emerald-700 text-sm">{t('gallery.greenhouse.subtitle')}</p>
                   </div>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-6">
                   <div className="text-white">
-                    <p className="font-semibold text-lg mb-1">{t('gallery.greenhouse')}</p>
-                    <p className="text-sm opacity-90">{t('gallery.modern_facility')}</p>
+                    <p className="font-semibold text-lg mb-1">{t('gallery.greenhouse.title')}</p>
+                    <p className="text-sm opacity-90">{t('gallery.greenhouse.description')}</p>
                   </div>
                 </div>
               </div>
@@ -270,7 +268,7 @@ export default function HomePage() {
                 {t('gallery.tip')}
               </p>
               <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
-                {t('gallery.view_all')}
+                {t('gallery.viewAllButton')}
               </Button>
             </div>
           </div>
@@ -294,29 +292,27 @@ export default function HomePage() {
                 <div className="bg-green-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <MapPin className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{t('contact.address')}</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('contact.address.title')}</h3>
                 <p className="text-gray-600">
-                  Kurfürstendeich 54<br />
-                  21037 Hamburg
+                  {t('contact.address.content')}
                 </p>
               </div>
               <div className="text-center">
                 <div className="bg-green-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Phone className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{t('contact.phone')}</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('contact.phone.title')}</h3>
                 <p className="text-gray-600">
-                  +49 40 220 94 58<br />
-                  +49 176 29 63 88 66
+                  {t('contact.phone.content')}
                 </p>
               </div>
               <div className="text-center">
                 <div className="bg-green-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Mail className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{t('contact.email')}</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('contact.email.title')}</h3>
                 <p className="text-gray-600">
-                  info@kamelie.net
+                  {t('contact.email.content')}
                 </p>
               </div>
             </div>
@@ -336,12 +332,12 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-4 h-auto" asChild>
               <Link href="/catalog">
-                {t('cta.catalog')}
+                {t('cta.catalogButton')}
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8 py-4 h-auto border-white text-white hover:bg-white hover:text-green-600" asChild>
               <Link href="/services">
-                {t('cta.services')}
+                {t('cta.servicesButton')}
               </Link>
             </Button>
           </div>

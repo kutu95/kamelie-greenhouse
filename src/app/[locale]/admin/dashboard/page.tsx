@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { 
   TreeDeciduous, 
@@ -16,7 +16,9 @@ import {
   Edit,
   Eye,
   LogOut,
-  Plus
+  Plus,
+  Calculator,
+  DollarSign
 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
@@ -28,6 +30,10 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
+  const t = useTranslations('admin')
+  const params = useParams()
+  const locale = params.locale as string
+  
   const [stats, setStats] = useState<DashboardStats>({
     totalTreeDeciduous: 0,
     totalUsers: 0,
@@ -82,7 +88,7 @@ export default function AdminDashboard() {
         totalBlogPosts: blogResult.count || 0
       })
     } catch (err) {
-      setError('Failed to load dashboard data')
+      setError(t('error_title'))
     } finally {
       setLoading(false)
     }
@@ -98,7 +104,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+          <p className="mt-4 text-gray-600">{t('loading_dashboard')}</p>
         </div>
       </div>
     )
@@ -111,12 +117,12 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600">Manage your Kamelie Greenhouse</p>
+              <h1 className="text-3xl font-bold text-gray-900">{t('dashboard_title')}</h1>
+              <p className="text-gray-600">{t('overview')}</p>
             </div>
             <Button onClick={handleSignOut} variant="outline">
               <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
+              {t('back_to_login')}
             </Button>
           </div>
         </div>
@@ -134,52 +140,52 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total TreeDeciduous</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('total_plants')}</CardTitle>
               <TreeDeciduous className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalTreeDeciduous}</div>
               <p className="text-xs text-muted-foreground">
-                Available in catalog
+                {t('available_in_catalog')}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('total_users')}</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalUsers}</div>
               <p className="text-xs text-muted-foreground">
-                Registered customers
+                {t('registered_customers')}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('total_orders')}</CardTitle>
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalOrders}</div>
               <p className="text-xs text-muted-foreground">
-                All time orders
+                {t('all_time_orders')}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Blog Posts</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('total_blog_posts')}</CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalBlogPosts}</div>
               <p className="text-xs text-muted-foreground">
-                Published articles
+                {t('published_articles')}
               </p>
             </CardContent>
           </Card>
@@ -191,16 +197,16 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <TreeDeciduous className="h-5 w-5 mr-2" />
-                Plant Management
+                {t('plants')}
               </CardTitle>
               <CardDescription>
-                Add, edit, and manage plant inventory
+                {t('manage_plants_desc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="w-full">
                 <Eye className="h-4 w-4 mr-2" />
-                Manage TreeDeciduous
+                {t('manage_plants')}
               </Button>
             </CardContent>
           </Card>
@@ -209,16 +215,16 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Users className="h-5 w-5 mr-2" />
-                User Management
+                {t('users')}
               </CardTitle>
               <CardDescription>
-                Manage user accounts and roles
+                {t('manage_users_desc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="w-full">
                 <Users className="h-4 w-4 mr-2" />
-                Manage Users
+                {t('manage_users')}
               </Button>
             </CardContent>
           </Card>
@@ -227,16 +233,16 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <ShoppingCart className="h-5 w-5 mr-2" />
-                Order Management
+                {t('orders')}
               </CardTitle>
               <CardDescription>
-                View and process customer orders
+                {t('manage_orders_desc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="w-full">
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                Manage Orders
+                {t('manage_orders')}
               </Button>
             </CardContent>
           </Card>
@@ -245,16 +251,52 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <FileText className="h-5 w-5 mr-2" />
-                Blog Management
+                {t('blog')}
               </CardTitle>
               <CardDescription>
-                Create and manage blog posts
+                {t('manage_blog_desc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="w-full">
                 <FileText className="h-4 w-4 mr-2" />
-                Manage Blog
+                {t('manage_blog')}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/admin/pricing')}>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Calculator className="h-5 w-5 mr-2" />
+                {t('pricing_matrix')}
+              </CardTitle>
+              <CardDescription>
+                {t('manage_pricing_desc')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                <Calculator className="h-4 w-4 mr-2" />
+                {t('manage_pricing')}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/admin/cultivars')}>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <DollarSign className="h-5 w-5 mr-2" />
+                {t('cultivar_price_groups')}
+              </CardTitle>
+              <CardDescription>
+                {t('cultivar_price_groups_desc')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                <DollarSign className="h-4 w-4 mr-2" />
+                {t('manage_cultivar_groups')}
               </Button>
             </CardContent>
           </Card>
@@ -263,34 +305,34 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Settings className="h-5 w-5 mr-2" />
-                System Settings
+                {t('settings')}
               </CardTitle>
               <CardDescription>
-                Configure system settings and preferences
+                {t('manage_settings_desc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="w-full">
                 <Settings className="h-4 w-4 mr-2" />
-                Settings
+                {t('manage_settings')}
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/de/catalog')}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push(`/${locale}/catalog`)}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Eye className="h-5 w-5 mr-2" />
-                View Catalog
+                {t('view_catalog')}
               </CardTitle>
               <CardDescription>
-                Preview the public catalog
+                {t('view_catalog_desc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="w-full" variant="outline">
                 <Eye className="h-4 w-4 mr-2" />
-                View Public Site
+                {t('view_public_site')}
               </Button>
             </CardContent>
           </Card>

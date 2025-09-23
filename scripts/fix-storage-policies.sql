@@ -38,3 +38,4 @@ FOR DELETE USING (
 
 -- Verify the bucket is public
 SELECT id, name, public FROM storage.buckets WHERE id = 'images';
+

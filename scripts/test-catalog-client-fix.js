@@ -83,3 +83,4 @@ async function testCatalogClientFix() {
 
 // Run the test
 testCatalogClientFix()
+

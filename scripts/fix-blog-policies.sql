@@ -39,3 +39,4 @@ FOR DELETE USING (auth.role() = 'authenticated');
 SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual 
 FROM pg_policies 
 WHERE tablename = 'blog_posts';
+

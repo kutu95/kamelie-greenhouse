@@ -57,3 +57,4 @@ Once the field is added:
 1. The profile image upload functionality will work
 2. Users can upload and manage their profile images
 3. The profile page will display the user's profile image
+

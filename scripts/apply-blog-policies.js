@@ -89,3 +89,4 @@ async function applyBlogPolicies() {
 
 // Run the policy setup
 applyBlogPolicies()
+
