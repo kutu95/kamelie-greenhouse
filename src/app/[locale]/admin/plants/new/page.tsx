@@ -110,8 +110,8 @@ export default function NewPlant() {
     setSuccess(null)
 
     try {
-      const cultivarId = parseInt(formData.cultivar_id)
-      if (isNaN(cultivarId)) {
+      // cultivar_id should be a UUID string, not an integer
+      if (!formData.cultivar_id) {
         setError(locale === 'de' ? 'Ungültige Sorte ausgewählt' : 'Invalid variety selected')
         return
       }
@@ -119,19 +119,24 @@ export default function NewPlant() {
       const { error } = await supabase
         .from('plants')
         .insert({
-          cultivar_id: cultivarId,
+          cultivar_id: formData.cultivar_id,
           age_years: parseInt(formData.age_years), // Required field
           height_cm: formData.height_cm ? parseInt(formData.height_cm) : null,
+          width_cm: null, // Not in form yet, but required by schema
           pot_size: formData.pot_size || null,
           plant_code: formData.plant_code || null,
+          price_band: null, // Not in form yet, but in schema
+          price_euros: null, // Not in form yet, but in schema
           status: formData.status || 'available',
           location: formData.location || null,
           notes: formData.notes || null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          is_quick_buy: false // Default value
         })
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
 
       setSuccess(locale === 'de' ? 'Pflanze erfolgreich erstellt' : 'Plant created successfully')
       
