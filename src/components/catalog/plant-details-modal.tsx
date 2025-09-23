@@ -25,13 +25,14 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
 
   const isGerman = locale === 'de'
   const featuredPhoto = plant?.photos?.find(photo => photo.is_primary) || plant?.photos?.[0]
+  const cultivar = (plant as any)?.cultivar
 
   // Load price range when modal opens
   useEffect(() => {
     async function loadPriceRange() {
-      if (plant?.cultivar?.price_group) {
+      if ((plant as any)?.cultivar?.price_group) {
         try {
-          const range = await getCultivarPriceRange(plant.cultivar.price_group)
+          const range = await getCultivarPriceRange((plant as any).cultivar.price_group)
           setPriceRange(range)
         } catch (error) {
           console.error('Error loading price range:', error)
@@ -46,7 +47,7 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
     if (isOpen && plant) {
       loadPriceRange()
     }
-  }, [isOpen, plant?.cultivar?.price_group])
+  }, [isOpen, (plant as any)?.cultivar?.price_group])
 
   const handleSelectPlant = () => {
     setShowPlantSelection(true)
@@ -65,7 +66,7 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
           {/* Header */}
           <div className="flex justify-between items-center p-6 border-b">
             <h2 className="text-2xl font-bold text-gray-900">
-              {plant.cultivar.cultivar_name}
+              {cultivar?.cultivar_name}
             </h2>
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-5 w-5" />
@@ -118,11 +119,11 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                 {/* Basic Info */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {plant.cultivar.species.scientific_name}
+                    {cultivar?.species?.scientific_name}
                   </h3>
-                  {plant.cultivar.special_characteristics && (
+                  {cultivar?.special_characteristics && (
                     <p className="text-gray-600 mb-4">
-                      {plant.cultivar.special_characteristics}
+                      {cultivar?.special_characteristics}
                     </p>
                   )}
 
@@ -133,9 +134,9 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                         {isGerman ? 'Schnellkauf' : 'Quick Buy'}
                       </Badge>
                     )}
-                    {plant.cultivar?.price_group && (
+                    {(plant as any).cultivar?.price_group && (
                       <Badge variant="secondary">
-                        {getPriceGroupDescription(plant.cultivar.price_group, locale)}
+                        {getPriceGroupDescription((plant as any).cultivar.price_group, locale)}
                       </Badge>
                     )}
                   </div>
@@ -143,62 +144,62 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
 
                 {/* Variety Details */}
                 <div className="grid grid-cols-2 gap-4">
-                  {plant.cultivar.flower_color && (
+                  {cultivar?.flower_color && (
                     <div className="flex items-center space-x-2">
                       <div className="h-5 w-5 rounded-full border-2 border-gray-300 bg-gradient-to-r from-pink-400 to-red-400"></div>
                       <div>
                         <p className="text-sm text-gray-500">{isGerman ? 'Blütenfarbe' : 'Flower Color'}</p>
-                        <p className="font-medium">{translateFlowerColor(plant.cultivar.flower_color, locale)}</p>
+                        <p className="font-medium">{translateFlowerColor(cultivar?.flower_color, locale)}</p>
                       </div>
                     </div>
                   )}
 
-                  {plant.cultivar.flower_form && (
+                  {cultivar?.flower_form && (
                     <div className="flex items-center space-x-2">
                       <Leaf className="h-5 w-5 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-500">{isGerman ? 'Blütenform' : 'Flower Form'}</p>
-                        <p className="font-medium">{translateFlowerForm(plant.cultivar.flower_form, locale)}</p>
+                        <p className="font-medium">{translateFlowerForm(cultivar?.flower_form, locale)}</p>
                       </div>
                     </div>
                   )}
 
-                  {plant.cultivar.growth_habit && (
+                  {cultivar?.growth_habit && (
                     <div className="flex items-center space-x-2">
                       <Leaf className="h-5 w-5 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-500">{isGerman ? 'Wuchsform' : 'Growth Habit'}</p>
-                        <p className="font-medium">{translateGrowthHabit(plant.cultivar.growth_habit, locale)}</p>
+                        <p className="font-medium">{translateGrowthHabit(cultivar?.growth_habit, locale)}</p>
                       </div>
                     </div>
                   )}
 
-                  {plant.cultivar.foliage_type && (
+                  {cultivar?.foliage_type && (
                     <div className="flex items-center space-x-2">
                       <Leaf className="h-5 w-5 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-500">{isGerman ? 'Laub' : 'Foliage'}</p>
-                        <p className="font-medium">{translateFoliageType(plant.cultivar.foliage_type, locale)}</p>
+                        <p className="font-medium">{translateFoliageType(cultivar?.foliage_type, locale)}</p>
                       </div>
                     </div>
                   )}
 
-                  {plant.cultivar.breeder && plant.cultivar.breeder !== 'Unknown' && (
+                  {cultivar?.breeder && cultivar?.breeder !== 'Unknown' && (
                     <div className="flex items-center space-x-2">
                       <Users className="h-5 w-5 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-500">{isGerman ? 'Züchter' : 'Breeder'}</p>
-                        <p className="font-medium">{plant.cultivar.breeder}</p>
+                        <p className="font-medium">{cultivar?.breeder}</p>
                       </div>
                     </div>
                   )}
 
-                  {plant.cultivar.year_introduced && (
+                  {cultivar?.year_introduced && (
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-5 w-5 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-500">{isGerman ? 'Einführungsjahr' : 'Year Introduced'}</p>
-                        <p className="font-medium">{plant.cultivar.year_introduced}</p>
+                        <p className="font-medium">{cultivar?.year_introduced}</p>
                       </div>
                     </div>
                   )}
@@ -233,7 +234,7 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                 </div>
 
                 {/* Hardiness Information */}
-                {plant.cultivar.hardiness_rating && (
+                {(plant as any).cultivar.hardiness_rating && (
                   <div>
                     <p className="text-sm text-gray-500">{isGerman ? 'Winterhärte' : 'Hardiness'}</p>
                     <div className="flex items-center space-x-2 mt-1">
@@ -242,7 +243,7 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                           <div
                             key={rating}
                             className={`w-4 h-4 rounded-full ${
-                              rating <= plant.cultivar.hardiness_rating!
+                              rating <= cultivar?.hardiness_rating!
                                 ? 'bg-green-500'
                                 : 'bg-gray-200'
                             }`}
@@ -250,7 +251,7 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                         ))}
                       </div>
                       <span className="text-sm text-gray-600">
-                        {plant.cultivar.hardiness_rating}/5
+                        {cultivar?.hardiness_rating}/5
                       </span>
                     </div>
                   </div>
@@ -275,7 +276,7 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
 
       {/* Plant Selection Modal */}
       <PlantSelectionModal
-        cultivarId={plant.cultivar.id}
+        cultivarId={cultivar?.id}
         isOpen={showPlantSelection}
         onClose={onClose}
         onBackToVariety={handleBackToVariety}

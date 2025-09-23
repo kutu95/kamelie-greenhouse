@@ -48,7 +48,7 @@ export function CultivarCard({ cultivar, locale }: CultivarCardProps) {
     async function loadPriceRange() {
       if (cultivar.price_group) {
         try {
-          const range = await getCultivarPriceRange(cultivar.price_group)
+          const range = await getCultivarPriceRange(cultivar.price_group as 'A' | 'B' | 'C')
           setPriceRange(range)
         } catch (error) {
           console.error('Error loading price range:', error)
@@ -65,7 +65,8 @@ export function CultivarCard({ cultivar, locale }: CultivarCardProps) {
 
   // Create a mock plant object for the modal (since PlantDetailsModal expects a plant)
   const mockPlant = {
-    id: cultivar.id,
+    id: parseInt(cultivar.id),
+    cultivar_id: parseInt(cultivar.id),
     cultivar: cultivar,
     photos: [], // No photos for cultivars
     status: 'available' as const,
@@ -73,7 +74,7 @@ export function CultivarCard({ cultivar, locale }: CultivarCardProps) {
     height_cm: null,
     width_cm: null,
     pot_size: null,
-    plant_code: null,
+    plant_code: '',
     price_euros: null,
     price_band: null,
     location: null,
@@ -81,7 +82,7 @@ export function CultivarCard({ cultivar, locale }: CultivarCardProps) {
     is_quick_buy: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
-  }
+  } as any
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group">
@@ -114,7 +115,7 @@ export function CultivarCard({ cultivar, locale }: CultivarCardProps) {
             variant="secondary" 
             className="absolute top-2 right-2 bg-white/90 text-gray-700"
           >
-            {getPriceGroupDescription(cultivar.price_group, locale)}
+            {getPriceGroupDescription(cultivar.price_group as 'A' | 'B' | 'C', locale)}
           </Badge>
         )}
       </div>
@@ -162,7 +163,7 @@ export function CultivarCard({ cultivar, locale }: CultivarCardProps) {
           ) : priceRange ? (
             <div className="text-center">
               <p className="text-lg font-semibold text-green-600">
-                {formatPrice(priceRange.min)} - {formatPrice(priceRange.max)}
+                {formatPrice(priceRange.min_price)} - {formatPrice(priceRange.max_price)}
               </p>
               <p className="text-xs text-gray-500">Price range</p>
             </div>

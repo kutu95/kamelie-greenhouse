@@ -4,11 +4,11 @@ import { calculatePlantPrice } from '@/lib/supabase/pricing'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient()
-    const cultivarId = params.id
+    const { id: cultivarId } = await params
 
     // Get cultivar information
     const { data: cultivar, error: cultivarError } = await supabase

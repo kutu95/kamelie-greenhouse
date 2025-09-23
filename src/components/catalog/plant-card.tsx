@@ -26,9 +26,9 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
   // Load price range when component mounts
   useEffect(() => {
     async function loadPriceRange() {
-      if (plant.cultivar?.price_group) {
+      if ((plant.cultivar as any)?.price_group) {
         try {
-          const range = await getCultivarPriceRange(plant.cultivar.price_group)
+          const range = await getCultivarPriceRange((plant.cultivar as any).price_group)
           setPriceRange(range)
         } catch (error) {
           console.error('Error loading price range:', error)
@@ -42,7 +42,7 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
     }
     
     loadPriceRange()
-  }, [plant.cultivar?.price_group])
+  }, [(plant.cultivar as any)?.price_group])
 
 
   return (
@@ -78,12 +78,12 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
         )}
         
         {/* Price Group Badge */}
-        {plant.cultivar?.price_group && (
+        {(plant.cultivar as any)?.price_group && (
           <Badge 
             variant="secondary" 
             className="absolute top-2 right-2 bg-white/90 text-gray-700"
           >
-            {getPriceGroupDescription(plant.cultivar.price_group, locale)}
+            {getPriceGroupDescription((plant.cultivar as any).price_group, locale)}
           </Badge>
         )}
       </div>

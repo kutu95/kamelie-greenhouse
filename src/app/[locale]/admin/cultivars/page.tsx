@@ -96,7 +96,7 @@ export default function AdminCultivarsPage() {
           id,
           cultivar_name,
           price_group,
-          species:species(id, scientific_name)
+          species!inner(id, scientific_name)
         `)
         .order('cultivar_name')
 
@@ -105,7 +105,12 @@ export default function AdminCultivarsPage() {
         return
       }
 
-      setCultivars(cultivarsData || [])
+      // Transform the data to match the expected interface
+      const transformedCultivars = (cultivarsData || []).map(cultivar => ({
+        ...cultivar,
+        species: Array.isArray(cultivar.species) ? cultivar.species[0] : cultivar.species
+      }))
+      setCultivars(transformedCultivars)
     } catch (err) {
       setError('An unexpected error occurred')
     } finally {
@@ -215,7 +220,10 @@ export default function AdminCultivarsPage() {
     setSuccess('')
 
     try {
-      const priceGroupValue = bulkPriceGroup === 'none' ? null : bulkPriceGroup
+      let priceGroupValue: 'A' | 'B' | 'C' | null = null
+      if ((bulkPriceGroup as any) !== 'none') {
+        priceGroupValue = bulkPriceGroup as 'A' | 'B' | 'C'
+      }
       
       const { error } = await supabase
         .from('cultivars')

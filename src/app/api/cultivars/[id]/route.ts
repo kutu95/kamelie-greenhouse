@@ -3,10 +3,11 @@ import { createClient } from '@/lib/supabase/client'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createClient()
+    const { id } = await params
 
     const { data: cultivar, error } = await supabase
       .from('cultivars')
@@ -14,7 +15,7 @@ export async function GET(
         *,
         species:species(*)
       `)
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (error) {
@@ -35,10 +36,11 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createClient()
+    const { id } = await params
     const body = await request.json()
 
     // Validate the request body
@@ -69,7 +71,7 @@ export async function PATCH(
     const { data: cultivars, error } = await supabase
       .from('cultivars')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', id)
       .select(`
         *,
         species:species(*)

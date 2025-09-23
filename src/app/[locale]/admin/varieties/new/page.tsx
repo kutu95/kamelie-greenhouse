@@ -121,7 +121,7 @@ export default function NewVariety() {
     }
   }
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = (field: keyof FormData, value: string | null) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
