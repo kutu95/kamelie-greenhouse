@@ -198,7 +198,7 @@ export default function CheckoutPage() {
           subtotal,
           shipping,
           vatAmount: vat,
-          totalAmount: total + (paymentInfo.method === 'cod' ? 5 : 0),
+          totalAmount: total,
           items: items.map(item => ({
             id: item.id,
             type: item.type,
@@ -238,7 +238,7 @@ export default function CheckoutPage() {
         items: invoiceItems,
         subtotal: subtotal,
         shipping: shipping,
-        total: total + (paymentInfo.method === 'cod' ? 5 : 0),
+        total: total,
         netAmount: subtotal / 1.19, // Calculate net amount
         vatAmount: subtotal - (subtotal / 1.19),
         vatRate: 0.19,
@@ -269,7 +269,7 @@ export default function CheckoutPage() {
           orderId: newOrderId,
           customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
           customerEmail: customerInfo.email,
-          totalAmount: total + (paymentInfo.method === 'cod' ? 5 : 0),
+          totalAmount: total,
           orderDate: new Date().toLocaleDateString(locale),
           locale,
           invoiceHtml,
@@ -853,18 +853,12 @@ export default function CheckoutPage() {
                     <span className="text-gray-600">{isGerman ? 'MwSt. (19%)' : 'VAT (19%)'}</span>
                     <span>€{vat.toFixed(2)}</span>
                   </div>
-                  {paymentInfo.method === 'cod' && (
-                    <div className="flex justify-between text-orange-600">
-                      <span>{isGerman ? 'Nachnahmegebühr' : 'COD Fee'}</span>
-                      <span>€5.00</span>
-                    </div>
-                  )}
                 </div>
 
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center text-lg font-bold">
                     <span>{isGerman ? 'Gesamt' : 'Total'}</span>
-                    <span>€{(total + (paymentInfo.method === 'cod' ? 5 : 0)).toFixed(2)}</span>
+                    <span>€{total.toFixed(2)}</span>
                   </div>
                 </div>
 
