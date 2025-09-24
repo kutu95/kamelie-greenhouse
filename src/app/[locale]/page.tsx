@@ -333,7 +333,7 @@ export default function HomePage() {
                 {t('cta.catalogButton')}
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-4 h-auto border-white text-white hover:bg-white hover:text-green-600" asChild>
+            <Button size="lg" variant="outline" className="text-lg px-8 py-4 h-auto border-white text-white bg-transparent hover:bg-white hover:text-green-600" asChild>
               <Link href="/services">
                 {t('cta.servicesButton')}
               </Link>
