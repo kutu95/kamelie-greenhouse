@@ -124,7 +124,12 @@ export function PlantSelectionModal({
 
   if (!isOpen) return null
 
-  const featuredPhoto = cultivar?.photos?.find((photo: any) => photo.is_primary) || cultivar?.photos?.[0]
+  const featuredPhoto = cultivar?.photo_url ? {
+    photo_url: cultivar.photo_url,
+    alt_text_de: cultivar.photo_alt_text_de || '',
+    alt_text_en: cultivar.photo_alt_text_en || '',
+    is_primary: true
+  } : null
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

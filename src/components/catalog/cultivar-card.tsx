@@ -68,7 +68,7 @@ export function CultivarCard({ cultivar, locale }: CultivarCardProps) {
     id: parseInt(cultivar.id),
     cultivar_id: parseInt(cultivar.id),
     cultivar: cultivar,
-    photos: [], // Photos are accessed via cultivar.photos in the modal
+    photos: [], // Not used - images come from cultivar.photo_url
     status: 'available' as const,
     age_years: null,
     height_cm: null,
