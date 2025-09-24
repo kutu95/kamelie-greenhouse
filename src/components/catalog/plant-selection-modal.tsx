@@ -71,7 +71,6 @@ export function PlantSelectionModal({
           .eq('cultivar_id', cultivarId)
           .eq('status', 'available')
           .order('age_years')
-          .order('pot_size')
 
         if (plantsError) throw plantsError
 
@@ -83,8 +82,7 @@ export function PlantSelectionModal({
           try {
             const calculatedPrice = await calculatePlantPrice(
               plant.cultivar.price_group,
-              plant.age_years,
-              plant.pot_size
+              plant.age_years
             )
             plantsWithPrices.push({
               plant,
@@ -308,7 +306,6 @@ export function PlantSelectionModal({
                           <div className="flex justify-between items-start mb-3">
                             <div className="flex items-center space-x-2">
                               <Package className="h-4 w-4 text-gray-400" />
-                              <span className="text-sm font-medium">{plantSelection.plant.pot_size}</span>
                             </div>
                           </div>
 
@@ -367,7 +364,7 @@ export function PlantSelectionModal({
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium text-gray-900">
-                  {selectedPlant.plant.pot_size} - {selectedPlant.plant.age_years} {isGerman ? 'Jahre' : 'years'}
+                  {selectedPlant.plant.age_years} {isGerman ? 'Jahre' : 'years'}
                 </p>
                 <p className="text-sm text-gray-600">
                   {selectedPlant.plant.plant_code}
