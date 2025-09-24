@@ -9,6 +9,7 @@ import { PlantDetailsModal } from './plant-details-modal'
 import Link from 'next/link'
 import { getCultivarPriceRange, formatPrice, getPriceGroupDescription } from '@/lib/supabase/pricing'
 import { PriceRange } from '@/lib/supabase/pricing'
+import { useFavouritesStore } from '@/lib/store/favourites'
 
 interface Cultivar {
   id: string
@@ -42,6 +43,8 @@ export function CultivarCard({ cultivar, locale }: CultivarCardProps) {
   const [priceRange, setPriceRange] = useState<PriceRange | null>(null)
   const [loadingPrice, setLoadingPrice] = useState(true)
   const isGerman = locale === 'de'
+  
+  const { addPlant: addToFavourites, removeItem: removeFromFavourites, isFavourite } = useFavouritesStore()
 
   // Load price range when component mounts
   useEffect(() => {
@@ -62,6 +65,35 @@ export function CultivarCard({ cultivar, locale }: CultivarCardProps) {
     
     loadPriceRange()
   }, [cultivar.price_group])
+
+  const handleToggleFavourite = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent opening modal when clicking heart
+    console.log('Toggle favourite clicked for cultivar:', cultivar.id, 'isFavourite:', isFavourite(cultivar.id))
+    if (isFavourite(cultivar.id)) {
+      removeFromFavourites(cultivar.id)
+    } else {
+      // Create a mock plant object for favourites (since favourites store expects a plant)
+      const mockPlant = {
+        id: cultivar.id,
+        cultivar_id: cultivar.id,
+        cultivar: cultivar,
+        photos: [],
+        status: 'available' as const,
+        age_years: 3, // Default age
+        height_cm: null,
+        width_cm: null,
+        plant_code: '',
+        price_euros: null,
+        price_band: null,
+        location: null,
+        notes: null,
+        is_quick_buy: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      addToFavourites(mockPlant as any)
+    }
+  }
 
   // Create a mock plant object for the modal (since PlantDetailsModal expects a plant)
   const mockPlant = {
@@ -186,8 +218,9 @@ export function CultivarCard({ cultivar, locale }: CultivarCardProps) {
             variant="outline"
             size="sm"
             className="px-3"
+            onClick={handleToggleFavourite}
           >
-            <Heart className="h-4 w-4" />
+            <Heart className={`h-4 w-4 ${isFavourite(cultivar.id) ? 'fill-red-500 text-red-500' : ''}`} />
           </Button>
         </div>
       </div>

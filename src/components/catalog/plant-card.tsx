@@ -49,6 +49,7 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
 
   const handleToggleFavourite = (e: React.MouseEvent) => {
     e.stopPropagation() // Prevent opening modal when clicking heart
+    console.log('Toggle favourite clicked for plant:', plant.id, 'isFavourite:', isFavourite(plant.id))
     if (isFavourite(plant.id)) {
       removeFromFavourites(plant.id)
     } else {
