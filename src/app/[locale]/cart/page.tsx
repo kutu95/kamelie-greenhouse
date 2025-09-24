@@ -35,12 +35,17 @@ export default function CartPage() {
   const router = useRouter()
   const locale = params.locale as string
   
-  const { items, updateQuantity, removeItem, getTotalItems, getTotalPrice, clearCart } = useCartStore()
+  const { items, updateQuantity, removeItem, getTotalItems, getTotalPrice, clearCart, cleanInvalidItems } = useCartStore()
   const [removing, setRemoving] = useState<string | null>(null)
   const [checkingOut, setCheckingOut] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
 
   const isGerman = locale === 'de'
+
+  // Clean up invalid cart items on mount
+  useEffect(() => {
+    cleanInvalidItems()
+  }, [cleanInvalidItems])
 
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) {

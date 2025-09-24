@@ -66,7 +66,7 @@ export default function CheckoutPage() {
   const locale = params.locale as string
   const supabase = createClient()
   
-  const { items, getTotalItems, getTotalPrice, clearCart } = useCartStore()
+  const { items, getTotalItems, getTotalPrice, clearCart, cleanInvalidItems } = useCartStore()
   
   const [step, setStep] = useState<'info' | 'payment' | 'confirmation'>('info')
   const [loading, setLoading] = useState(false)
@@ -95,6 +95,11 @@ export default function CheckoutPage() {
   })
 
   const isGerman = locale === 'de'
+
+  // Clean up invalid cart items on mount
+  useEffect(() => {
+    cleanInvalidItems()
+  }, [cleanInvalidItems])
 
   // Calculate totals
   const subtotal = getTotalPrice()

@@ -39,6 +39,13 @@ interface CartState {
   clearCart: () => void
   getTotalItems: () => number
   getTotalPrice: () => number
+  cleanInvalidItems: () => void
+}
+
+// Helper function to validate UUID format
+const isValidUUID = (id: string): boolean => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+  return uuidRegex.test(id)
 }
 
 export const useCartStore = create<CartState>()(
@@ -127,6 +134,14 @@ export const useCartStore = create<CartState>()(
           (total, item) => total + item.price * item.quantity,
           0
         )
+      },
+      cleanInvalidItems: () => {
+        const currentItems = get().items
+        const validItems = currentItems.filter(item => isValidUUID(item.id))
+        if (validItems.length !== currentItems.length) {
+          console.log(`Removed ${currentItems.length - validItems.length} invalid cart items`)
+          set({ items: validItems })
+        }
       },
     }),
     {
