@@ -109,10 +109,10 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
   }
 
   const handleToggleFavourite = () => {
-    if (!plant) return
+    if (!plant || !cultivar) return
     
-    if (isFavourite(plant.id)) {
-      removeFromFavourites(plant.id)
+    if (isFavourite(cultivar.id)) {
+      removeFromFavourites(cultivar.id)
     } else {
       addToFavourites(plant as any)
     }
@@ -363,8 +363,8 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                     className="flex-1"
                     onClick={handleToggleFavourite}
                   >
-                    <Heart className={`h-4 w-4 mr-2 ${isFavourite(plant.id) ? 'fill-red-500 text-red-500' : ''}`} />
-                    {isFavourite(plant.id) 
+                    <Heart className={`h-4 w-4 mr-2 ${isFavourite(cultivar?.id || '') ? 'fill-red-500 text-red-500' : ''}`} />
+                    {isFavourite(cultivar?.id || '') 
                       ? (isGerman ? 'Aus Favoriten entfernen' : 'Remove from Favorites')
                       : (isGerman ? 'Zu Favoriten' : 'Add to Favorites')
                     }
