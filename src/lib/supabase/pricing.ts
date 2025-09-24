@@ -135,7 +135,7 @@ function calculateFallbackPrice(
   ageYears: number
 ): number {
   // Use actual prices from PDF data
-  const pricingMatrix = {
+  const pricingMatrix: Record<string, Record<number, number>> = {
     A: { 3: 21.00, 4: 32.00, 5: 47.00, 6: 59.00 },
     B: { 3: 28.00, 4: 39.00, 5: 59.00, 6: 69.00 },
     C: { 3: 37.00, 4: 53.00, 5: 69.00, 6: 79.00 }
