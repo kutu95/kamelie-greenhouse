@@ -20,6 +20,7 @@ import {
   Download
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { generateInvoicePDF, generateInvoiceHTML } from '@/lib/utils/invoice-generator-with-logo'
 
 interface OrderItem {
   id: string
@@ -94,6 +95,128 @@ export default function OrderDetailPage() {
       setError(isGerman ? 'Fehler beim Laden der Bestellung' : 'Error loading order')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDownloadPDF = async () => {
+    if (!order) return
+
+    try {
+      const invoiceData = {
+        orderId: order.order_number,
+        date: new Date(order.created_at).toLocaleDateString(),
+        customer: {
+          firstName: order.shipping_address?.firstName || '',
+          lastName: order.shipping_address?.lastName || '',
+          email: order.shipping_address?.email || '',
+          phone: order.shipping_address?.phone || '',
+          address: order.shipping_address?.address || '',
+          city: order.shipping_address?.city || '',
+          postalCode: order.shipping_address?.postalCode || '',
+          country: order.shipping_address?.country || 'Deutschland',
+          company: order.shipping_address?.company || '',
+          taxId: order.shipping_address?.taxId || '',
+          deliveryMethod: order.shipping_address?.deliveryMethod || 'pickup'
+        },
+        items: order.order_items?.map((item: OrderItem) => ({
+          description: item.item_name + (item.item_description ? ` - ${item.item_description}` : ''),
+          quantity: item.quantity,
+          unitPrice: item.unit_price,
+          totalPrice: item.total_price,
+          type: item.item_type as 'plant' | 'product'
+        })) || [],
+        subtotal: order.subtotal,
+        shipping: 0, // No shipping cost in this system
+        total: order.total_amount,
+        netAmount: order.subtotal,
+        vatAmount: order.tax_amount,
+        vatRate: 19,
+        paymentMethod: order.payment_method as 'cod' | 'bank_transfer' | 'credit_card' | null,
+        companyInfo: {
+          name: 'Kamelie Gärtnerei',
+          address: 'Musterstraße 123',
+          city: 'Musterstadt',
+          zipCode: '12345',
+          country: 'Deutschland',
+          vatId: 'DE123456789',
+          taxNo: '123/456/78901',
+          commercialRegister: 'HRB 12345',
+          phone: '+49 123 456789',
+          email: 'info@kamelie.net',
+          bankName: 'Musterbank',
+          iban: 'DE89 3704 0044 0532 0130 00',
+          bic: 'COBADEFFXXX'
+        }
+      }
+
+      await generateInvoicePDF(invoiceData, isGerman ? 'de' : 'en')
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      setError(isGerman ? 'Fehler beim Generieren der PDF' : 'Error generating PDF')
+    }
+  }
+
+  const handlePrintInvoice = async () => {
+    if (!order) return
+
+    try {
+      const invoiceData = {
+        orderId: order.order_number,
+        date: new Date(order.created_at).toLocaleDateString(),
+        customer: {
+          firstName: order.shipping_address?.firstName || '',
+          lastName: order.shipping_address?.lastName || '',
+          email: order.shipping_address?.email || '',
+          phone: order.shipping_address?.phone || '',
+          address: order.shipping_address?.address || '',
+          city: order.shipping_address?.city || '',
+          postalCode: order.shipping_address?.postalCode || '',
+          country: order.shipping_address?.country || 'Deutschland',
+          company: order.shipping_address?.company || '',
+          taxId: order.shipping_address?.taxId || '',
+          deliveryMethod: order.shipping_address?.deliveryMethod || 'pickup'
+        },
+        items: order.order_items?.map((item: OrderItem) => ({
+          description: item.item_name + (item.item_description ? ` - ${item.item_description}` : ''),
+          quantity: item.quantity,
+          unitPrice: item.unit_price,
+          totalPrice: item.total_price,
+          type: item.item_type as 'plant' | 'product'
+        })) || [],
+        subtotal: order.subtotal,
+        shipping: 0,
+        total: order.total_amount,
+        netAmount: order.subtotal,
+        vatAmount: order.tax_amount,
+        vatRate: 19,
+        paymentMethod: order.payment_method as 'cod' | 'bank_transfer' | 'credit_card' | null,
+        companyInfo: {
+          name: 'Kamelie Gärtnerei',
+          address: 'Musterstraße 123',
+          city: 'Musterstadt',
+          zipCode: '12345',
+          country: 'Deutschland',
+          vatId: 'DE123456789',
+          taxNo: '123/456/78901',
+          commercialRegister: 'HRB 12345',
+          phone: '+49 123 456789',
+          email: 'info@kamelie.net',
+          bankName: 'Musterbank',
+          iban: 'DE89 3704 0044 0532 0130 00',
+          bic: 'COBADEFFXXX'
+        }
+      }
+
+      const htmlContent = generateInvoiceHTML(invoiceData, isGerman ? 'de' : 'en')
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(htmlContent)
+        printWindow.document.close()
+        printWindow.print()
+      }
+    } catch (error) {
+      console.error('Error printing invoice:', error)
+      setError(isGerman ? 'Fehler beim Drucken der Rechnung' : 'Error printing invoice')
     }
   }
 
@@ -186,11 +309,11 @@ export default function OrderDetailPage() {
               </p>
             </div>
             <div className="flex space-x-2">
-              <Button variant="outline">
+              <Button variant="outline" onClick={handlePrintInvoice}>
                 <FileText className="h-4 w-4 mr-2" />
                 {isGerman ? 'Rechnung drucken' : 'Print Invoice'}
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleDownloadPDF}>
                 <Download className="h-4 w-4 mr-2" />
                 {isGerman ? 'PDF herunterladen' : 'Download PDF'}
               </Button>
