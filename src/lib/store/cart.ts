@@ -171,13 +171,15 @@ export const useCartStore = create<CartState>()(
         const validItems = currentItems.filter(item => {
           if (item.type === 'cultivar') {
             // For cultivars, check if the ID format is correct (cultivar_id-age)
-            const parts = item.id.split('-')
-            if (parts.length !== 2) {
-              console.log(`Cultivar item ${item.id} has wrong number of parts:`, parts.length)
+            // UUIDs have 5 hyphens, so we need to split from the last hyphen
+            const lastHyphenIndex = item.id.lastIndexOf('-')
+            if (lastHyphenIndex === -1) {
+              console.log(`Cultivar item ${item.id} has no hyphens`)
               return false
             }
             
-            const [cultivarId, ageStr] = parts
+            const cultivarId = item.id.substring(0, lastHyphenIndex)
+            const ageStr = item.id.substring(lastHyphenIndex + 1)
             const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cultivarId)
             const age = parseInt(ageStr)
             const isValidAge = !isNaN(age) && age > 0
