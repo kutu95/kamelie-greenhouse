@@ -28,7 +28,14 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
 
   const { addPlant } = useCartStore()
   const isGerman = locale === 'de'
-  const featuredPhoto = plant?.cultivar?.photos?.find(photo => photo.is_primary) || plant?.cultivar?.photos?.[0]
+  const featuredPhoto = plant?.cultivar?.photos?.find(photo => photo.is_primary) || 
+                       plant?.cultivar?.photos?.[0] || 
+                       (plant?.cultivar?.photo_url ? {
+                         photo_url: plant.cultivar.photo_url,
+                         alt_text_de: plant.cultivar.photo_alt_text_de || '',
+                         alt_text_en: plant.cultivar.photo_alt_text_en || '',
+                         is_primary: true
+                       } : null)
   const cultivar = (plant as any)?.cultivar
 
   // Load price range when modal opens
