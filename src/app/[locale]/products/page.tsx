@@ -25,6 +25,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/types/database'
 import { useCartStore } from '@/lib/store/cart'
+import { AddToCartModal } from '@/components/products/add-to-cart-modal'
 import Image from 'next/image'
 
 type Product = Database['public']['Tables']['products']['Row']
@@ -40,6 +41,8 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('')
   const [showCart, setShowCart] = useState(false)
+  const [showAddToCartModal, setShowAddToCartModal] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   
   const supabase = createClient()
   
@@ -79,8 +82,18 @@ export default function ProductsPage() {
   }
 
 
-  const addToCart = (product: Product) => {
-    addProduct(product)
+  const handleAddToCartClick = (product: Product) => {
+    setSelectedProduct(product)
+    setShowAddToCartModal(true)
+  }
+
+  const handleAddToCartConfirm = (product: Product, quantity: number) => {
+    addProduct(product, quantity)
+  }
+
+  const handleCloseAddToCartModal = () => {
+    setShowAddToCartModal(false)
+    setSelectedProduct(null)
   }
 
   const filteredProducts = products.filter(product => {
@@ -285,7 +298,7 @@ export default function ProductsPage() {
 
                   {/* Add to Cart Button */}
                   <Button 
-                    onClick={() => addToCart(product)}
+                    onClick={() => handleAddToCartClick(product)}
                     disabled={product.stock_quantity === 0}
                     className="w-full"
                   >
@@ -418,6 +431,15 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+
+      {/* Add to Cart Modal */}
+      <AddToCartModal
+        product={selectedProduct}
+        isOpen={showAddToCartModal}
+        onClose={handleCloseAddToCartModal}
+        onConfirm={handleAddToCartConfirm}
+        locale={locale}
+      />
     </div>
   )
 }

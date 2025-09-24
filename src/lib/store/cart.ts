@@ -32,8 +32,8 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[]
-  addPlant: (plant: Plant & { cultivar: Cultivar & { species: Species } }) => void
-  addProduct: (product: Product) => void
+  addPlant: (plant: Plant & { cultivar: Cultivar & { species: Species } }, quantity?: number) => void
+  addProduct: (product: Product, quantity?: number) => void
   removeItem: (itemId: string) => void
   updateQuantity: (itemId: string, quantity: number) => void
   clearCart: () => void
@@ -45,13 +45,13 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-      addPlant: (plant) => {
+      addPlant: (plant, quantity = 1) => {
         const cartItem: CartItem = {
           id: plant.id,
           type: 'plant',
           name: plant.cultivar.cultivar_name,
           price: plant.price_euros || 0,
-          quantity: 1,
+          quantity: quantity,
           plant: plant,
           image_url: plant.cultivar.photo_url,
           description: plant.cultivar.species.scientific_name
@@ -65,7 +65,7 @@ export const useCartStore = create<CartState>()(
           set((state) => ({
             items: state.items.map((item) =>
               item.id === cartItem.id && item.type === 'plant'
-                ? { ...item, quantity: item.quantity + 1 }
+                ? { ...item, quantity: item.quantity + quantity }
                 : item
             ),
           }))
@@ -73,13 +73,13 @@ export const useCartStore = create<CartState>()(
           set((state) => ({ items: [...state.items, cartItem] }))
         }
       },
-      addProduct: (product) => {
+      addProduct: (product, quantity = 1) => {
         const cartItem: CartItem = {
           id: product.id,
           type: 'product',
           name: product.name_de,
           price: product.price_euros || 0,
-          quantity: 1,
+          quantity: quantity,
           product: product,
           image_url: product.image_url,
           description: product.description_de
@@ -93,7 +93,7 @@ export const useCartStore = create<CartState>()(
           set((state) => ({
             items: state.items.map((item) =>
               item.id === cartItem.id && item.type === 'product'
-                ? { ...item, quantity: item.quantity + 1 }
+                ? { ...item, quantity: item.quantity + quantity }
                 : item
             ),
           }))
