@@ -2,24 +2,22 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Database } from '@/types/database'
 
-type Plant = Database['public']['Tables']['plants']['Row']
 type Cultivar = Database['public']['Tables']['cultivars']['Row']
 type Species = Database['public']['Tables']['species']['Row']
 type Product = Database['public']['Tables']['products']['Row']
 
-// Unified cart item that can hold either a plant or a product
+// Unified cart item that can hold either a cultivar or a product
 export interface CartItem {
   id: string
-  type: 'plant' | 'product'
+  type: 'cultivar' | 'product'
   name: string
   price: number
   quantity: number
+  age_years: number
   
-  // For plants
-  plant?: Plant & {
-    cultivar: Cultivar & {
-      species: Species
-    }
+  // For cultivars
+  cultivar?: Cultivar & {
+    species: Species
   }
   
   // For products
@@ -32,7 +30,7 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[]
-  addPlant: (plant: Plant & { cultivar: Cultivar & { species: Species } }, quantity?: number) => void
+  addCultivar: (cultivar: Cultivar & { species: Species }, age_years: number, quantity?: number) => void
   addProduct: (product: Product, quantity?: number) => void
   removeItem: (itemId: string) => void
   updateQuantity: (itemId: string, quantity: number) => void
@@ -52,26 +50,27 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-      addPlant: (plant, quantity = 1) => {
+      addCultivar: (cultivar, age_years, quantity = 1) => {
         const cartItem: CartItem = {
-          id: plant.id,
-          type: 'plant',
-          name: plant.cultivar.cultivar_name,
-          price: plant.price_euros || 0,
+          id: `${cultivar.id}-${age_years}`, // Unique ID for cultivar + age combination
+          type: 'cultivar',
+          name: cultivar.cultivar_name,
+          price: 0, // Will be calculated based on price_group and age
           quantity: quantity,
-          plant: plant,
-          image_url: plant.cultivar.photo_url || undefined,
-          description: `${plant.cultivar.species.scientific_name} - ${plant.age_years} years`
+          age_years: age_years,
+          cultivar: cultivar,
+          image_url: cultivar.photo_url || undefined,
+          description: `${cultivar.species.scientific_name} - ${age_years} years`
         }
         
         const existingItem = get().items.find(
-          (item) => item.id === cartItem.id && item.type === 'plant'
+          (item) => item.id === cartItem.id && item.type === 'cultivar'
         )
         
         if (existingItem) {
           set((state) => ({
             items: state.items.map((item) =>
-              item.id === cartItem.id && item.type === 'plant'
+              item.id === cartItem.id && item.type === 'cultivar'
                 ? { ...item, quantity: item.quantity + quantity }
                 : item
             ),
@@ -137,7 +136,17 @@ export const useCartStore = create<CartState>()(
       },
       cleanInvalidItems: () => {
         const currentItems = get().items
-        const validItems = currentItems.filter(item => isValidUUID(item.id))
+        const validItems = currentItems.filter(item => {
+          if (item.type === 'cultivar') {
+            // For cultivars, check if the ID format is correct (cultivar_id-age)
+            const parts = item.id.split('-')
+            return parts.length === 2 && isValidUUID(parts[0]) && !isNaN(parseInt(parts[1]))
+          } else if (item.type === 'product') {
+            // For products, check if it's a valid UUID
+            return isValidUUID(item.id)
+          }
+          return false
+        })
         if (validItems.length !== currentItems.length) {
           console.log(`Removed ${currentItems.length - validItems.length} invalid cart items`)
           set({ items: validItems })
