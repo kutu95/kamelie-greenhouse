@@ -26,6 +26,11 @@ export function CartModal({ isOpen, onClose, locale }: CartModalProps) {
 
   const isGerman = locale === 'de'
 
+  // Debug logging
+  console.log('Cart Modal - Items:', items)
+  console.log('Cart Modal - Total Items Count:', getTotalItems())
+  console.log('Cart Modal - Items Length:', items.length)
+
   // Handle escape key to close modal
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {

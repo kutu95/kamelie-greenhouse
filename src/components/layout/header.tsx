@@ -17,7 +17,7 @@ export function Header() {
   const t = useTranslations('navigation')
   const params = useParams()
   const locale = params.locale as string
-  const { getTotalItems } = useCartStore()
+  const { getTotalItems, items } = useCartStore()
   const { user, profile, signOut, loading, isLoggingOut, setUser, setProfile, setLoading, setIsLoggingOut } = useAuthStore()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showCart, setShowCart] = useState(false)
@@ -26,6 +26,8 @@ export function Header() {
   console.log('Header - Loading:', loading)
   console.log('Header - IsLoggingOut:', isLoggingOut)
   console.log('Header - User:', user?.email)
+  console.log('Header - Cart Items:', items)
+  console.log('Header - Cart Total Items:', getTotalItems())
   console.log('Header - Profile:', profile)
   console.log('Header - Profile keys:', profile ? Object.keys(profile) : 'null')
   console.log('Header - User Role:', (profile as any)?.user_roles?.name)
