@@ -139,6 +139,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create order items
+    console.log('Items being processed:', items.map(item => ({ id: item.id, type: item.type, name: item.name })))
     const orderItems = items.map((item: any) => ({
       order_id: order.id,
       item_type: item.type,
