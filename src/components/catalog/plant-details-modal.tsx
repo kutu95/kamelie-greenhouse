@@ -28,7 +28,7 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
   const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
   const [loadingPriceCalculation, setLoadingPriceCalculation] = useState(false)
 
-  const { addPlant } = useCartStore()
+  const { addCultivar } = useCartStore()
   const { addPlant: addToFavourites, removeItem: removeFromFavourites, isFavourite } = useFavouritesStore()
   const isGerman = locale === 'de'
   const featuredPhoto = plant?.cultivar?.photo_url ? {
@@ -87,24 +87,17 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
   }, [selectedAge, cultivar?.price_group])
 
   const handleAddToCart = async () => {
-    if (!plant || !cultivar || !calculatedPrice) return
+    if (!cultivar || !calculatedPrice) return
     
     try {
-      // Create plant object with calculated price
-      const plantWithPrice = {
-        ...plant,
-        price_euros: calculatedPrice,
-        age_years: selectedAge
-      }
-      
-      // Add to cart with selected quantity
-      addPlant(plantWithPrice as any, quantity)
+      // Add cultivar to cart with selected age and quantity
+      addCultivar(cultivar as any, selectedAge, quantity)
       setAddedToCart(true)
       
       // Reset after 2 seconds
       setTimeout(() => setAddedToCart(false), 2000)
     } catch (error) {
-      console.error('Error adding plant to cart:', error)
+      console.error('Error adding cultivar to cart:', error)
     }
   }
 

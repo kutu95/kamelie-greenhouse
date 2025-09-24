@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Database } from '@/types/database'
+import { calculatePlantPrice } from '@/lib/supabase/pricing'
 
 type Cultivar = Database['public']['Tables']['cultivars']['Row']
 type Species = Database['public']['Tables']['species']['Row']
@@ -38,6 +39,7 @@ interface CartState {
   getTotalItems: () => number
   getTotalPrice: () => number
   cleanInvalidItems: () => void
+  calculateItemPrice: (item: CartItem) => Promise<number>
 }
 
 // Helper function to validate UUID format
@@ -50,32 +52,52 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-      addCultivar: (cultivar, age_years, quantity = 1) => {
-        const cartItem: CartItem = {
-          id: `${cultivar.id}-${age_years}`, // Unique ID for cultivar + age combination
-          type: 'cultivar',
-          name: cultivar.cultivar_name,
-          price: 0, // Will be calculated based on price_group and age
-          quantity: quantity,
-          age_years: age_years,
-          cultivar: cultivar,
-          image_url: cultivar.photo_url || undefined,
-          description: `${cultivar.species.scientific_name} - ${age_years} years`
-        }
-        
-        const existingItem = get().items.find(
-          (item) => item.id === cartItem.id && item.type === 'cultivar'
-        )
-        
-        if (existingItem) {
-          set((state) => ({
-            items: state.items.map((item) =>
-              item.id === cartItem.id && item.type === 'cultivar'
-                ? { ...item, quantity: item.quantity + quantity }
-                : item
-            ),
-          }))
-        } else {
+      addCultivar: async (cultivar, age_years, quantity = 1) => {
+        try {
+          // Calculate price based on cultivar price_group and age
+          const price = await calculatePlantPrice(cultivar.price_group as 'A' | 'B' | 'C', age_years)
+          
+          const cartItem: CartItem = {
+            id: `${cultivar.id}-${age_years}`, // Unique ID for cultivar + age combination
+            type: 'cultivar',
+            name: cultivar.cultivar_name,
+            price: price,
+            quantity: quantity,
+            age_years: age_years,
+            cultivar: cultivar,
+            image_url: cultivar.photo_url || undefined,
+            description: `${cultivar.species.scientific_name} - ${age_years} years`
+          }
+          
+          const existingItem = get().items.find(
+            (item) => item.id === cartItem.id && item.type === 'cultivar'
+          )
+          
+          if (existingItem) {
+            set((state) => ({
+              items: state.items.map((item) =>
+                item.id === cartItem.id && item.type === 'cultivar'
+                  ? { ...item, quantity: item.quantity + quantity }
+                  : item
+              ),
+            }))
+          } else {
+            set((state) => ({ items: [...state.items, cartItem] }))
+          }
+        } catch (error) {
+          console.error('Error calculating price for cultivar:', error)
+          // Add with price 0 if calculation fails
+          const cartItem: CartItem = {
+            id: `${cultivar.id}-${age_years}`,
+            type: 'cultivar',
+            name: cultivar.cultivar_name,
+            price: 0,
+            quantity: quantity,
+            age_years: age_years,
+            cultivar: cultivar,
+            image_url: cultivar.photo_url || undefined,
+            description: `${cultivar.species.scientific_name} - ${age_years} years`
+          }
           set((state) => ({ items: [...state.items, cartItem] }))
         }
       },
@@ -151,6 +173,17 @@ export const useCartStore = create<CartState>()(
           console.log(`Removed ${currentItems.length - validItems.length} invalid cart items`)
           set({ items: validItems })
         }
+      },
+      calculateItemPrice: async (item: CartItem) => {
+        if (item.type === 'cultivar' && item.cultivar?.price_group) {
+          try {
+            return await calculatePlantPrice(item.cultivar.price_group as 'A' | 'B' | 'C', item.age_years)
+          } catch (error) {
+            console.error('Error calculating price for cart item:', error)
+            return 0
+          }
+        }
+        return item.price
       },
     }),
     {
