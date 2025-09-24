@@ -10,6 +10,7 @@ import { PlantDetailsModal } from './plant-details-modal'
 import Link from 'next/link'
 import { getCultivarPriceRange, formatPrice, getPriceGroupDescription } from '@/lib/supabase/pricing'
 import { PriceRange } from '@/lib/supabase/pricing'
+import { useFavouritesStore } from '@/lib/store/favourites'
 
 interface PlantCardProps {
   plant: Plant
@@ -22,6 +23,8 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
   const [loadingPrice, setLoadingPrice] = useState(true)
   const featuredPhoto = plant.photos?.find(photo => photo.is_primary) || plant.photos?.[0]
   const isGerman = locale === 'de'
+  
+  const { addPlant: addToFavourites, removeItem: removeFromFavourites, isFavourite } = useFavouritesStore()
 
   // Load price range when component mounts
   useEffect(() => {
@@ -44,6 +47,14 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
     loadPriceRange()
   }, [(plant.cultivar as any)?.price_group])
 
+  const handleToggleFavourite = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent opening modal when clicking heart
+    if (isFavourite(plant.id)) {
+      removeFromFavourites(plant.id)
+    } else {
+      addToFavourites(plant as any)
+    }
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group">
@@ -165,8 +176,13 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
             )}
           </div>
           <div className="flex gap-1">
-            <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-              <Heart className="h-4 w-4" />
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="h-8 w-8 p-0"
+              onClick={handleToggleFavourite}
+            >
+              <Heart className={`h-4 w-4 ${isFavourite(plant.id) ? 'fill-red-500 text-red-500' : ''}`} />
             </Button>
             <Button 
               size="sm" 

@@ -10,6 +10,7 @@ import { getCultivarPriceRange, formatPrice, getPriceGroupDescription, calculate
 import { PriceRange } from '@/lib/supabase/pricing'
 import { translateFlowerColor, translateFlowerForm, translateGrowthHabit, translateFoliageType } from '@/lib/utils/translations'
 import { useCartStore } from '@/lib/store/cart'
+import { useFavouritesStore } from '@/lib/store/favourites'
 
 interface PlantDetailsModalProps {
   plant: Plant | null
@@ -28,6 +29,7 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
   const [loadingPriceCalculation, setLoadingPriceCalculation] = useState(false)
 
   const { addPlant } = useCartStore()
+  const { addPlant: addToFavourites, removeItem: removeFromFavourites, isFavourite } = useFavouritesStore()
   const isGerman = locale === 'de'
   const featuredPhoto = plant?.cultivar?.photo_url ? {
     photo_url: plant.cultivar.photo_url,
@@ -103,6 +105,16 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
       setTimeout(() => setAddedToCart(false), 2000)
     } catch (error) {
       console.error('Error adding plant to cart:', error)
+    }
+  }
+
+  const handleToggleFavourite = () => {
+    if (!plant) return
+    
+    if (isFavourite(plant.id)) {
+      removeFromFavourites(plant.id)
+    } else {
+      addToFavourites(plant as any)
     }
   }
 
@@ -346,9 +358,16 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
 
                 {/* Actions */}
                 <div className="flex gap-3 pt-4">
-                  <Button variant="outline" className="flex-1">
-                    <Heart className="h-4 w-4 mr-2" />
-                    {isGerman ? 'Zu Favoriten' : 'Add to Favorites'}
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={handleToggleFavourite}
+                  >
+                    <Heart className={`h-4 w-4 mr-2 ${isFavourite(plant.id) ? 'fill-red-500 text-red-500' : ''}`} />
+                    {isFavourite(plant.id) 
+                      ? (isGerman ? 'Aus Favoriten entfernen' : 'Remove from Favorites')
+                      : (isGerman ? 'Zu Favoriten' : 'Add to Favorites')
+                    }
                   </Button>
                   <Button 
                     className="flex-1" 
