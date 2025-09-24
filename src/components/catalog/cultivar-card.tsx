@@ -65,7 +65,7 @@ export function CultivarCard({ cultivar, locale }: CultivarCardProps) {
 
   // Create a mock plant object for the modal (since PlantDetailsModal expects a plant)
   const mockPlant = {
-    id: `cultivar-${cultivar.id}`,
+    id: crypto.randomUUID(),
     cultivar_id: parseInt(cultivar.id),
     cultivar: cultivar,
     photos: [], // Not used - images come from cultivar.photo_url
