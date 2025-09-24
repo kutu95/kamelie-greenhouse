@@ -140,22 +140,33 @@ export async function POST(request: NextRequest) {
 
     // Create order items
     console.log('Items being processed:', items.map(item => ({ id: item.id, type: item.type, name: item.name })))
-    const orderItems = items.map((item: any) => ({
-      order_id: order.id,
-      item_type: item.type,
-      cultivar_id: item.plant?.cultivar?.id || item.cultivar?.id,
-      item_name: item.name,
-      item_description: item.description,
-      item_image_url: item.image_url,
-      unit_price: item.price,
-      quantity: item.quantity,
-      total_price: item.price * item.quantity,
-      age_years: item.plant?.age_years || item.age_years || 3,
-      plant_cultivar_id: item.plant?.cultivar?.id,
-      plant_cultivar_name: item.plant?.cultivar?.cultivar_name,
-      plant_age_years: item.plant?.age_years,
-      plant_height_cm: item.plant?.height_cm
-    }))
+    console.log('Full item structure for debugging:', JSON.stringify(items[0], null, 2))
+    
+    const orderItems = items.map((item: any) => {
+      // For cultivars, extract the cultivar_id from the item.id (format: cultivar_id-age)
+      let cultivarId = null
+      if (item.type === 'cultivar') {
+        const lastHyphenIndex = item.id.lastIndexOf('-')
+        if (lastHyphenIndex !== -1) {
+          cultivarId = item.id.substring(0, lastHyphenIndex)
+        }
+      }
+      
+      return {
+        order_id: order.id,
+        item_type: item.type,
+        cultivar_id: cultivarId,
+        item_name: item.name,
+        item_description: item.description,
+        item_image_url: item.image_url,
+        unit_price: item.price,
+        quantity: item.quantity,
+        total_price: item.price * item.quantity,
+        age_years: item.age_years || 3
+      }
+    })
+    
+    console.log('Order items to be created:', JSON.stringify(orderItems, null, 2))
 
     const { error: itemsError } = await supabase
       .from('order_items')
