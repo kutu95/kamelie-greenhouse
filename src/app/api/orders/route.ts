@@ -152,8 +152,7 @@ export async function POST(request: NextRequest) {
       plant_cultivar_id: item.plant?.cultivar?.id,
       plant_cultivar_name: item.plant?.cultivar?.cultivar_name,
       plant_age_years: item.plant?.age_years,
-      plant_height_cm: item.plant?.height_cm,
-      plant_pot_size: item.plant?.pot_size
+      plant_height_cm: item.plant?.height_cm
     }))
 
     const { error: itemsError } = await supabase

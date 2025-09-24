@@ -27,7 +27,6 @@ interface PricingMatrixEntry {
   id: string
   price_group: 'A' | 'B' | 'C'
   age_years: number
-  pot_size: string
   base_price_euros: number
   is_available: boolean
 }
@@ -36,7 +35,6 @@ interface EditingEntry {
   id: string | null
   price_group: 'A' | 'B' | 'C'
   age_years: number
-  pot_size: string
   base_price_euros: number
   is_available: boolean
 }
@@ -87,7 +85,7 @@ export default function AdminPricingPage() {
         .select('*')
         .order('price_group')
         .order('age_years')
-        .order('pot_size')
+        .order('age_years')
 
       if (error) {
         setError('Failed to load pricing matrix')
@@ -127,7 +125,6 @@ export default function AdminPricingPage() {
         id: null,
         price_group: 'A',
         age_years: 1,
-        pot_size: '',
         base_price_euros: 0,
         is_available: true
       })
@@ -162,7 +159,6 @@ export default function AdminPricingPage() {
           .update({
             price_group: editingEntry.price_group,
             age_years: editingEntry.age_years,
-            pot_size: editingEntry.pot_size,
             base_price_euros: editingEntry.base_price_euros,
             is_available: editingEntry.is_available,
             updated_at: new Date().toISOString()
@@ -178,7 +174,6 @@ export default function AdminPricingPage() {
           .insert({
             price_group: editingEntry.price_group,
             age_years: editingEntry.age_years,
-            pot_size: editingEntry.pot_size,
             base_price_euros: editingEntry.base_price_euros,
             is_available: editingEntry.is_available
           })
@@ -310,15 +305,6 @@ export default function AdminPricingPage() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="pot_size">Pot Size *</Label>
-                  <Input
-                    id="pot_size"
-                    value={editingEntry.pot_size}
-                    onChange={(e) => handleEditChange('pot_size', e.target.value)}
-                    placeholder="e.g., 20cm, 5L"
-                  />
-                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="base_price_euros">Base Price (€) *</Label>
@@ -382,7 +368,6 @@ export default function AdminPricingPage() {
                   <tr className="border-b">
                     <th className="text-left p-3 font-medium text-gray-900">Price Group</th>
                     <th className="text-left p-3 font-medium text-gray-900">Age (years)</th>
-                    <th className="text-left p-3 font-medium text-gray-900">Pot Size</th>
                     <th className="text-left p-3 font-medium text-gray-900">Base Price</th>
                     <th className="text-left p-3 font-medium text-gray-900">Status</th>
                     <th className="text-left p-3 font-medium text-gray-900">Actions</th>
@@ -395,7 +380,6 @@ export default function AdminPricingPage() {
                         {getPriceGroupBadge(entry.price_group)}
                       </td>
                       <td className="p-3 text-gray-900">{entry.age_years}</td>
-                      <td className="p-3 text-gray-900">{entry.pot_size}</td>
                       <td className="p-3 text-gray-900 font-medium">
                         €{formatPrice(entry.base_price_euros, 'en-US')}
                       </td>

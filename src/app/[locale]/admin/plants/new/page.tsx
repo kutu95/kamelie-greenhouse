@@ -29,7 +29,6 @@ interface FormData {
   cultivar_id: string
   age_years: string
   height_cm: string
-  pot_size: string
   plant_code: string
   status: string
   location: string
@@ -52,7 +51,6 @@ export default function NewPlant() {
     cultivar_id: '',
     age_years: '',
     height_cm: '',
-    pot_size: '',
     plant_code: '',
     status: 'available',
     location: '',
@@ -123,7 +121,6 @@ export default function NewPlant() {
           age_years: parseInt(formData.age_years), // Required field
           height_cm: formData.height_cm ? parseInt(formData.height_cm) : null,
           width_cm: null, // Not in form yet, but required by schema
-          pot_size: formData.pot_size || null,
           plant_code: formData.plant_code || null,
           price_band: null, // Not in form yet, but in schema
           price_euros: null, // Not in form yet, but in schema
@@ -273,17 +270,6 @@ export default function NewPlant() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="pot_size">
-                      {locale === 'de' ? 'Topfgröße' : 'Pot Size'}
-                    </Label>
-                    <Input
-                      id="pot_size"
-                      value={formData.pot_size}
-                      onChange={(e) => handleInputChange('pot_size', e.target.value)}
-                      placeholder={locale === 'de' ? 'z.B. 20L' : 'e.g. 20L'}
-                    />
-                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="plant_code">

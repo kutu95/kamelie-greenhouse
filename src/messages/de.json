@@ -505,5 +505,50 @@
     "no_cultivars_found": "Keine Kultivare gefunden",
     "adjust_search_filter": "Versuchen Sie, Ihre Such- oder Filterkriterien anzupassen.",
     "no_cultivars_available": "Keine Kultivare verfügbar."
+  },
+  "agb": {
+    "title": "Allgemeine Geschäftsbedingungen",
+    "description": "Allgemeine Geschäftsbedingungen der Kameliengärtnerei Michael von Allesch",
+    "section1": {
+      "title": "§ 1 Geltungsbereich",
+      "content": "Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen der Kameliengärtnerei Michael von Allesch (nachfolgend \"Verkäufer\") und dem Kunden (nachfolgend \"Käufer\"). Abweichende Bedingungen des Käufers werden nicht anerkannt, es sei denn, der Verkäufer stimmt ihrer Geltung ausdrücklich schriftlich zu."
+    },
+    "section2": {
+      "title": "§ 2 Vertragsschluss",
+      "content": "Die Darstellung der Produkte im Online-Shop stellt kein rechtlich bindendes Angebot, sondern einen unverbindlichen Online-Katalog dar. Durch Anklicken des Buttons \"In den Warenkorb\" gibt der Käufer ein verbindliches Angebot zum Kauf der im Warenkorb befindlichen Waren ab. Der Verkäufer kann das Angebot des Käufers innerhalb von 5 Tagen annehmen."
+    },
+    "section3": {
+      "title": "§ 3 Preise und Zahlungsbedingungen",
+      "content": "Die Preise verstehen sich inklusive der gesetzlichen Mehrwertsteuer. Die Preise sind in Euro angegeben. Die Zahlung erfolgt per Vorkasse, Banküberweisung oder Barzahlung bei Abholung. Bei Zahlung per Vorkasse wird die Ware erst nach vollständigem Zahlungseingang versandt."
+    },
+    "section4": {
+      "title": "§ 4 Lieferung und Versand",
+      "content": "Die Lieferung erfolgt an die vom Käufer angegebene Lieferadresse. Bei der Lieferung von Pflanzen erfolgt der Versand nur an Werktagen. Der Käufer trägt das Versandrisiko. Bei Schäden während des Transports ist der Käufer verpflichtet, diese unverzüglich zu melden."
+    },
+    "section5": {
+      "title": "§ 5 Eigentumsvorbehalt",
+      "content": "Die gelieferte Ware bleibt bis zur vollständigen Bezahlung Eigentum des Verkäufers. Bei Zahlungsverzug ist der Verkäufer berechtigt, die Ware zurückzufordern."
+    },
+    "section6": {
+      "title": "§ 6 Gewährleistung",
+      "content": "Für Mängel der Ware gelten die gesetzlichen Bestimmungen. Bei Pflanzen beträgt die Gewährleistung 6 Monate ab Lieferung. Der Käufer hat das Recht auf Nacherfüllung oder Minderung. Bei Nacherfüllung kann der Verkäufer zwischen Reparatur und Ersatzlieferung wählen."
+    },
+    "section7": {
+      "title": "§ 7 Haftung",
+      "content": "Der Verkäufer haftet nur für Schäden, die auf Vorsatz oder grober Fahrlässigkeit beruhen. Die Haftung für leichte Fahrlässigkeit ist ausgeschlossen, soweit nicht zwingende gesetzliche Haftungsbestimmungen entgegenstehen."
+    },
+    "section8": {
+      "title": "§ 8 Widerrufsrecht",
+      "content": "Verbraucher haben ein Widerrufsrecht von 14 Tagen ab Lieferung. Das Widerrufsrecht ist ausgeschlossen bei der Lieferung von Pflanzen, die nach der Lieferung schnell verderben oder deren Haltbarkeit begrenzt ist."
+    },
+    "section9": {
+      "title": "§ 9 Datenschutz",
+      "content": "Die Erhebung, Verarbeitung und Nutzung personenbezogener Daten erfolgt in Übereinstimmung mit der Datenschutzerklärung des Verkäufers."
+    },
+    "section10": {
+      "title": "§ 10 Schlussbestimmungen",
+      "content": "Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Gerichtsstand ist Hamburg, soweit der Käufer Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen ist."
+    },
+    "lastUpdated": "Stand: Januar 2024"
   }
 }

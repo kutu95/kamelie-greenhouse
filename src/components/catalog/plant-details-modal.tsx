@@ -23,6 +23,7 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
   const [loadingPrice, setLoadingPrice] = useState(true)
   const [addedToCart, setAddedToCart] = useState(false)
   const [selectedAge, setSelectedAge] = useState<number>(3)
+  const [quantity, setQuantity] = useState<number>(1)
   const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
   const [loadingPriceCalculation, setLoadingPriceCalculation] = useState(false)
 
@@ -94,8 +95,8 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
         age_years: selectedAge
       }
       
-      // Add to cart
-      addPlant(plantWithPrice as any, 1)
+      // Add to cart with selected quantity
+      addPlant(plantWithPrice as any, quantity)
       setAddedToCart(true)
       
       // Reset after 2 seconds
@@ -248,9 +249,21 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                             {isGerman ? 'Preis wird berechnet...' : 'Calculating price...'}
                           </div>
                         ) : calculatedPrice ? (
-                          <p className="font-medium text-green-600 text-lg">
-                            {formatPrice(calculatedPrice, isGerman ? 'de-DE' : 'en-US')}
-                          </p>
+                          <div>
+                            <p className="font-medium text-green-600 text-lg">
+                              {formatPrice(calculatedPrice, isGerman ? 'de-DE' : 'en-US')}
+                              {quantity > 1 && (
+                                <span className="text-sm text-gray-500 ml-2">
+                                  {isGerman ? 'pro Stück' : 'each'}
+                                </span>
+                              )}
+                            </p>
+                            {quantity > 1 && (
+                              <p className="text-sm text-gray-600 mt-1">
+                                {isGerman ? 'Gesamt' : 'Total'}: {formatPrice(calculatedPrice * quantity, isGerman ? 'de-DE' : 'en-US')}
+                              </p>
+                            )}
+                          </div>
                         ) : (
                           <p className="text-sm text-gray-400">
                             {isGerman ? 'Preis nicht verfügbar' : 'Price not available'}
@@ -278,6 +291,29 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                             {age} {isGerman ? 'Jahre' : 'Years'}
                           </button>
                         ))}
+                      </div>
+                    </div>
+
+                    {/* Quantity Selection */}
+                    <div>
+                      <label className="text-sm text-gray-500 mb-2 block">
+                        {isGerman ? 'Menge' : 'Quantity'}
+                      </label>
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
+                          disabled={quantity <= 1}
+                        >
+                          <span className="text-gray-600">-</span>
+                        </button>
+                        <span className="w-12 text-center font-medium">{quantity}</span>
+                        <button
+                          onClick={() => setQuantity(quantity + 1)}
+                          className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
+                        >
+                          <span className="text-gray-600">+</span>
+                        </button>
                       </div>
                     </div>
 
@@ -320,12 +356,14 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                     disabled={addedToCart || !calculatedPrice || loadingPriceCalculation}
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    {addedToCart 
+                    {addedToCart
                       ? (isGerman ? 'Hinzugefügt!' : 'Added!')
                       : loadingPriceCalculation
                       ? (isGerman ? 'Berechne...' : 'Calculating...')
                       : !calculatedPrice
                       ? (isGerman ? 'Preis nicht verfügbar' : 'Price not available')
+                      : quantity > 1
+                      ? (isGerman ? `${quantity} × In den Warenkorb` : `Add ${quantity} to Cart`)
                       : (isGerman ? 'In den Warenkorb' : 'Add to Cart')
                     }
                   </Button>

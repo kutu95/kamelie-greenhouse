@@ -33,7 +33,6 @@ interface OrderItem {
   plant_cultivar_name?: string
   plant_age_years?: number
   plant_height_cm?: number
-  plant_pot_size?: string
 }
 
 interface Order {
@@ -277,11 +276,6 @@ export default function OrderDetailPage() {
                         {item.plant_height_cm && (
                           <p className="text-sm text-gray-500">
                             {isGerman ? 'Höhe' : 'Height'}: {item.plant_height_cm} cm
-                          </p>
-                        )}
-                        {item.plant_pot_size && (
-                          <p className="text-sm text-gray-500">
-                            {isGerman ? 'Topfgröße' : 'Pot Size'}: {item.plant_pot_size}
                           </p>
                         )}
                       </div>

@@ -34,7 +34,6 @@ interface OrderItem {
   plant_cultivar_name?: string
   plant_age_years?: number
   plant_height_cm?: number
-  plant_pot_size?: string
 }
 
 interface Order {
