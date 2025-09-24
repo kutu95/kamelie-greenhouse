@@ -37,7 +37,6 @@ export async function GET(
       .eq('cultivar_id', cultivarId)
       .eq('status', 'available')
       .order('age_years')
-      .order('pot_size')
 
     if (plantsError) {
       return NextResponse.json(
@@ -52,8 +51,7 @@ export async function GET(
         try {
           const calculatedPrice = await calculatePlantPrice(
             plant.cultivar.price_group,
-            plant.age_years,
-            plant.pot_size
+            plant.age_years
           )
           return {
             ...plant,
