@@ -1,13 +1,12 @@
 import { createClient } from '@/lib/supabase/client'
 
 export interface Plant {
-  id: number
-  cultivar_id: number
+  id: string
+  cultivar_id: string
   plant_code: string
   age_years: number
   height_cm: number
   width_cm: number
-  pot_size: string
   price_band: string
   price_euros: number
   status: string
@@ -17,7 +16,7 @@ export interface Plant {
   created_at: string
   updated_at: string
   cultivar: {
-    id: number
+    id: string
     cultivar_name: string
     breeder: string
     year_introduced: number
@@ -28,7 +27,7 @@ export interface Plant {
     growth_habit: string
     special_characteristics: string
     species: {
-      id: number
+      id: string
       scientific_name: string
       common_name_de: string
       common_name_en: string
@@ -37,7 +36,7 @@ export interface Plant {
     }
   }
   photos: Array<{
-    id: number
+    id: string
     photo_url: string
     alt_text_de: string
     alt_text_en: string
