@@ -10,11 +10,13 @@ import { ShoppingCart, User, Menu, Leaf, X } from 'lucide-react'
 import { useState } from 'react'
 import { LanguageToggle } from '@/components/ui/language-toggle'
 import { useParams } from 'next/navigation'
+import { useCartStore } from '@/lib/store/cart'
 
 export function Header() {
   const t = useTranslations('navigation')
   const params = useParams()
   const locale = params.locale as string
+  const { getTotalItems } = useCartStore()
   const { user, profile, signOut, loading, isLoggingOut, setUser, setProfile, setLoading, setIsLoggingOut } = useAuthStore()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -102,7 +104,7 @@ export function Header() {
             <Button variant="ghost" size="icon" className="relative hover:bg-green-50 hidden sm:flex">
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
+                {getTotalItems()}
               </span>
             </Button>
 

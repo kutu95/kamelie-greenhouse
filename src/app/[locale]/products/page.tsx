@@ -24,14 +24,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/types/database'
+import { useCartStore } from '@/lib/store/cart'
 import Image from 'next/image'
 
 type Product = Database['public']['Tables']['products']['Row']
-
-interface CartItem {
-  product: Product
-  quantity: number
-}
 
 export default function ProductsPage() {
   const t = useTranslations('catalog')
@@ -43,10 +39,11 @@ export default function ProductsPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('')
-  const [cart, setCart] = useState<CartItem[]>([])
-  const [showCart, setShowCart] = useState(false)
   
   const supabase = createClient()
+  
+  // Use unified cart store
+  const { addProduct, items: cartItems, getTotalItems } = useCartStore()
 
   const categories = [
     { value: 'soil', label: locale === 'de' ? 'Erde & Substrat' : 'Soil & Substrate' },
@@ -59,7 +56,6 @@ export default function ProductsPage() {
 
   useEffect(() => {
     loadProducts()
-    loadCartFromStorage()
   }, [])
 
   const loadProducts = async () => {
@@ -81,62 +77,9 @@ export default function ProductsPage() {
     }
   }
 
-  const loadCartFromStorage = () => {
-    if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem('kamelie-cart')
-      if (savedCart) {
-        try {
-          setCart(JSON.parse(savedCart))
-        } catch (err) {
-          console.error('Error loading cart from storage:', err)
-        }
-      }
-    }
-  }
-
-  const saveCartToStorage = (newCart: CartItem[]) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('kamelie-cart', JSON.stringify(newCart))
-    }
-  }
 
   const addToCart = (product: Product) => {
-    const existingItem = cart.find(item => item.product.id === product.id)
-    
-    if (existingItem) {
-      const newCart = cart.map(item =>
-        item.product.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
-      setCart(newCart)
-      saveCartToStorage(newCart)
-    } else {
-      const newCart = [...cart, { product, quantity: 1 }]
-      setCart(newCart)
-      saveCartToStorage(newCart)
-    }
-  }
-
-  const removeFromCart = (productId: string) => {
-    const newCart = cart.filter(item => item.product.id !== productId)
-    setCart(newCart)
-    saveCartToStorage(newCart)
-  }
-
-  const updateQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId)
-      return
-    }
-
-    const newCart = cart.map(item =>
-      item.product.id === productId
-        ? { ...item, quantity }
-        : item
-    )
-    setCart(newCart)
-    saveCartToStorage(newCart)
+    addProduct(product)
   }
 
   const filteredProducts = products.filter(product => {
