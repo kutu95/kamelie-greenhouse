@@ -19,7 +19,8 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  X
+  X,
+  Trash2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -168,6 +169,34 @@ export default function AdminOrdersPage() {
     } catch (err) {
       console.error('Error cancelling order:', err)
       setError(isGerman ? 'Fehler beim Stornieren der Bestellung' : 'Error cancelling order')
+    }
+  }
+
+  const deleteOrder = async (orderId: string) => {
+    if (!confirm(isGerman 
+      ? 'Sind Sie sicher, dass Sie diese Bestellung dauerhaft löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.'
+      : 'Are you sure you want to permanently delete this order? This action cannot be undone.'
+    )) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete order')
+      }
+
+      // Refresh orders
+      loadOrders()
+    } catch (err) {
+      console.error('Error deleting order:', err)
+      setError(isGerman ? 'Fehler beim Löschen der Bestellung' : 'Error deleting order')
     }
   }
 
@@ -428,6 +457,15 @@ export default function AdminOrdersPage() {
                           {isGerman ? 'Stornieren' : 'Cancel'}
                         </Button>
                       )}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => deleteOrder(order.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        {isGerman ? 'Löschen' : 'Delete'}
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
