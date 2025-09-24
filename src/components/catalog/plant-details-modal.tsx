@@ -28,7 +28,7 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
 
   const { addPlant } = useCartStore()
   const isGerman = locale === 'de'
-  const featuredPhoto = plant?.photos?.find(photo => photo.is_primary) || plant?.photos?.[0]
+  const featuredPhoto = plant?.cultivar?.photos?.find(photo => photo.is_primary) || plant?.cultivar?.photos?.[0]
   const cultivar = (plant as any)?.cultivar
 
   // Load price range when modal opens
@@ -142,9 +142,9 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                 </div>
 
                 {/* Additional Photos */}
-                {plant.photos && plant.photos.length > 1 && (
+                {plant.cultivar?.photos && plant.cultivar.photos.length > 1 && (
                   <div className="grid grid-cols-4 gap-2">
-                    {plant.photos.slice(1, 5).map((photo, index) => (
+                    {plant.cultivar.photos.slice(1, 5).map((photo, index) => (
                       <div key={index} className="aspect-square relative bg-gray-100 rounded overflow-hidden">
                         <Image
                           src={photo.photo_url}
