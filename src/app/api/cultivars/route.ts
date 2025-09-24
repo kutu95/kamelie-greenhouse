@@ -9,7 +9,8 @@ export async function GET() {
       .from('cultivars')
       .select(`
         *,
-        species:species(*)
+        species:species(*),
+        photos:plant_photos(*)
       `)
       .order('cultivar_name')
 
