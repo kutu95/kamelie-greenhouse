@@ -24,7 +24,6 @@ interface Plant {
   plant_code: string
   age_years: number
   height_cm: number
-  pot_size: string
   price_euros: number
   status: string
   is_quick_buy: boolean
@@ -134,12 +133,11 @@ export default function AdminPlantsPage() {
                 // Get price range for the cultivar
                 priceRange = await getCultivarPriceRange(plant.cultivar.price_group)
                 
-                // Calculate specific price based on age and pot size
+                // Calculate specific price based on age
                 const { calculatePlantPrice } = await import('@/lib/supabase/pricing')
                 calculatedPrice = await calculatePlantPrice(
                   plant.cultivar.price_group,
-                  plant.age_years,
-                  plant.pot_size
+                  plant.age_years
                 )
               } catch (priceError) {
                 console.error(`Error calculating price for plant ${plant.id}:`, priceError)
@@ -357,10 +355,6 @@ export default function AdminPlantsPage() {
                     <div className="flex justify-between">
                       <span>Height:</span>
                       <span>{plant.height_cm} cm</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Pot:</span>
-                      <span>{plant.pot_size}</span>
                     </div>
                   </div>
 
