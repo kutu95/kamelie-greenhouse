@@ -310,24 +310,16 @@ export default function CartPage() {
                   
                   {/* Actions */}
                   <div className="space-y-3">
-                    <Button
-                      onClick={handleCheckout}
-                      disabled={checkingOut}
-                      className="w-full"
-                      size="lg"
-                    >
-                      {checkingOut ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          {isGerman ? 'Verarbeitung...' : 'Processing...'}
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          {isGerman ? 'Zur Kasse' : 'Checkout'}
-                        </>
-                      )}
-                    </Button>
+                    <Link href={`/${locale}/checkout`}>
+                      <Button
+                        disabled={checkingOut}
+                        className="w-full"
+                        size="lg"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        {isGerman ? 'Zur Kasse' : 'Checkout'}
+                      </Button>
+                    </Link>
                     
                     <Button
                       variant="outline"
