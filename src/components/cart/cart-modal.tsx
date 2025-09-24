@@ -185,13 +185,11 @@ export function CartModal({ isOpen, onClose, locale }: CartModalProps) {
                       
                       <div className="text-right">
                         <p className="text-lg font-bold text-green-600">
-                          €{item.price.toFixed(2)}
+                          €{(item.price * item.quantity).toFixed(2)}
                         </p>
-                        {item.quantity > 1 && (
-                          <p className="text-sm text-gray-500">
-                            {item.quantity} × €{item.price.toFixed(2)}
-                          </p>
-                        )}
+                        <p className="text-sm text-gray-500">
+                          €{item.price.toFixed(2)} {isGerman ? 'pro Stück' : 'each'} × {item.quantity}
+                        </p>
                       </div>
                     </div>
                     
