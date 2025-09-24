@@ -293,8 +293,7 @@ export default function HomePage() {
                   <MapPin className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{t('contact.address.title')}</h3>
-                <p className="text-gray-600">
-                  {t('contact.address.content')}
+                <p className="text-gray-600" dangerouslySetInnerHTML={{ __html: t('contact.address.content') }}>
                 </p>
               </div>
               <div className="text-center">
@@ -302,8 +301,7 @@ export default function HomePage() {
                   <Phone className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{t('contact.phone.title')}</h3>
-                <p className="text-gray-600">
-                  {t('contact.phone.content')}
+                <p className="text-gray-600" dangerouslySetInnerHTML={{ __html: t('contact.phone.content') }}>
                 </p>
               </div>
               <div className="text-center">
