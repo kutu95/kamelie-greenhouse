@@ -23,6 +23,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/types/database'
 import { useCartStore } from '@/lib/store/cart'
+import { useAuthCart } from '@/hooks/use-auth-cart'
 import { AddToCartModal } from '@/components/products/add-to-cart-modal'
 import Image from 'next/image'
 
@@ -44,7 +45,8 @@ export default function ProductsPage() {
   const supabase = createClient()
   
   // Use unified cart store
-  const { addProduct, getTotalItems } = useCartStore()
+  const { getTotalItems } = useCartStore()
+  const { addProduct } = useAuthCart()
 
   const categories = [
     { value: 'soil', label: locale === 'de' ? 'Erde & Substrat' : 'Soil & Substrate' },
@@ -84,8 +86,11 @@ export default function ProductsPage() {
     setShowAddToCartModal(true)
   }
 
-  const handleAddToCartConfirm = (product: Product, quantity: number) => {
-    addProduct(product, quantity)
+  const handleAddToCartConfirm = async (product: Product, quantity: number) => {
+    const success = await addProduct(product, quantity)
+    if (success) {
+      // Product was added successfully, modal will close automatically
+    }
   }
 
   const handleCloseAddToCartModal = () => {

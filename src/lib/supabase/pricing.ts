@@ -7,30 +7,27 @@ type Cultivar = Database['public']['Tables']['cultivars']['Row']
 export interface PriceRange {
   min_price: number
   max_price: number
-  available_sizes: string[]
+  available_ages: number[]
 }
 
 export interface PricingOptions {
   age_years: number
-  pot_size: string
   price: number
 }
 
 /**
- * Calculate plant price based on cultivar price group, age, and pot size
+ * Calculate plant price based on cultivar price group and age
  */
 export async function calculatePlantPrice(
   cultivarPriceGroup: 'A' | 'B' | 'C',
-  ageYears: number,
-  potSize: string
+  ageYears: number
 ): Promise<number> {
   const supabase = createClient()
   
   try {
     const { data, error } = await supabase.rpc('calculate_plant_price', {
       cultivar_price_group: cultivarPriceGroup,
-      plant_age_years: ageYears,
-      plant_pot_size: potSize
+      plant_age_years: ageYears
     })
     
     if (error) throw error
@@ -38,7 +35,7 @@ export async function calculatePlantPrice(
   } catch (error) {
     console.error('Error calculating plant price:', error)
     // Fallback calculation
-    return calculateFallbackPrice(cultivarPriceGroup, ageYears, potSize)
+    return calculateFallbackPrice(cultivarPriceGroup, ageYears)
   }
 }
 
@@ -76,7 +73,7 @@ export async function getCultivarPriceRange(
     return { 
       min_price, 
       max_price, 
-      available_sizes: ['5L', '10L', '15L', '20L'] 
+      available_ages: [3, 4, 5, 6] 
     }
   } catch (error) {
     console.error('Error getting price range:', error)
@@ -96,17 +93,15 @@ export async function getPricingOptions(
   try {
     const { data, error } = await supabase
       .from('pricing_matrix')
-      .select('age_years, pot_size, base_price_euros')
+      .select('age_years, base_price_euros')
       .eq('price_group', priceGroup)
       .eq('is_available', true)
       .order('age_years')
-      .order('pot_size')
     
     if (error) throw error
     
     return data.map(item => ({
       age_years: item.age_years,
-      pot_size: item.pot_size,
       price: item.base_price_euros
     }))
   } catch (error) {
@@ -121,64 +116,49 @@ export async function getPricingOptions(
 function getFallbackPriceRange(priceGroup: 'A' | 'B' | 'C'): PriceRange {
   switch (priceGroup) {
     case 'A':
-      return { min_price: 15, max_price: 100, available_sizes: ['5L', '10L', '15L', '20L'] }
+      return { min_price: 21, max_price: 59, available_ages: [3, 4, 5, 6] }
     case 'B':
-      return { min_price: 25, max_price: 170, available_sizes: ['5L', '10L', '15L', '20L'] }
+      return { min_price: 28, max_price: 69, available_ages: [3, 4, 5, 6] }
     case 'C':
-      return { min_price: 40, max_price: 340, available_sizes: ['5L', '10L', '20L'] }
+      return { min_price: 37, max_price: 79, available_ages: [3, 4, 5, 6] }
     default:
-      return { min_price: 15, max_price: 100, available_sizes: ['5L', '10L', '15L', '20L'] }
+      return { min_price: 21, max_price: 59, available_ages: [3, 4, 5, 6] }
   }
 }
 
 /**
  * Fallback price calculation when database function fails
+ * Based on actual PDF pricing data
  */
 function calculateFallbackPrice(
   priceGroup: 'A' | 'B' | 'C',
-  ageYears: number,
-  potSize: string
+  ageYears: number
 ): number {
-  let basePrice = 25.00
-  
-  // Base prices by group
-  switch (priceGroup) {
-    case 'A':
-      basePrice = 25.00
-      break
-    case 'B':
-      basePrice = 45.00
-      break
-    case 'C':
-      basePrice = 75.00
-      break
+  // Use actual prices from PDF data
+  const pricingMatrix = {
+    A: { 3: 21.00, 4: 32.00, 5: 47.00, 6: 59.00 },
+    B: { 3: 28.00, 4: 39.00, 5: 59.00, 6: 69.00 },
+    C: { 3: 37.00, 4: 53.00, 5: 69.00, 6: 79.00 }
   }
   
-  // Age multipliers
-  let ageMultiplier = 1.0
-  if (ageYears <= 2) ageMultiplier = 1.0
-  else if (ageYears <= 5) ageMultiplier = 1.5
-  else if (ageYears <= 10) ageMultiplier = 2.0
-  else ageMultiplier = 2.5
-  
-  // Size multipliers
-  let sizeMultiplier = 1.0
-  switch (potSize) {
-    case '5L':
-      sizeMultiplier = 1.0
-      break
-    case '10L':
-      sizeMultiplier = 1.3
-      break
-    case '15L':
-      sizeMultiplier = 1.6
-      break
-    case '20L':
-      sizeMultiplier = 2.0
-      break
+  // Get price for exact age match
+  if (pricingMatrix[priceGroup][ageYears]) {
+    return pricingMatrix[priceGroup][ageYears]
   }
   
-  return Math.round(basePrice * ageMultiplier * sizeMultiplier * 100) / 100
+  // If age not in matrix, use closest age
+  const availableAges = Object.keys(pricingMatrix[priceGroup]).map(Number).sort()
+  let closestAge = availableAges[0]
+  
+  for (const age of availableAges) {
+    if (age <= ageYears) {
+      closestAge = age
+    } else {
+      break
+    }
+  }
+  
+  return pricingMatrix[priceGroup][closestAge]
 }
 
 /**

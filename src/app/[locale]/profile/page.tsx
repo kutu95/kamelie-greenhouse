@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ProfileImageUpload } from '@/components/ui/profile-image-upload'
-import { User, Mail, Phone, Calendar, Shield, Edit, ArrowLeft, Camera } from 'lucide-react'
+import { User, Mail, Phone, Calendar, Shield, Edit, ArrowLeft, Camera, ShoppingCart, Eye, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/lib/store/auth'
 import Link from 'next/link'
@@ -34,6 +34,29 @@ interface UserProfile {
   }
 }
 
+interface Order {
+  id: string
+  order_number: string
+  customer_first_name: string
+  customer_last_name: string
+  customer_email: string
+  subtotal: number
+  total_amount: number
+  payment_method: 'cod' | 'bank_transfer' | 'credit_card'
+  payment_status: 'pending' | 'paid' | 'failed' | 'refunded'
+  order_status: 'pending' | 'confirmed' | 'processing' | 'ready_for_pickup' | 'delivered' | 'cancelled'
+  created_at: string
+  order_items: OrderItem[]
+}
+
+interface OrderItem {
+  id: string
+  item_name: string
+  quantity: number
+  unit_price: number
+  total_price: number
+}
+
 export default function ProfilePage() {
   const t = useTranslations('profile')
   const { user, profile, loading } = useAuthStore()
@@ -41,12 +64,18 @@ export default function ProfilePage() {
   const [profileLoading, setProfileLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isUpdatingImage, setIsUpdatingImage] = useState(false)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [ordersLoading, setOrdersLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
     if (user && !loading) {
       fetchUserProfile()
+      // Only fetch orders if user is authenticated
+      if (user) {
+        fetchUserOrders()
+      }
     } else if (!user && !loading) {
       router.push('/auth/login')
     }
@@ -74,6 +103,32 @@ export default function ProfilePage() {
       setError('Failed to load profile data')
     } finally {
       setProfileLoading(false)
+    }
+  }
+
+  const fetchUserOrders = async () => {
+    try {
+      setOrdersLoading(true)
+      const response = await fetch('/api/orders')
+      
+      if (!response.ok) {
+        // If orders table doesn't exist yet, just set empty array
+        if (response.status === 500) {
+          console.log('Orders table not yet created, showing empty state')
+          setOrders([])
+          return
+        }
+        throw new Error('Failed to fetch orders')
+      }
+      
+      const data = await response.json()
+      setOrders(data.orders || [])
+    } catch (err) {
+      console.error('Error fetching user orders:', err)
+      // Don't set error for orders since it's not critical - just show empty state
+      setOrders([])
+    } finally {
+      setOrdersLoading(false)
     }
   }
 
@@ -111,6 +166,34 @@ export default function ProfilePage() {
     } finally {
       setIsUpdatingImage(false)
     }
+  }
+
+  const getStatusBadge = (status: string, type: 'order' | 'payment') => {
+    const statusConfig = {
+      // Order status
+      pending: { color: 'bg-yellow-100 text-yellow-800', icon: Clock, text: 'Pending' },
+      confirmed: { color: 'bg-blue-100 text-blue-800', icon: CheckCircle, text: 'Confirmed' },
+      processing: { color: 'bg-purple-100 text-purple-800', icon: ShoppingCart, text: 'Processing' },
+      ready_for_pickup: { color: 'bg-orange-100 text-orange-800', icon: CheckCircle, text: 'Ready for Pickup' },
+      delivered: { color: 'bg-green-100 text-green-800', icon: CheckCircle, text: 'Delivered' },
+      cancelled: { color: 'bg-red-100 text-red-800', icon: XCircle, text: 'Cancelled' },
+      
+      // Payment status
+      paid: { color: 'bg-green-100 text-green-800', icon: CheckCircle, text: 'Paid' },
+      failed: { color: 'bg-red-100 text-red-800', icon: XCircle, text: 'Failed' },
+      refunded: { color: 'bg-gray-100 text-gray-800', icon: AlertCircle, text: 'Refunded' }
+    }
+
+    const config = statusConfig[status as keyof typeof statusConfig]
+    if (!config) return null
+
+    const Icon = config.icon
+    return (
+      <Badge className={config.color}>
+        <Icon className="h-3 w-3 mr-1" />
+        {config.text}
+      </Badge>
+    )
   }
 
   if (loading || profileLoading) {
@@ -384,6 +467,88 @@ export default function ProfilePage() {
                   <p className="text-sm text-gray-500">{t('last_updated')}</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* My Orders */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                {t('my_orders')}
+              </CardTitle>
+              <CardDescription>
+                {t('my_orders_desc')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {ordersLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+                  <p className="mt-2 text-gray-600">Loading orders...</p>
+                </div>
+              ) : orders.length === 0 ? (
+                <div className="text-center py-8">
+                  <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {t('no_orders')}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    {t('no_orders_desc')}
+                  </p>
+                  <Button asChild>
+                    <Link href="/catalog">
+                      {t('start_shopping')}
+                    </Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {orders.slice(0, 5).map((order) => (
+                    <div key={order.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium">#{order.order_number}</span>
+                          {getStatusBadge(order.order_status, 'order')}
+                          {getStatusBadge(order.payment_status, 'payment')}
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold">€{order.total_amount.toFixed(2)}</div>
+                          <div className="text-sm text-gray-500">
+                            {new Date(order.created_at).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="text-sm text-gray-600 mb-2">
+                        {order.order_items.length} {t('items')} • 
+                        {order.payment_method === 'credit_card' ? ' Credit Card' :
+                         order.payment_method === 'bank_transfer' ? ' Bank Transfer' :
+                         ' COD'}
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm text-gray-500">
+                          {order.order_items.slice(0, 2).map(item => item.item_name).join(', ')}
+                          {order.order_items.length > 2 && ` +${order.order_items.length - 2} more`}
+                        </div>
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4 mr-1" />
+                          {t('view_details')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {orders.length > 5 && (
+                    <div className="text-center pt-4">
+                      <Button variant="outline">
+                        {t('view_all_orders')}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

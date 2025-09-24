@@ -1,70 +1,97 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { 
-  ArrowLeft, 
+  ShoppingCart, 
   Search, 
-  Filter,
-  Eye,
-  Edit,
+  Filter, 
+  Eye, 
+  Edit, 
   Calendar,
   User,
+  Euro,
   Package,
-  Euro
+  Truck,
+  CreditCard,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import Image from 'next/image'
+import { createClient } from '@/lib/supabase/client'
 
 interface Order {
   id: string
   order_number: string
-  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+  user_id: string
+  customer_first_name: string
+  customer_last_name: string
+  customer_email: string
+  customer_phone: string
+  customer_address: string
+  customer_city: string
+  customer_postal_code: string
+  customer_country: string
+  customer_company: string
+  customer_tax_id: string
+  delivery_method: 'pickup' | 'delivery'
+  delivery_notes: string
+  subtotal: number
+  shipping: number
+  vat_amount: number
   total_amount: number
+  payment_method: 'cod' | 'bank_transfer' | 'credit_card'
+  payment_status: 'pending' | 'paid' | 'failed' | 'refunded'
+  order_status: 'pending' | 'confirmed' | 'processing' | 'ready_for_pickup' | 'delivered' | 'cancelled'
   created_at: string
   updated_at: string
-  user: {
-    id: string
-    first_name: string
-    last_name: string
-    email: string
-  }
-  order_items: Array<{
-    id: string
-    quantity: number
-    unit_price: number
-    total_price: number
-    plant: {
-      id: string
-      plant_code: string
-      cultivar: {
-        cultivar_name: string
-        species: {
-          scientific_name: string
-        }
-      }
-      photos: Array<{
-        photo_url: string
-        is_primary: boolean
-      }>
-    }
-  }>
+  notes: string
+  admin_notes: string
+  order_items: OrderItem[]
+}
+
+interface OrderItem {
+  id: string
+  order_id: string
+  item_type: 'plant' | 'product'
+  item_id: string
+  item_name: string
+  item_description: string
+  item_image_url: string
+  unit_price: number
+  quantity: number
+  total_price: number
+  plant_cultivar_id: string
+  plant_cultivar_name: string
+  plant_age_years: number
+  plant_height_cm: number
+  plant_pot_size: string
+  created_at: string
 }
 
 export default function AdminOrdersPage() {
+  const params = useParams()
+  const router = useRouter()
+  const locale = params.locale as string
+  const t = useTranslations('admin')
+  const supabase = createClient()
+  
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterStatus, setFilterStatus] = useState('all')
-  const router = useRouter()
-  const supabase = createClient()
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [paymentFilter, setPaymentFilter] = useState<string>('all')
+
+  const isGerman = locale === 'de'
 
   useEffect(() => {
     loadOrders()
@@ -72,121 +99,107 @@ export default function AdminOrdersPage() {
 
   const loadOrders = async () => {
     try {
-      // Check if user is admin
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/admin/login')
-        return
+      setLoading(true)
+      const response = await fetch('/api/orders')
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders')
       }
-
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select(`
-          id,
-          role_id,
-          user_roles!inner(name)
-        `)
-        .eq('id', user.id)
-        .single()
-
-      if (!profile || (profile as any).user_roles?.name !== 'admin') {
-        router.push('/admin/login')
-        return
-      }
-
-      // Load all orders with related data
-      const { data: ordersData, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          user:user_profiles!inner(
-            id,
-            first_name,
-            last_name,
-            email
-          ),
-          order_items(
-            id,
-            quantity,
-            unit_price,
-            total_price,
-            plant:plants(
-              id,
-              plant_code,
-              cultivar:cultivars(
-                cultivar_name,
-                species:species(scientific_name)
-              ),
-              photos:plant_photos(photo_url, is_primary)
-            )
-          )
-        `)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        setError('Failed to load orders')
-        return
-      }
-
-      setOrders(ordersData || [])
+      
+      const data = await response.json()
+      setOrders(data.orders || [])
     } catch (err) {
-      setError('An unexpected error occurred')
+      console.error('Error loading orders:', err)
+      setError(isGerman ? 'Fehler beim Laden der Bestellungen' : 'Error loading orders')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const updateOrderStatus = async (orderId: string, status: string, field: 'order_status' | 'payment_status') => {
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          [field]: status
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update order')
+      }
+
+      // Refresh orders
+      loadOrders()
+    } catch (err) {
+      console.error('Error updating order:', err)
+      setError(isGerman ? 'Fehler beim Aktualisieren der Bestellung' : 'Error updating order')
+    }
+  }
+
+  const getStatusBadge = (status: string, type: 'order' | 'payment') => {
+    const statusConfig = {
+      // Order status
+      pending: { color: 'bg-yellow-100 text-yellow-800', icon: Clock, text: isGerman ? 'Ausstehend' : 'Pending' },
+      confirmed: { color: 'bg-blue-100 text-blue-800', icon: CheckCircle, text: isGerman ? 'Bestätigt' : 'Confirmed' },
+      processing: { color: 'bg-purple-100 text-purple-800', icon: Package, text: isGerman ? 'In Bearbeitung' : 'Processing' },
+      ready_for_pickup: { color: 'bg-orange-100 text-orange-800', icon: Truck, text: isGerman ? 'Abholbereit' : 'Ready for Pickup' },
+      delivered: { color: 'bg-green-100 text-green-800', icon: CheckCircle, text: isGerman ? 'Geliefert' : 'Delivered' },
+      cancelled: { color: 'bg-red-100 text-red-800', icon: XCircle, text: isGerman ? 'Storniert' : 'Cancelled' },
+      
+      // Payment status
+      paid: { color: 'bg-green-100 text-green-800', icon: CheckCircle, text: isGerman ? 'Bezahlt' : 'Paid' },
+      failed: { color: 'bg-red-100 text-red-800', icon: XCircle, text: isGerman ? 'Fehlgeschlagen' : 'Failed' },
+      refunded: { color: 'bg-gray-100 text-gray-800', icon: AlertCircle, text: isGerman ? 'Erstattet' : 'Refunded' }
+    }
+
+    const config = statusConfig[status as keyof typeof statusConfig]
+    if (!config) return null
+
+    const Icon = config.icon
+    return (
+      <Badge className={config.color}>
+        <Icon className="h-3 w-3 mr-1" />
+        {config.text}
+      </Badge>
+    )
+  }
+
+  const getPaymentMethodIcon = (method: string) => {
+    switch (method) {
+      case 'credit_card':
+        return <CreditCard className="h-4 w-4" />
+      case 'bank_transfer':
+        return <Euro className="h-4 w-4" />
+      case 'cod':
+        return <Truck className="h-4 w-4" />
+      default:
+        return <CreditCard className="h-4 w-4" />
     }
   }
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
       order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      order.customer_first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer_last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer_email.toLowerCase().includes(searchTerm.toLowerCase())
     
-    const matchesStatus = filterStatus === 'all' || order.status === filterStatus
+    const matchesStatus = statusFilter === 'all' || order.order_status === statusFilter
+    const matchesPayment = paymentFilter === 'all' || order.payment_status === paymentFilter
     
-    return matchesSearch && matchesStatus
+    return matchesSearch && matchesStatus && matchesPayment
   })
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' },
-      confirmed: { color: 'bg-blue-100 text-blue-800', label: 'Confirmed' },
-      processing: { color: 'bg-purple-100 text-purple-800', label: 'Processing' },
-      shipped: { color: 'bg-indigo-100 text-indigo-800', label: 'Shipped' },
-      delivered: { color: 'bg-green-100 text-green-800', label: 'Delivered' },
-      cancelled: { color: 'bg-red-100 text-red-800', label: 'Cancelled' }
-    }
-    
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending
-    return <Badge className={config.color}>{config.label}</Badge>
-  }
-
-  const updateOrderStatus = async (orderId: string, newStatus: string) => {
-    try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq('id', orderId)
-
-      if (error) {
-        setError('Failed to update order status')
-        return
-      }
-
-      // Reload orders
-      loadOrders()
-    } catch (err) {
-      setError('Failed to update order status')
-    }
-  }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading orders...</p>
+          <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600">{isGerman ? 'Lade Bestellungen...' : 'Loading orders...'}</p>
         </div>
       </div>
     )
@@ -195,227 +208,283 @@ export default function AdminOrdersPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <Button 
-                variant="ghost" 
-                onClick={() => router.push('/admin/dashboard')}
-                className="mr-4"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
+          <div className="py-6">
+            <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Order Management</h1>
-                <p className="text-gray-600">Manage customer orders and fulfillment</p>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {isGerman ? 'Bestellungen verwalten' : 'Manage Orders'}
+                </h1>
+                <p className="mt-2 text-gray-600">
+                  {isGerman ? 'Übersicht über alle Kundenbestellungen' : 'Overview of all customer orders'}
+                </p>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">
-                <Package className="h-3 w-3 mr-1" />
-                {orders.length} orders
-              </Badge>
+              <Button onClick={loadOrders}>
+                <Calendar className="h-4 w-4 mr-2" />
+                {isGerman ? 'Aktualisieren' : 'Refresh'}
+              </Button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error ? (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {error && (
           <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-        ) : null}
+        )}
 
-        {/* Search and Filters */}
+        {/* Filters */}
         <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Filter className="h-5 w-5 mr-2" />
+              {isGerman ? 'Filter' : 'Filters'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {isGerman ? 'Suche' : 'Search'}
+                </label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
                   <Input
-                    placeholder="Search by order number, customer name, or email..."
+                    placeholder={isGerman ? 'Bestellnummer, Name, E-Mail...' : 'Order number, name, email...'}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
                   />
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Filter by status" />
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {isGerman ? 'Bestellstatus' : 'Order Status'}
+                </label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="confirmed">Confirmed</SelectItem>
-                    <SelectItem value="processing">Processing</SelectItem>
-                    <SelectItem value="shipped">Shipped</SelectItem>
-                    <SelectItem value="delivered">Delivered</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                    <SelectItem value="all">{isGerman ? 'Alle' : 'All'}</SelectItem>
+                    <SelectItem value="pending">{isGerman ? 'Ausstehend' : 'Pending'}</SelectItem>
+                    <SelectItem value="confirmed">{isGerman ? 'Bestätigt' : 'Confirmed'}</SelectItem>
+                    <SelectItem value="processing">{isGerman ? 'In Bearbeitung' : 'Processing'}</SelectItem>
+                    <SelectItem value="ready_for_pickup">{isGerman ? 'Abholbereit' : 'Ready for Pickup'}</SelectItem>
+                    <SelectItem value="delivered">{isGerman ? 'Geliefert' : 'Delivered'}</SelectItem>
+                    <SelectItem value="cancelled">{isGerman ? 'Storniert' : 'Cancelled'}</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {isGerman ? 'Zahlungsstatus' : 'Payment Status'}
+                </label>
+                <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{isGerman ? 'Alle' : 'All'}</SelectItem>
+                    <SelectItem value="pending">{isGerman ? 'Ausstehend' : 'Pending'}</SelectItem>
+                    <SelectItem value="paid">{isGerman ? 'Bezahlt' : 'Paid'}</SelectItem>
+                    <SelectItem value="failed">{isGerman ? 'Fehlgeschlagen' : 'Failed'}</SelectItem>
+                    <SelectItem value="refunded">{isGerman ? 'Erstattet' : 'Refunded'}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex items-end">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setSearchTerm('')
+                    setStatusFilter('all')
+                    setPaymentFilter('all')
+                  }}
+                  className="w-full"
+                >
+                  {isGerman ? 'Filter zurücksetzen' : 'Reset Filters'}
+                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Orders List */}
-        <div className="space-y-6">
-          {filteredOrders.map((order) => {
-            const featuredPhoto = order.order_items[0]?.plant?.photos?.find(photo => photo.is_primary) || 
-                                order.order_items[0]?.plant?.photos?.[0]
-            
-            return (
-              <Card key={order.id} className="overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="flex flex-col lg:flex-row">
-                    {/* Order Info */}
-                    <div className="flex-1 p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            Order #{order.order_number}
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            <User className="h-4 w-4 inline mr-1" />
-                            {order.user.first_name} {order.user.last_name}
-                          </p>
-                          <p className="text-sm text-gray-500">{order.user.email}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="mb-2">
-                            {getStatusBadge(order.status)}
-                          </div>
-                          <div className="text-lg font-bold text-green-600">
-                            €{order.total_amount.toFixed(2)}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            <Calendar className="h-3 w-3 inline mr-1" />
-                            {new Date(order.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Order Items */}
-                      <div className="space-y-3">
-                        <h4 className="font-medium text-gray-900">Order Items:</h4>
-                        {order.order_items.map((item) => (
-                          <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            {item.plant.photos && item.plant.photos.length > 0 ? (
-                              <div className="relative w-12 h-12 rounded-lg overflow-hidden">
-                                <Image
-                                  src={item.plant.photos[0].photo_url}
-                                  alt={item.plant.cultivar.cultivar_name}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                            ) : (
-                              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <Package className="h-6 w-6 text-green-600" />
-                              </div>
-                            )}
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">
-                                {item.plant.cultivar.cultivar_name}
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                {item.plant.cultivar.species.scientific_name}
-                              </p>
-                              {item.plant.plant_code && (
-                                <p className="text-xs text-gray-500">
-                                  Code: {item.plant.plant_code}
-                                </p>
-                              )}
-                            </div>
-                            <div className="text-right">
-                              <p className="font-medium text-gray-900">
-                                {item.quantity}x €{item.unit_price.toFixed(2)}
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                = €{item.total_price.toFixed(2)}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+        <div className="space-y-4">
+          {filteredOrders.length === 0 ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {isGerman ? 'Keine Bestellungen gefunden' : 'No orders found'}
+                </h3>
+                <p className="text-gray-600">
+                  {isGerman 
+                    ? 'Es wurden keine Bestellungen gefunden, die Ihren Kriterien entsprechen.'
+                    : 'No orders were found matching your criteria.'
+                  }
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredOrders.map((order) => (
+              <Card key={order.id} className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center space-x-2">
+                        <span>{order.order_number}</span>
+                        {getStatusBadge(order.order_status, 'order')}
+                        {getStatusBadge(order.payment_status, 'payment')}
+                      </CardTitle>
+                      <CardDescription className="flex items-center space-x-4 mt-2">
+                        <span className="flex items-center">
+                          <User className="h-4 w-4 mr-1" />
+                          {order.customer_first_name} {order.customer_last_name}
+                        </span>
+                        <span className="flex items-center">
+                          {getPaymentMethodIcon(order.payment_method)}
+                          <span className="ml-1">
+                            {order.payment_method === 'credit_card' ? (isGerman ? 'Kreditkarte' : 'Credit Card') :
+                             order.payment_method === 'bank_transfer' ? (isGerman ? 'Überweisung' : 'Bank Transfer') :
+                             isGerman ? 'Nachnahme' : 'COD'}
+                          </span>
+                        </span>
+                        <span className="flex items-center">
+                          <Euro className="h-4 w-4 mr-1" />
+                          €{order.total_amount.toFixed(2)}
+                        </span>
+                        <span className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          {new Date(order.created_at).toLocaleDateString(locale)}
+                        </span>
+                      </CardDescription>
                     </div>
-
-                    {/* Actions */}
-                    <div className="lg:w-64 p-6 bg-gray-50 border-l border-gray-200">
-                      <div className="space-y-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Update Status
-                          </label>
-                          <Select 
-                            value={order.status} 
-                            onValueChange={(value) => updateOrderStatus(order.id, value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="confirmed">Confirmed</SelectItem>
-                              <SelectItem value="processing">Processing</SelectItem>
-                              <SelectItem value="shipped">Shipped</SelectItem>
-                              <SelectItem value="delivered">Delivered</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        <div className="flex flex-col gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => router.push(`/admin/orders/${order.id}`)}
-                            className="w-full"
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => router.push(`/admin/orders/${order.id}/edit`)}
-                            className="w-full"
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit Order
-                          </Button>
-                        </div>
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => router.push(`/admin/orders/${order.id}`)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        {isGerman ? 'Anzeigen' : 'View'}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => router.push(`/admin/orders/${order.id}/edit`)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        {isGerman ? 'Bearbeiten' : 'Edit'}
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        {isGerman ? 'Kunde' : 'Customer'}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {order.customer_email}
+                      </p>
+                      {order.customer_phone && (
+                        <p className="text-sm text-gray-600">
+                          {order.customer_phone}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        {isGerman ? 'Lieferung' : 'Delivery'}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {order.delivery_method === 'pickup' 
+                          ? (isGerman ? 'Abholung' : 'Pickup')
+                          : (isGerman ? 'Lieferung' : 'Delivery')
+                        }
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {order.customer_city}, {order.customer_postal_code}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        {isGerman ? 'Artikel' : 'Items'}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {order.order_items.length} {isGerman ? 'Artikel' : 'items'}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {isGerman ? 'Zwischensumme' : 'Subtotal'}: €{order.subtotal.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Quick Status Updates */}
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          {isGerman ? 'Bestellstatus' : 'Order Status'}
+                        </label>
+                        <Select 
+                          value={order.order_status} 
+                          onValueChange={(value) => updateOrderStatus(order.id, value, 'order_status')}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">{isGerman ? 'Ausstehend' : 'Pending'}</SelectItem>
+                            <SelectItem value="confirmed">{isGerman ? 'Bestätigt' : 'Confirmed'}</SelectItem>
+                            <SelectItem value="processing">{isGerman ? 'In Bearbeitung' : 'Processing'}</SelectItem>
+                            <SelectItem value="ready_for_pickup">{isGerman ? 'Abholbereit' : 'Ready for Pickup'}</SelectItem>
+                            <SelectItem value="delivered">{isGerman ? 'Geliefert' : 'Delivered'}</SelectItem>
+                            <SelectItem value="cancelled">{isGerman ? 'Storniert' : 'Cancelled'}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          {isGerman ? 'Zahlungsstatus' : 'Payment Status'}
+                        </label>
+                        <Select 
+                          value={order.payment_status} 
+                          onValueChange={(value) => updateOrderStatus(order.id, value, 'payment_status')}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">{isGerman ? 'Ausstehend' : 'Pending'}</SelectItem>
+                            <SelectItem value="paid">{isGerman ? 'Bezahlt' : 'Paid'}</SelectItem>
+                            <SelectItem value="failed">{isGerman ? 'Fehlgeschlagen' : 'Failed'}</SelectItem>
+                            <SelectItem value="refunded">{isGerman ? 'Erstattet' : 'Refunded'}</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            )
-          })}
+            ))
+          )}
         </div>
-
-        {filteredOrders.length === 0 && (
-          <Card>
-            <CardContent className="text-center py-12">
-              <div className="text-gray-400 text-6xl mb-4">📦</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
-              <p className="text-gray-600 mb-4">
-                {searchTerm || filterStatus !== 'all' 
-                  ? 'Try adjusting your search or filter criteria.' 
-                  : 'No orders have been placed yet.'
-                }
-              </p>
-            </CardContent>
-          </Card>
-        )}
-      </main>
+      </div>
     </div>
   )
 }

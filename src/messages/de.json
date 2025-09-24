@@ -47,7 +47,15 @@
     "image_uploaded": "Bild erfolgreich hochgeladen",
     "image_removed": "Bild erfolgreich entfernt",
     "upload_error": "Fehler beim Hochladen des Bildes",
-    "no_image": "Kein Profilbild festgelegt"
+    "no_image": "Kein Profilbild festgelegt",
+    "my_orders": "Meine Bestellungen",
+    "my_orders_desc": "Sehen Sie Ihre Bestellhistorie und verfolgen Sie aktuelle Bestellungen",
+    "no_orders": "Noch keine Bestellungen",
+    "no_orders_desc": "Sie haben noch keine Bestellungen aufgegeben.",
+    "start_shopping": "Einkaufen beginnen",
+    "items": "Artikel",
+    "view_details": "Details anzeigen",
+    "view_all_orders": "Alle Bestellungen anzeigen"
   },
   "home": {
     "hero": {

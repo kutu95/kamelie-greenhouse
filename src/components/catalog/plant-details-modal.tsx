@@ -6,10 +6,10 @@ import { Badge } from '@/components/ui/badge'
 import { X, Leaf, Calendar, Euro, ShoppingCart, Heart, Users } from 'lucide-react'
 import { Plant } from '@/lib/supabase/plants'
 import Image from 'next/image'
-import { getCultivarPriceRange, formatPrice, getPriceGroupDescription } from '@/lib/supabase/pricing'
+import { getCultivarPriceRange, formatPrice, getPriceGroupDescription, calculatePlantPrice } from '@/lib/supabase/pricing'
 import { PriceRange } from '@/lib/supabase/pricing'
 import { translateFlowerColor, translateFlowerForm, translateGrowthHabit, translateFoliageType } from '@/lib/utils/translations'
-import { AvailabilityRequestModal } from './availability-request-modal'
+import { useCartStore } from '@/lib/store/cart'
 
 interface PlantDetailsModalProps {
   plant: Plant | null
@@ -21,8 +21,12 @@ interface PlantDetailsModalProps {
 export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetailsModalProps) {
   const [priceRange, setPriceRange] = useState<PriceRange | null>(null)
   const [loadingPrice, setLoadingPrice] = useState(true)
-  const [showPlantSelection, setShowPlantSelection] = useState(false)
+  const [addedToCart, setAddedToCart] = useState(false)
+  const [selectedAge, setSelectedAge] = useState<number>(3)
+  const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
+  const [loadingPriceCalculation, setLoadingPriceCalculation] = useState(false)
 
+  const { addPlant } = useCartStore()
   const isGerman = locale === 'de'
   const featuredPhoto = plant?.photos?.find(photo => photo.is_primary) || plant?.photos?.[0]
   const cultivar = (plant as any)?.cultivar
@@ -49,13 +53,53 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
     }
   }, [isOpen, (plant as any)?.cultivar?.price_group])
 
-  const handleSelectPlant = () => {
-    setShowPlantSelection(true)
+  // Calculate price when age changes
+  useEffect(() => {
+    async function calculatePrice() {
+      if (cultivar?.price_group) {
+        setLoadingPriceCalculation(true)
+        try {
+          const price = await calculatePlantPrice(
+            cultivar.price_group as 'A' | 'B' | 'C',
+            selectedAge
+          )
+          setCalculatedPrice(price)
+        } catch (error) {
+          console.error('Error calculating price:', error)
+          setCalculatedPrice(null)
+        } finally {
+          setLoadingPriceCalculation(false)
+        }
+      }
+    }
+    
+    if (cultivar?.price_group) {
+      calculatePrice()
+    }
+  }, [selectedAge, cultivar?.price_group])
+
+  const handleAddToCart = async () => {
+    if (!plant || !cultivar || !calculatedPrice) return
+    
+    try {
+      // Create plant object with calculated price
+      const plantWithPrice = {
+        ...plant,
+        price_euros: calculatedPrice,
+        age_years: selectedAge
+      }
+      
+      // Add to cart
+      addPlant(plantWithPrice as any, 1)
+      setAddedToCart(true)
+      
+      // Reset after 2 seconds
+      setTimeout(() => setAddedToCart(false), 2000)
+    } catch (error) {
+      console.error('Error adding plant to cart:', error)
+    }
   }
 
-  const handleBackToVariety = () => {
-    setShowPlantSelection(false)
-  }
 
   if (!isOpen || !plant) return null
 
@@ -204,32 +248,49 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                     </div>
                   )}
 
-                  <div className="flex items-center space-x-2">
-                    <Euro className="h-5 w-5 text-gray-400" />
-                    <div>
-                      <p className="text-sm text-gray-500">{isGerman ? 'Preisbereich' : 'Price Range'}</p>
-                      {loadingPrice ? (
-                        <div className="text-sm text-gray-400">
-                          {isGerman ? 'Preis wird geladen...' : 'Loading price...'}
-                        </div>
-                      ) : priceRange ? (
-                        <div>
-                          <p className="font-medium text-green-600">
-                            {priceRange.min_price === priceRange.max_price 
-                              ? formatPrice(priceRange.min_price, isGerman ? 'de-DE' : 'en-US')
-                              : `${formatPrice(priceRange.min_price, isGerman ? 'de-DE' : 'en-US')} - ${formatPrice(priceRange.max_price, isGerman ? 'de-DE' : 'en-US')}`
-                            }
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Euro className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-500">{isGerman ? 'Preis' : 'Price'}</p>
+                        {loadingPriceCalculation ? (
+                          <div className="text-sm text-gray-400">
+                            {isGerman ? 'Preis wird berechnet...' : 'Calculating price...'}
+                          </div>
+                        ) : calculatedPrice ? (
+                          <p className="font-medium text-green-600 text-lg">
+                            {formatPrice(calculatedPrice, isGerman ? 'de-DE' : 'en-US')}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            {isGerman ? 'Je nach Größe/Alter' : 'Depending on size/age'}
+                        ) : (
+                          <p className="text-sm text-gray-400">
+                            {isGerman ? 'Preis nicht verfügbar' : 'Price not available'}
                           </p>
-                        </div>
-                      ) : (
-                        <p className="font-medium text-green-600">
-                          {formatPrice(plant.price_euros || 0, isGerman ? 'de-DE' : 'en-US')}
-                        </p>
-                      )}
+                        )}
+                      </div>
                     </div>
+
+                    {/* Age Selection */}
+                    <div>
+                      <label className="text-sm text-gray-500 mb-2 block">
+                        {isGerman ? 'Alter (Jahre)' : 'Age (Years)'}
+                      </label>
+                      <div className="flex space-x-2">
+                        {[3, 4, 5, 6].map((age) => (
+                          <button
+                            key={age}
+                            onClick={() => setSelectedAge(age)}
+                            className={`px-3 py-1 text-sm rounded-md border transition-colors ${
+                              selectedAge === age
+                                ? 'bg-green-600 text-white border-green-600'
+                                : 'bg-white text-gray-700 border-gray-300 hover:border-green-500'
+                            }`}
+                          >
+                            {age} {isGerman ? 'Jahre' : 'Years'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
@@ -263,9 +324,20 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
                     <Heart className="h-4 w-4 mr-2" />
                     {isGerman ? 'Zu Favoriten' : 'Add to Favorites'}
                   </Button>
-                  <Button className="flex-1" onClick={handleSelectPlant}>
+                  <Button 
+                    className="flex-1" 
+                    onClick={handleAddToCart}
+                    disabled={addedToCart || !calculatedPrice || loadingPriceCalculation}
+                  >
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    {isGerman ? 'Verfügbarkeit anfragen' : 'Contact for Availability'}
+                    {addedToCart 
+                      ? (isGerman ? 'Hinzugefügt!' : 'Added!')
+                      : loadingPriceCalculation
+                      ? (isGerman ? 'Berechne...' : 'Calculating...')
+                      : !calculatedPrice
+                      ? (isGerman ? 'Preis nicht verfügbar' : 'Price not available')
+                      : (isGerman ? 'In den Warenkorb' : 'Add to Cart')
+                    }
                   </Button>
                 </div>
               </div>
@@ -274,14 +346,6 @@ export function PlantDetailsModal({ plant, isOpen, onClose, locale }: PlantDetai
         </div>
       </div>
 
-      {/* Availability Request Modal */}
-      <AvailabilityRequestModal
-        cultivarId={cultivar?.id}
-        isOpen={showPlantSelection}
-        onClose={onClose}
-        onBackToVariety={handleBackToVariety}
-        locale={locale}
-      />
     </>
   )
 }

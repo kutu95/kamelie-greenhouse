@@ -1,16 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, Eye, EyeOff } from 'lucide-react'
+import { Loader2, Eye, EyeOff, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
+import { useCartStore } from '@/lib/store/cart'
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -20,9 +21,24 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [pendingCartAction, setPendingCartAction] = useState<any>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const t = useTranslations('auth')
   const supabase = createClient()
+  const { addPlant, addProduct } = useCartStore()
+
+  useEffect(() => {
+    // Check for pending cart action
+    const pendingAction = localStorage.getItem('pendingCartAction')
+    if (pendingAction) {
+      try {
+        setPendingCartAction(JSON.parse(pendingAction))
+      } catch (e) {
+        console.error('Error parsing pending cart action:', e)
+      }
+    }
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -48,6 +64,22 @@ export default function LoginPage() {
       }
 
       if (data.user) {
+        // Process pending cart action if exists
+        if (pendingCartAction) {
+          try {
+            if (pendingCartAction.type === 'plant') {
+              addPlant(pendingCartAction.data, pendingCartAction.quantity)
+            } else if (pendingCartAction.type === 'product') {
+              addProduct(pendingCartAction.data, pendingCartAction.quantity)
+            }
+            // Clear pending action
+            localStorage.removeItem('pendingCartAction')
+            setPendingCartAction(null)
+          } catch (e) {
+            console.error('Error processing pending cart action:', e)
+          }
+        }
+
         // Check if user is admin
         const { data: profile } = await supabase
           .from('user_profiles')
@@ -59,11 +91,15 @@ export default function LoginPage() {
           .eq('id', data.user.id)
           .single()
 
-        if ((profile as any)?.user_roles?.name === 'admin') {
+        // Handle redirect
+        const redirectUrl = searchParams.get('redirect')
+        if (redirectUrl) {
+          router.push(redirectUrl)
+        } else if ((profile as any)?.user_roles?.name === 'admin') {
           router.push('/admin/dashboard')
         } else {
-          // Redirect regular users to catalog
-          router.push('/catalog')
+          // Redirect to cart if there was a pending action, otherwise to catalog
+          router.push(pendingCartAction ? '/cart' : '/catalog')
         }
       }
     } catch (err) {
@@ -81,6 +117,14 @@ export default function LoginPage() {
           <CardDescription>
             Sign in to your Kamelie Greenhouse account
           </CardDescription>
+          {pendingCartAction && (
+            <Alert className="mt-4 border-blue-200 bg-blue-50">
+              <ShoppingCart className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-800">
+                You have items waiting to be added to your cart. Sign in to complete your purchase.
+              </AlertDescription>
+            </Alert>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

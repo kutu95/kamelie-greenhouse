@@ -25,3 +25,4 @@ FOR DELETE USING (
   AND auth.role() = 'authenticated'
 );
 
+

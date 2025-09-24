@@ -47,7 +47,15 @@
     "image_uploaded": "Image uploaded successfully",
     "image_removed": "Image removed successfully",
     "upload_error": "Failed to upload image",
-    "no_image": "No profile image set"
+    "no_image": "No profile image set",
+    "my_orders": "My Orders",
+    "my_orders_desc": "View your order history and track current orders",
+    "no_orders": "No orders yet",
+    "no_orders_desc": "You haven't placed any orders yet.",
+    "start_shopping": "Start Shopping",
+    "items": "items",
+    "view_details": "View Details",
+    "view_all_orders": "View All Orders"
   },
   "home": {
     "hero": {

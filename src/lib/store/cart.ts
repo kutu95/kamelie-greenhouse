@@ -53,7 +53,7 @@ export const useCartStore = create<CartState>()(
           price: plant.price_euros || 0,
           quantity: quantity,
           plant: plant,
-          image_url: plant.cultivar.photo_url,
+          image_url: plant.cultivar.photo_url || undefined,
           description: plant.cultivar.species.scientific_name
         }
         
@@ -81,8 +81,8 @@ export const useCartStore = create<CartState>()(
           price: product.price_euros || 0,
           quantity: quantity,
           product: product,
-          image_url: product.image_url,
-          description: product.description_de
+          image_url: product.image_url || undefined,
+          description: product.description_de || undefined
         }
         
         const existingItem = get().items.find(

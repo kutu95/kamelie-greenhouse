@@ -20,7 +20,8 @@ import {
   Calculator,
   DollarSign,
   Flower,
-  Package
+  Package,
+  CreditCard
 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
@@ -249,20 +250,20 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push('/admin/orders')}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push(`/${locale}/admin/orders`)}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <ShoppingCart className="h-5 w-5 mr-2" />
-                {t('orders')}
+                {locale === 'de' ? 'Bestellungen' : 'Orders'}
               </CardTitle>
               <CardDescription>
-                {t('manage_orders_desc')}
+                {locale === 'de' ? 'Verwalten Sie alle Bestellungen' : 'Manage all orders'}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="w-full">
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                {t('manage_orders')}
+                {locale === 'de' ? 'Bestellungen verwalten' : 'Manage Orders'}
               </Button>
             </CardContent>
           </Card>
@@ -353,6 +354,24 @@ export default function AdminDashboard() {
               <Button className="w-full">
                 <Settings className="h-4 w-4 mr-2" />
                 {t('manage_settings')}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push(`/${locale}/admin/stripe`)}>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <CreditCard className="h-5 w-5 mr-2" />
+                {locale === 'de' ? 'Stripe-Zahlungen' : 'Stripe Payments'}
+              </CardTitle>
+              <CardDescription>
+                {locale === 'de' ? 'Konfigurieren Sie Stripe-Zahlungsverarbeitung' : 'Configure Stripe payment processing'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                <CreditCard className="h-4 w-4 mr-2" />
+                {locale === 'de' ? 'Stripe-Einstellungen' : 'Stripe Settings'}
               </Button>
             </CardContent>
           </Card>

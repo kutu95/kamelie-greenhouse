@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Leaf, ShoppingCart, Heart, Eye } from 'lucide-react'
+import { Leaf, Heart, Eye } from 'lucide-react'
 import { Plant } from '@/lib/supabase/plants'
 import Image from 'next/image'
 import { PlantDetailsModal } from './plant-details-modal'
@@ -175,9 +175,6 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
               onClick={() => setIsModalOpen(true)}
             >
               <Eye className="h-4 w-4" />
-            </Button>
-            <Button size="sm" className="h-8">
-              <ShoppingCart className="h-4 w-4" />
             </Button>
           </div>
         </div>

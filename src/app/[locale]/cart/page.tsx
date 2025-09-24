@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useCartStore } from '@/lib/store/cart'
+import { AuthGuard } from '@/components/auth/auth-guard'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Database } from '@/types/database'
@@ -78,7 +79,8 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AuthGuard>
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -384,6 +386,7 @@ export default function CartPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AuthGuard>
   )
 }

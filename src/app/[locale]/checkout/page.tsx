@@ -14,7 +14,8 @@ import {
   ArrowLeft,
   CheckCircle,
   AlertCircle,
-  Loader2
+  Loader2,
+  FileText
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,6 +27,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { useCartStore } from '@/lib/store/cart'
 import { Database } from '@/types/database'
+import { createClient } from '@/lib/supabase/client'
+import { AuthGuard } from '@/components/auth/auth-guard'
+import { generateInvoicePDF, generateInvoiceHTML } from '@/lib/utils/invoice-generator-with-logo'
+import { sendInvoiceEmail } from '@/lib/services/email'
 
 type Product = Database['public']['Tables']['products']['Row']
 type Plant = Database['public']['Tables']['plants']['Row']
@@ -41,6 +46,8 @@ interface CustomerInfo {
   country: string
   company?: string
   taxId?: string
+  deliveryMethod: 'pickup' | 'delivery'
+  deliveryNotes?: string
 }
 
 interface PaymentInfo {
@@ -57,12 +64,16 @@ export default function CheckoutPage() {
   const params = useParams()
   const router = useRouter()
   const locale = params.locale as string
+  const supabase = createClient()
   
   const { items, getTotalItems, getTotalPrice, clearCart } = useCartStore()
   
   const [step, setStep] = useState<'info' | 'payment' | 'confirmation'>('info')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [orderId, setOrderId] = useState<string | null>(null)
+  const [invoiceData, setInvoiceData] = useState<any>(null)
+  const [emailSent, setEmailSent] = useState<boolean | null>(null)
   
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
     firstName: '',
@@ -74,7 +85,9 @@ export default function CheckoutPage() {
     postalCode: '',
     country: locale === 'de' ? 'Deutschland' : 'Germany',
     company: '',
-    taxId: ''
+    taxId: '',
+    deliveryMethod: 'pickup',
+    deliveryNotes: ''
   })
   
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
@@ -85,7 +98,7 @@ export default function CheckoutPage() {
 
   // Calculate totals
   const subtotal = getTotalPrice()
-  const shipping = subtotal > 50 ? 0 : 9.99 // Free shipping over €50
+  const shipping = 0 // Free pickup at greenhouse (delivery by arrangement only)
   const vat = subtotal * 0.19 // 19% VAT for Germany
   const total = subtotal + shipping + vat
 
@@ -94,6 +107,39 @@ export default function CheckoutPage() {
       router.push(`/${locale}/cart`)
     }
   }, [items.length, locale, router])
+
+  // Load user profile to pre-fill customer information
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+
+        if (profile) {
+          setCustomerInfo(prev => ({
+            ...prev,
+            firstName: profile.first_name || '',
+            lastName: profile.last_name || '',
+            email: profile.email || user.email || '',
+            phone: profile.phone || '',
+            address: profile.address_line1 || '',
+            city: profile.city || '',
+            postalCode: profile.postal_code || '',
+            country: profile.country || (locale === 'de' ? 'Deutschland' : 'Germany'),
+            company: profile.company_name || '',
+            taxId: profile.b2b_customer ? 'B2B Customer' : ''
+          }))
+        }
+      }
+    }
+
+    loadUserProfile()
+  }, [supabase, locale])
 
   const handleCustomerInfoChange = (field: keyof CustomerInfo, value: string) => {
     setCustomerInfo(prev => ({ ...prev, [field]: value }))
@@ -126,20 +172,153 @@ export default function CheckoutPage() {
     setError(null)
 
     try {
-      // Simulate order processing
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Generate order ID
+      const newOrderId = `ORDER-${Date.now()}`
+      setOrderId(newOrderId)
       
-      // In a real app, this would:
-      // 1. Create order in database
-      // 2. Process payment (Stripe, bank transfer, etc.)
-      // 3. Send confirmation email
-      // 4. Generate invoice
+      // Save order to database
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderNumber: newOrderId,
+          customerInfo,
+          deliveryInfo: {
+            deliveryMethod: customerInfo.deliveryMethod,
+            deliveryNotes: customerInfo.deliveryNotes
+          },
+          paymentInfo,
+          subtotal,
+          shipping,
+          vatAmount: vat,
+          totalAmount: total + (paymentInfo.method === 'cod' ? 5 : 0),
+          items: items.map(item => ({
+            id: item.id,
+            type: item.type,
+            name: item.name,
+            description: item.description,
+            image_url: item.image_url,
+            price: item.price,
+            quantity: item.quantity,
+            plant: item.plant
+          }))
+        })
+      })
+
+      if (!orderResponse.ok) {
+        throw new Error('Failed to save order')
+      }
+
+      const { order: savedOrder } = await orderResponse.json()
+      console.log('Order saved:', savedOrder)
+      
+      // Clear the cart after successful order creation
+      clearCart()
+      
+      // Prepare invoice data
+      const invoiceItems = items.map(item => ({
+        description: item.name,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        totalPrice: item.price * item.quantity,
+        type: item.type,
+      }))
+
+      const invoiceData = {
+        orderId: newOrderId,
+        date: new Date().toLocaleDateString(locale),
+        customer: customerInfo,
+        items: invoiceItems,
+        subtotal: subtotal,
+        shipping: shipping,
+        total: total + (paymentInfo.method === 'cod' ? 5 : 0),
+        netAmount: subtotal / 1.19, // Calculate net amount
+        vatAmount: subtotal - (subtotal / 1.19),
+        vatRate: 0.19,
+        paymentMethod: paymentInfo.method === 'card' ? 'credit_card' as const : paymentInfo.method === 'bank' ? 'bank_transfer' as const : paymentInfo.method as 'cod',
+        companyInfo: {
+          name: 'Kamelie Greenhouse',
+          address: 'Musterstraße 123',
+          city: 'Musterstadt',
+          zipCode: '12345',
+          country: 'Deutschland',
+          vatId: 'DE123456789',
+          taxNo: '123/456/78900',
+          commercialRegister: 'HRB 12345 Musterstadt',
+          phone: '+49 123 456789',
+          email: 'info@kamelie-greenhouse.de',
+          bankName: 'Musterbank',
+          iban: 'DE12345678901234567890',
+          bic: 'MUSTERBANKBIC',
+        },
+      }
+
+      setInvoiceData(invoiceData)
+      
+      // Send invoice email to customer
+      try {
+        const invoiceHtml = generateInvoiceHTML(invoiceData, locale)
+        const emailSent = await sendInvoiceEmail({
+          orderId: newOrderId,
+          customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
+          customerEmail: customerInfo.email,
+          totalAmount: total + (paymentInfo.method === 'cod' ? 5 : 0),
+          orderDate: new Date().toLocaleDateString(locale),
+          locale,
+          invoiceHtml,
+          companyInfo: {
+            name: 'Kamelie Greenhouse',
+            email: 'info@kamelie-greenhouse.de',
+            phone: '+49 123 456789'
+          }
+        })
+        
+        if (emailSent) {
+          console.log('Invoice email sent successfully')
+          setEmailSent(true)
+        } else {
+          console.log('Failed to send invoice email')
+          setEmailSent(false)
+        }
+      } catch (emailError) {
+        console.error('Error sending invoice email:', emailError)
+        setEmailSent(false)
+        // Don't fail the order if email fails
+      }
       
       setStep('confirmation')
     } catch (err) {
+      console.error('Order creation error:', err)
       setError(isGerman ? 'Fehler bei der Bestellung' : 'Error processing order')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDownloadPDF = async () => {
+    if (invoiceData) {
+      try {
+        await generateInvoicePDF(invoiceData, locale)
+      } catch (error) {
+        console.error('Error generating PDF:', error)
+        // Fallback to simple version if there's an error
+        alert(isGerman ? 'Fehler beim Generieren der PDF. Bitte versuchen Sie es erneut.' : 'Error generating PDF. Please try again.')
+      }
+    }
+  }
+
+  const handlePrintInvoice = () => {
+    if (invoiceData) {
+      const htmlContent = generateInvoiceHTML(invoiceData, locale)
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(htmlContent)
+        printWindow.document.close()
+        printWindow.focus()
+        printWindow.print()
+      }
     }
   }
 
@@ -148,7 +327,8 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AuthGuard>
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -320,6 +500,71 @@ export default function CheckoutPage() {
                         placeholder="DE123456789"
                       />
                     </div>
+                  </div>
+
+                  {/* Delivery Method */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-medium">{isGerman ? 'Abholung oder Lieferung' : 'Pickup or Delivery'}</Label>
+                    
+                    <RadioGroup
+                      value={customerInfo.deliveryMethod}
+                      onValueChange={(value: 'pickup' | 'delivery') => handleCustomerInfoChange('deliveryMethod', value)}
+                      className="space-y-3"
+                    >
+                      <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                        <RadioGroupItem value="pickup" id="pickup" />
+                        <div className="flex-1">
+                          <Label htmlFor="pickup" className="text-base font-medium cursor-pointer">
+                            {isGerman ? 'Abholung im Gewächshaus (kostenlos)' : 'Pickup at Greenhouse (Free)'}
+                          </Label>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {isGerman 
+                              ? 'Holen Sie Ihre Pflanzen direkt bei uns ab. Termin wird nach Bestellung vereinbart.'
+                              : 'Pick up your plants directly from our greenhouse. Appointment will be arranged after order.'
+                            }
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3 p-4 border rounded-lg">
+                        <RadioGroupItem value="delivery" id="delivery" />
+                        <div className="flex-1">
+                          <Label htmlFor="delivery" className="text-base font-medium cursor-pointer">
+                            {isGerman ? 'Lieferung (nach Vereinbarung)' : 'Delivery (by Arrangement)'}
+                          </Label>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {isGerman 
+                              ? 'Lieferung ist nur nach vorheriger Absprache möglich. Kosten werden individuell berechnet.'
+                              : 'Delivery is only possible by prior arrangement. Costs will be calculated individually.'
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    </RadioGroup>
+
+                    {customerInfo.deliveryMethod === 'delivery' && (
+                      <div>
+                        <Label htmlFor="deliveryNotes" className="text-sm font-medium">
+                          {isGerman ? 'Lieferhinweise' : 'Delivery Notes'}
+                        </Label>
+                        <Textarea
+                          id="deliveryNotes"
+                          value={customerInfo.deliveryNotes || ''}
+                          onChange={(e) => handleCustomerInfoChange('deliveryNotes', e.target.value)}
+                          placeholder={isGerman 
+                            ? 'Bitte geben Sie Ihre gewünschte Lieferadresse und weitere Hinweise an...'
+                            : 'Please provide your desired delivery address and additional notes...'
+                          }
+                          rows={3}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          {isGerman 
+                            ? 'Wir werden uns nach Ihrer Bestellung mit Ihnen in Verbindung setzen, um die Lieferung zu besprechen.'
+                            : 'We will contact you after your order to discuss the delivery details.'
+                          }
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <Button onClick={handleProceedToPayment} className="w-full" size="lg">
@@ -500,6 +745,33 @@ export default function CheckoutPage() {
                       : 'Thank you for your order. You will receive a confirmation email.'
                     }
                   </p>
+                  
+                  {/* Email Status */}
+                  {emailSent !== null && (
+                    <div className="mb-6">
+                      {emailSent ? (
+                        <Alert className="border-green-200 bg-green-50">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <AlertDescription className="text-green-800">
+                            {isGerman 
+                              ? '✅ Rechnung wurde per E-Mail an Sie gesendet!'
+                              : '✅ Invoice has been sent to your email!'
+                            }
+                          </AlertDescription>
+                        </Alert>
+                      ) : (
+                        <Alert variant="destructive" className="border-orange-200 bg-orange-50">
+                          <AlertCircle className="h-4 w-4 text-orange-600" />
+                          <AlertDescription className="text-orange-800">
+                            {isGerman 
+                              ? '⚠️ E-Mail konnte nicht gesendet werden. Sie können die Rechnung hier herunterladen.'
+                              : '⚠️ Email could not be sent. You can download the invoice here.'
+                            }
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                  )}
                   <div className="space-y-4">
                     <Button
                       onClick={() => {
@@ -510,15 +782,22 @@ export default function CheckoutPage() {
                     >
                       {isGerman ? 'Weiter einkaufen' : 'Continue Shopping'}
                     </Button>
-                    <div>
+                    <div className="flex space-x-3">
                       <Button
                         variant="outline"
-                        onClick={() => {
-                          // In a real app, this would generate and download the invoice
-                          alert(isGerman ? 'Rechnung wird heruntergeladen...' : 'Invoice is being downloaded...')
-                        }}
+                        onClick={handleDownloadPDF}
+                        disabled={!invoiceData}
                       >
-                        {isGerman ? 'Rechnung herunterladen' : 'Download Invoice'}
+                        <FileText className="h-4 w-4 mr-2" />
+                        {isGerman ? 'PDF herunterladen' : 'Download PDF'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={handlePrintInvoice}
+                        disabled={!invoiceData}
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        {isGerman ? 'Rechnung drucken' : 'Print Invoice'}
                       </Button>
                     </div>
                   </div>
@@ -557,11 +836,11 @@ export default function CheckoutPage() {
                     <span>€{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">{isGerman ? 'Versand' : 'Shipping'}</span>
+                    <span className="text-gray-600">{isGerman ? 'Abholung/Lieferung' : 'Pickup/Delivery'}</span>
                     <span>
-                      {shipping === 0 
-                        ? (isGerman ? 'Kostenlos' : 'Free')
-                        : `€${shipping.toFixed(2)}`
+                      {customerInfo.deliveryMethod === 'pickup' 
+                        ? (isGerman ? 'Abholung (kostenlos)' : 'Pickup (Free)')
+                        : (isGerman ? 'Lieferung (nach Vereinbarung)' : 'Delivery (by Arrangement)')
                       }
                     </span>
                   </div>
@@ -584,10 +863,18 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {shipping === 0 && (
+                {customerInfo.deliveryMethod === 'pickup' && (
                   <div className="bg-green-50 p-3 rounded-lg">
                     <p className="text-sm text-green-700 text-center">
-                      🎉 {isGerman ? 'Kostenloser Versand!' : 'Free Shipping!'}
+                      🎉 {isGerman ? 'Kostenlose Abholung im Gewächshaus!' : 'Free Pickup at Greenhouse!'}
+                    </p>
+                  </div>
+                )}
+                
+                {customerInfo.deliveryMethod === 'delivery' && (
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-sm text-blue-700 text-center">
+                      📞 {isGerman ? 'Lieferung nach Vereinbarung - wir kontaktieren Sie!' : 'Delivery by Arrangement - we will contact you!'}
                     </p>
                   </div>
                 )}
@@ -596,6 +883,7 @@ export default function CheckoutPage() {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </AuthGuard>
   )
 }

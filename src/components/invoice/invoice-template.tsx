@@ -333,3 +333,4 @@ export function generateInvoiceData(
     orderNumber: `ORD-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${Math.random().toString(36).substr(2, 8).toUpperCase()}`
   }
 }
+
