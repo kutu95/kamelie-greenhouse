@@ -9,7 +9,6 @@ import Image from 'next/image'
 import { Database } from '@/types/database'
 
 type Product = Database['public']['Tables']['products']['Row']
-type Plant = Database['public']['Tables']['plants']['Row']
 type Cultivar = Database['public']['Tables']['cultivars']['Row']
 type Species = Database['public']['Tables']['species']['Row']
 
@@ -151,7 +150,7 @@ export function CartModal({ isOpen, onClose, locale }: CartModalProps) {
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full">
-                        {item.type === 'plant' ? (
+                        {item.type === 'cultivar' ? (
                           <Flower className="h-8 w-8 text-green-600" />
                         ) : (
                           <Package className="h-8 w-8 text-green-600" />
@@ -173,11 +172,11 @@ export function CartModal({ isOpen, onClose, locale }: CartModalProps) {
                         
                         {/* Item Type Badge */}
                         <Badge 
-                          variant={item.type === 'plant' ? 'default' : 'secondary'}
+                          variant={item.type === 'cultivar' ? 'default' : 'secondary'}
                           className="text-xs"
                         >
-                          {item.type === 'plant' 
-                            ? (isGerman ? 'Pflanze' : 'Plant')
+                          {item.type === 'cultivar' 
+                            ? (isGerman ? 'Sorte' : 'Cultivar')
                             : (isGerman ? 'Produkt' : 'Product')
                           }
                         </Badge>
