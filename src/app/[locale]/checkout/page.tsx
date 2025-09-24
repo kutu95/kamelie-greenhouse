@@ -602,12 +602,6 @@ export default function CheckoutPage() {
                           <Banknote className="h-5 w-5 text-green-600" />
                           <div>
                             <div className="font-medium">{isGerman ? 'Nachnahme' : 'Cash on Delivery'}</div>
-                            <div className="text-sm text-gray-600">
-                              {isGerman 
-                                ? 'Zusätzliche Gebühr von €5,00'
-                                : 'Additional fee of €5.00'
-                              }
-                            </div>
                           </div>
                         </div>
                       </Label>
