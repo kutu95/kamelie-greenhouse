@@ -39,11 +39,12 @@ export default function ProductsPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('')
+  const [showCart, setShowCart] = useState(false)
   
   const supabase = createClient()
   
   // Use unified cart store
-  const { addProduct, items: cartItems, getTotalItems } = useCartStore()
+  const { addProduct, items: cartItems, getTotalItems, updateQuantity, removeItem } = useCartStore()
 
   const categories = [
     { value: 'soil', label: locale === 'de' ? 'Erde & Substrat' : 'Soil & Substrate' },
@@ -100,7 +101,7 @@ export default function ProductsPage() {
   }
 
   const getTotalCartValue = () => {
-    return cart.reduce((total, item) => total + (item.product.price_euros * item.quantity), 0)
+    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0)
   }
 
   if (loading) {
@@ -131,9 +132,9 @@ export default function ProductsPage() {
             <Button onClick={() => setShowCart(true)} className="relative">
               <ShoppingCart className="h-4 w-4 mr-2" />
               {locale === 'de' ? 'Warenkorb' : 'Cart'}
-              {cart.length > 0 && (
+              {cartItems.length > 0 && (
                 <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs">
-                  {cart.reduce((total, item) => total + item.quantity, 0)}
+                  {getTotalItems()}
                 </Badge>
               )}
             </Button>
@@ -330,7 +331,7 @@ export default function ProductsPage() {
 
               {/* Cart Items */}
               <div className="flex-1 overflow-y-auto p-6">
-                {cart.length === 0 ? (
+                {cartItems.length === 0 ? (
                   <div className="text-center py-12">
                     <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-500">
@@ -339,13 +340,13 @@ export default function ProductsPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {cart.map((item) => (
-                      <div key={item.product.id} className="flex space-x-4 p-4 border rounded-lg">
+                    {cartItems.map((item) => (
+                      <div key={item.id} className="flex space-x-4 p-4 border rounded-lg">
                         <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0">
-                          {item.product.image_url ? (
+                          {item.image_url ? (
                             <Image
-                              src={item.product.image_url}
-                              alt={locale === 'de' ? item.product.name_de : item.product.name_en}
+                              src={item.image_url}
+                              alt={item.name}
                               width={64}
                               height={64}
                               className="w-full h-full object-cover rounded-lg"
@@ -356,16 +357,16 @@ export default function ProductsPage() {
                         </div>
                         <div className="flex-1">
                           <h4 className="font-medium text-sm">
-                            {locale === 'de' ? item.product.name_de : item.product.name_en}
+                            {item.name}
                           </h4>
                           <p className="text-green-600 font-bold">
-                            €{item.product.price_euros.toFixed(2)}
+                            €{item.price.toFixed(2)}
                           </p>
                           <div className="flex items-center space-x-2 mt-2">
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
                             >
                               <Minus className="h-3 w-3" />
                             </Button>
@@ -373,15 +374,15 @@ export default function ProductsPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                              disabled={item.quantity >= item.product.stock_quantity}
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              disabled={item.type === 'product' && item.product && item.quantity >= item.product.stock_quantity}
                             >
                               <Plus className="h-3 w-3" />
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => removeFromCart(item.product.id)}
+                              onClick={() => removeItem(item.id)}
                               className="text-red-600 hover:text-red-700"
                             >
                               ×
@@ -395,7 +396,7 @@ export default function ProductsPage() {
               </div>
 
               {/* Footer */}
-              {cart.length > 0 && (
+              {cartItems.length > 0 && (
                 <div className="border-t p-6">
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-lg font-semibold">
