@@ -93,7 +93,7 @@ export function CartModal({ isOpen, onClose, locale }: CartModalProps) {
       }}
     >
       <div 
-        className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col"
+        className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
