@@ -26,7 +26,6 @@ interface PlantData {
   age_years: number
   height_cm: number | null
   width_cm: number | null
-  pot_size: string | null
   price_euros: number | null
   status: 'available' | 'reserved' | 'sold' | 'maintenance'
   location: string | null
@@ -76,7 +75,6 @@ export default function EditPlantPage() {
     age_years: 0,
     height_cm: '',
     width_cm: '',
-    pot_size: '',
     price_euros: '',
     status: 'available',
     location: '',
@@ -91,10 +89,10 @@ export default function EditPlantPage() {
 
   useEffect(() => {
     calculatePrice()
-  }, [formData.cultivar_id, formData.age_years, formData.pot_size, cultivars])
+  }, [formData.cultivar_id, formData.age_years, cultivars])
 
   const calculatePrice = async () => {
-    if (!formData.cultivar_id || !formData.age_years || !formData.pot_size) {
+    if (!formData.cultivar_id || !formData.age_years) {
       setCalculatedPrice(null)
       setPriceRange(null)
       return
@@ -115,11 +113,10 @@ export default function EditPlantPage() {
       const range = await getCultivarPriceRange(selectedCultivar.price_group)
       setPriceRange(range)
 
-      // Calculate specific price based on age and pot size
+      // Calculate specific price based on age
       const calculated = await calculatePlantPrice(
         selectedCultivar.price_group,
-        formData.age_years,
-        formData.pot_size
+        formData.age_years
       )
       setCalculatedPrice(calculated)
     } catch (error) {
@@ -187,7 +184,6 @@ export default function EditPlantPage() {
         age_years: plantData.age_years,
         height_cm: plantData.height_cm?.toString() || '',
         width_cm: plantData.width_cm?.toString() || '',
-        pot_size: plantData.pot_size || '',
         price_euros: plantData.price_euros?.toString() || '',
         status: plantData.status,
         location: plantData.location || '',
@@ -255,7 +251,6 @@ export default function EditPlantPage() {
         age_years: formData.age_years,
         height_cm: formData.height_cm ? parseInt(formData.height_cm) : null,
         width_cm: formData.width_cm ? parseInt(formData.width_cm) : null,
-        pot_size: formData.pot_size || null,
         price_euros: formData.price_euros ? parseFloat(formData.price_euros) : null,
         status: formData.status,
         location: formData.location || null,
@@ -464,15 +459,6 @@ export default function EditPlantPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="pot_size">Pot Size</Label>
-                <Input
-                  id="pot_size"
-                  value={formData.pot_size}
-                  onChange={(e) => handleInputChange('pot_size', e.target.value)}
-                  placeholder="e.g., 20cm, 5L"
-                />
-              </div>
 
               <div className="flex items-center space-x-2">
                 <Switch
@@ -533,7 +519,7 @@ export default function EditPlantPage() {
                           €{formatPrice(calculatedPrice, 'en-US')}
                         </div>
                         <div className="text-xs text-green-600">
-                          Based on: {formData.age_years} years, {formData.pot_size} pot
+                          Based on: {formData.age_years} years
                         </div>
                       </div>
                     </div>
