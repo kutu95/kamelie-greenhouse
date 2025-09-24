@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
       
       return {
         order_id: order.id,
-        item_type: item.type === 'cultivar' ? 'plant' : item.type, // Temporarily use 'plant' for cultivars
+        item_type: item.type,
         cultivar_id: cultivarId,
         item_name: item.name,
         item_description: item.description,
