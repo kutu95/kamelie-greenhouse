@@ -54,7 +54,7 @@ export const useCartStore = create<CartState>()(
           quantity: quantity,
           plant: plant,
           image_url: plant.cultivar.photo_url || undefined,
-          description: plant.cultivar.species.scientific_name
+          description: `${plant.cultivar.species.scientific_name} - ${plant.age_years} years`
         }
         
         const existingItem = get().items.find(
