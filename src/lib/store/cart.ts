@@ -166,9 +166,46 @@ export const useCartStore = create<CartState>()(
         )
       },
       cleanInvalidItems: () => {
-        // Temporarily disabled to debug cart issue
-        console.log('cleanInvalidItems called but disabled for debugging')
-        return
+        const currentItems = get().items
+        console.log('Cleaning invalid items. Current items:', currentItems)
+        const validItems = currentItems.filter(item => {
+          if (item.type === 'cultivar') {
+            // For cultivars, check if the ID format is correct (cultivar_id-age)
+            const parts = item.id.split('-')
+            if (parts.length !== 2) {
+              console.log(`Cultivar item ${item.id} has wrong number of parts:`, parts.length)
+              return false
+            }
+            
+            const [cultivarId, ageStr] = parts
+            const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cultivarId)
+            const age = parseInt(ageStr)
+            const isValidAge = !isNaN(age) && age > 0
+            
+            console.log(`Cultivar item ${item.id} validation:`, { 
+              cultivarId, 
+              ageStr,
+              isValidUUID, 
+              isValidAge,
+              age,
+              isValid: isValidUUID && isValidAge
+            })
+            
+            return isValidUUID && isValidAge
+          } else if (item.type === 'product') {
+            // For products, check if it's a valid UUID
+            const isValid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id)
+            console.log(`Product item ${item.id} validation:`, isValid)
+            return isValid
+          }
+          console.log(`Unknown item type ${item.type} for item ${item.id}`)
+          return false
+        })
+        console.log('Valid items after filtering:', validItems)
+        if (validItems.length !== currentItems.length) {
+          console.log(`Removed ${currentItems.length - validItems.length} invalid cart items`)
+          set({ items: validItems })
+        }
       },
       calculateItemPrice: async (item: CartItem) => {
         if (item.type === 'cultivar' && item.cultivar?.price_group) {
