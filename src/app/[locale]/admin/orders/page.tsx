@@ -18,7 +18,8 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -136,6 +137,37 @@ export default function AdminOrdersPage() {
     } catch (err) {
       console.error('Error updating order:', err)
       setError(isGerman ? 'Fehler beim Aktualisieren der Bestellung' : 'Error updating order')
+    }
+  }
+
+  const cancelOrder = async (orderId: string) => {
+    if (!confirm(isGerman 
+      ? 'Sind Sie sicher, dass Sie diese Bestellung stornieren möchten?'
+      : 'Are you sure you want to cancel this order?'
+    )) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          order_status: 'cancelled'
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to cancel order')
+      }
+
+      // Refresh orders
+      loadOrders()
+    } catch (err) {
+      console.error('Error cancelling order:', err)
+      setError(isGerman ? 'Fehler beim Stornieren der Bestellung' : 'Error cancelling order')
     }
   }
 
@@ -385,6 +417,17 @@ export default function AdminOrdersPage() {
                         <Edit className="h-4 w-4 mr-1" />
                         {isGerman ? 'Bearbeiten' : 'Edit'}
                       </Button>
+                      {order.order_status !== 'cancelled' && order.order_status !== 'delivered' && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => cancelOrder(order.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          {isGerman ? 'Stornieren' : 'Cancel'}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
