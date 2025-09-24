@@ -12,8 +12,6 @@ import {
   Euro,
   Weight,
   Ruler,
-  Plus,
-  Minus,
   Eye,
   AlertCircle
 } from 'lucide-react'
@@ -40,14 +38,13 @@ export default function ProductsPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('')
-  const [showCart, setShowCart] = useState(false)
   const [showAddToCartModal, setShowAddToCartModal] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   
   const supabase = createClient()
   
   // Use unified cart store
-  const { addProduct, items: cartItems, getTotalItems, updateQuantity, removeItem } = useCartStore()
+  const { addProduct, getTotalItems } = useCartStore()
 
   const categories = [
     { value: 'soil', label: locale === 'de' ? 'Erde & Substrat' : 'Soil & Substrate' },
@@ -113,9 +110,6 @@ export default function ProductsPage() {
     return cat ? cat.label : category
   }
 
-  const getTotalCartValue = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0)
-  }
 
   if (loading) {
     return (
@@ -142,15 +136,12 @@ export default function ProductsPage() {
                 {locale === 'de' ? 'Alles was Sie für Ihre Kamelien benötigen' : 'Everything you need for your camellias'}
               </p>
             </div>
-            <Button onClick={() => setShowCart(true)} className="relative">
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              {locale === 'de' ? 'Warenkorb' : 'Cart'}
-              {cartItems.length > 0 && (
-                <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs">
-                  {getTotalItems()}
-                </Badge>
-              )}
-            </Button>
+            <div className="flex items-center space-x-2">
+              <ShoppingCart className="h-5 w-5 text-gray-600" />
+              <span className="text-sm text-gray-600">
+                {locale === 'de' ? 'Warenkorb' : 'Cart'}: {getTotalItems()} {locale === 'de' ? 'Artikel' : 'items'}
+              </span>
+            </div>
           </div>
         </div>
       </header>
@@ -327,110 +318,6 @@ export default function ProductsPage() {
         )}
       </main>
 
-      {/* Shopping Cart Sidebar */}
-      {showCart && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl">
-            <div className="flex flex-col h-full">
-              {/* Header */}
-              <div className="flex justify-between items-center p-6 border-b">
-                <h2 className="text-xl font-semibold">
-                  {locale === 'de' ? 'Warenkorb' : 'Shopping Cart'}
-                </h2>
-                <Button variant="ghost" onClick={() => setShowCart(false)}>
-                  ×
-                </Button>
-              </div>
-
-              {/* Cart Items */}
-              <div className="flex-1 overflow-y-auto p-6">
-                {cartItems.length === 0 ? (
-                  <div className="text-center py-12">
-                    <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">
-                      {locale === 'de' ? 'Ihr Warenkorb ist leer' : 'Your cart is empty'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {cartItems.map((item) => (
-                      <div key={item.id} className="flex space-x-4 p-4 border rounded-lg">
-                        <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0">
-                          {item.image_url ? (
-                            <Image
-                              src={item.image_url}
-                              alt={item.name}
-                              width={64}
-                              height={64}
-                              className="w-full h-full object-cover rounded-lg"
-                            />
-                          ) : (
-                            <Package className="h-8 w-8 text-gray-400 m-auto" />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-sm">
-                            {item.name}
-                          </h4>
-                          <p className="text-green-600 font-bold">
-                            €{item.price.toFixed(2)}
-                          </p>
-                          <div className="flex items-center space-x-2 mt-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            >
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="text-sm font-medium">{item.quantity}</span>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              disabled={item.type === 'product' && item.product && item.quantity >= item.product.stock_quantity}
-                            >
-                              <Plus className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => removeItem(item.id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              ×
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Footer */}
-              {cartItems.length > 0 && (
-                <div className="border-t p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-lg font-semibold">
-                      {locale === 'de' ? 'Gesamt:' : 'Total:'}
-                    </span>
-                    <span className="text-xl font-bold text-green-600">
-                      €{getTotalCartValue().toFixed(2)}
-                    </span>
-                  </div>
-                  <Button className="w-full" size="lg">
-                    {locale === 'de' ? 'Zur Kasse' : 'Checkout'}
-                  </Button>
-                  <p className="text-xs text-gray-500 text-center mt-2">
-                    {locale === 'de' ? 'Kontaktieren Sie uns für den Kauf' : 'Contact us to complete your purchase'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Add to Cart Modal */}
       <AddToCartModal
