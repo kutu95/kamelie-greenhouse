@@ -8,14 +8,15 @@
 - **Restore Command**: `git checkout before-plants-table-removal`
 
 ### 2. Database Backup
-- **Script**: `backup-before-plants-removal.sql`
-- **Tables Backed Up**: plants, cultivars, species, pricing_matrix, orders, order_items
-- **Run in**: Supabase SQL Editor
+- **Method**: Supabase Dashboard → Settings → Database → Backup
+- **Backup Name**: `before-plants-table-removal`
+- **Type**: Complete system backup (data + schema + policies + functions)
 
 ### 3. Database Restore
-- **Script**: `restore-from-plants-removal.sql`
+- **Method**: Supabase Dashboard → Settings → Database → Backup
+- **Find Backup**: `before-plants-table-removal`
+- **Action**: Click "Restore" button
 - **Use if**: Migration goes wrong and you need to restore database
-- **Run in**: Supabase SQL Editor
 
 ## Migration Steps
 
@@ -51,8 +52,10 @@ git push --force origin main
 ```
 
 ### Option 2: Database Restore
-1. Run `restore-from-plants-removal.sql` in Supabase SQL Editor
-2. Verify data is restored correctly
+1. Go to Supabase Dashboard → Settings → Database → Backup
+2. Find backup `before-plants-table-removal`
+3. Click "Restore" button
+4. Verify data is restored correctly
 
 ## Current System Status
 - ✅ Working system with plants table
@@ -61,7 +64,7 @@ git push --force origin main
 - ✅ Ready for migration
 
 ## Next Steps
-1. Run database backup script
+1. Create Supabase backup: `before-plants-table-removal`
 2. Start Phase 1 migration
 3. Test thoroughly at each step
 4. Keep restore points available
