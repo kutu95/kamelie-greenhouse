@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { X, ShoppingCart, Plus, Minus, Package, Flower, Trash2, CheckCircle } from 'lucide-react'
@@ -25,6 +25,23 @@ export function CartModal({ isOpen, onClose, locale }: CartModalProps) {
   const [checkingOut, setCheckingOut] = useState(false)
 
   const isGerman = locale === 'de'
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        onClose()
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape)
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isOpen, onClose])
 
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) {
@@ -62,8 +79,18 @@ export function CartModal({ isOpen, onClose, locale }: CartModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose()
+        }
+      }}
+    >
+      <div 
+        className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b">
           <div className="flex items-center space-x-3">
@@ -88,9 +115,13 @@ export function CartModal({ isOpen, onClose, locale }: CartModalProps) {
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 {isGerman ? 'Ihr Warenkorb ist leer' : 'Your cart is empty'}
               </h3>
-              <p className="text-gray-500">
+              <p className="text-gray-500 mb-6">
                 {isGerman ? 'Fügen Sie Artikel hinzu, um zu beginnen' : 'Add items to get started'}
               </p>
+              <Button onClick={onClose} variant="outline">
+                <X className="h-4 w-4 mr-2" />
+                {isGerman ? 'Schließen' : 'Close'}
+              </Button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -215,6 +246,16 @@ export function CartModal({ isOpen, onClose, locale }: CartModalProps) {
             
             {/* Actions */}
             <div className="flex space-x-3">
+              <Button
+                variant="outline"
+                onClick={onClose}
+                disabled={checkingOut}
+                className="flex-1"
+              >
+                <X className="h-4 w-4 mr-2" />
+                {isGerman ? 'Schließen' : 'Close'}
+              </Button>
+              
               <Button
                 variant="outline"
                 onClick={handleClearCart}
