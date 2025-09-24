@@ -166,37 +166,9 @@ export const useCartStore = create<CartState>()(
         )
       },
       cleanInvalidItems: () => {
-        const currentItems = get().items
-        console.log('Cleaning invalid items. Current items:', currentItems)
-        const validItems = currentItems.filter(item => {
-          if (item.type === 'cultivar') {
-            // For cultivars, check if the ID format is correct (cultivar_id-age)
-            const parts = item.id.split('-')
-            const isValid = parts.length === 2 && isValidUUID(parts[0]) && !isNaN(parseInt(parts[1]))
-            console.log(`Cultivar item ${item.id} validation:`, { 
-              parts, 
-              part0: parts[0], 
-              part1: parts[1],
-              isValidUUID: isValidUUID(parts[0]), 
-              isNumber: !isNaN(parseInt(parts[1])),
-              parsedAge: parseInt(parts[1]),
-              isValid 
-            })
-            return isValid
-          } else if (item.type === 'product') {
-            // For products, check if it's a valid UUID
-            const isValid = isValidUUID(item.id)
-            console.log(`Product item ${item.id} validation:`, isValid)
-            return isValid
-          }
-          console.log(`Unknown item type ${item.type} for item ${item.id}`)
-          return false
-        })
-        console.log('Valid items after filtering:', validItems)
-        if (validItems.length !== currentItems.length) {
-          console.log(`Removed ${currentItems.length - validItems.length} invalid cart items`)
-          set({ items: validItems })
-        }
+        // Temporarily disabled to debug cart issue
+        console.log('cleanInvalidItems called but disabled for debugging')
+        return
       },
       calculateItemPrice: async (item: CartItem) => {
         if (item.type === 'cultivar' && item.cultivar?.price_group) {
