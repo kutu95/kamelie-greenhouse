@@ -11,22 +11,19 @@ import { useState } from 'react'
 import { LanguageToggle } from '@/components/ui/language-toggle'
 import { useParams } from 'next/navigation'
 import { useCartStore } from '@/lib/store/cart'
-import { CartModal } from '@/components/cart/cart-modal'
 
 export function Header() {
   const t = useTranslations('navigation')
   const params = useParams()
   const locale = params.locale as string
-  const { getTotalItems, items } = useCartStore()
+  const { getTotalItems } = useCartStore()
   const { user, profile, signOut, loading, isLoggingOut, setUser, setProfile, setLoading, setIsLoggingOut } = useAuthStore()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [showCart, setShowCart] = useState(false)
 
   // Debug logging
   console.log('Header - Loading:', loading)
   console.log('Header - IsLoggingOut:', isLoggingOut)
   console.log('Header - User:', user?.email)
-  console.log('Header - Cart Items:', items)
   console.log('Header - Cart Total Items:', getTotalItems())
   console.log('Header - Profile:', profile)
   console.log('Header - Profile keys:', profile ? Object.keys(profile) : 'null')
@@ -105,19 +102,20 @@ export function Header() {
 
           <div className="flex items-center space-x-2 sm:space-x-4">
             <LanguageToggle />
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="relative hover:bg-green-50 hidden sm:flex"
-              onClick={() => setShowCart(true)}
-            >
-              <ShoppingCart className="h-5 w-5" />
-              {getTotalItems() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {getTotalItems()}
-                </span>
-              )}
-            </Button>
+            <Link href={`/${locale}/cart`}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative hover:bg-green-50 hidden sm:flex"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {getTotalItems() > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {getTotalItems()}
+                  </span>
+                )}
+              </Button>
+            </Link>
 
             {loading ? (
               <div className="flex items-center space-x-1 sm:space-x-2">
@@ -342,13 +340,6 @@ export function Header() {
           </div>
         )}
       </div>
-
-      {/* Cart Modal */}
-      <CartModal
-        isOpen={showCart}
-        onClose={() => setShowCart(false)}
-        locale={locale}
-      />
     </header>
   )
 }
