@@ -85,7 +85,7 @@ export function CartModal({ isOpen, onClose, locale }: CartModalProps) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose()
@@ -93,7 +93,7 @@ export function CartModal({ isOpen, onClose, locale }: CartModalProps) {
       }}
     >
       <div 
-        className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col"
+        className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 my-8 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
