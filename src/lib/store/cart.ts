@@ -173,7 +173,15 @@ export const useCartStore = create<CartState>()(
             // For cultivars, check if the ID format is correct (cultivar_id-age)
             const parts = item.id.split('-')
             const isValid = parts.length === 2 && isValidUUID(parts[0]) && !isNaN(parseInt(parts[1]))
-            console.log(`Cultivar item ${item.id} validation:`, { parts, isValidUUID: isValidUUID(parts[0]), isNumber: !isNaN(parseInt(parts[1])), isValid })
+            console.log(`Cultivar item ${item.id} validation:`, { 
+              parts, 
+              part0: parts[0], 
+              part1: parts[1],
+              isValidUUID: isValidUUID(parts[0]), 
+              isNumber: !isNaN(parseInt(parts[1])),
+              parsedAge: parseInt(parts[1]),
+              isValid 
+            })
             return isValid
           } else if (item.type === 'product') {
             // For products, check if it's a valid UUID
