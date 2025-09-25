@@ -140,10 +140,6 @@ export function PlantCard({ plant, locale }: PlantCardProps) {
             <span>{isGerman ? 'Höhe:' : 'Height:'}</span>
             <span>{plant.height_cm} cm</span>
           </div>
-          <div className="flex justify-between">
-            <span>{isGerman ? 'Topf:' : 'Pot:'}</span>
-            <span>{plant.pot_size}</span>
-          </div>
         </div>
 
         {/* Price and Actions */}
