@@ -24,7 +24,7 @@ import { generateInvoicePDF, generateInvoiceHTML } from '@/lib/utils/invoice-gen
 
 interface OrderItem {
   id: string
-  item_type: 'plant' | 'product'
+  item_type: 'cultivar' | 'product'
   item_name: string
   item_description: string | null
   item_image_url: string | null
@@ -123,7 +123,7 @@ export default function OrderDetailPage() {
           quantity: item.quantity,
           unitPrice: item.unit_price,
           totalPrice: item.total_price,
-          type: item.item_type as 'plant' | 'product'
+          type: item.item_type as 'cultivar' | 'product'
         })) || [],
         subtotal: order.subtotal,
         shipping: 0, // No shipping cost in this system
@@ -181,7 +181,7 @@ export default function OrderDetailPage() {
           quantity: item.quantity,
           unitPrice: item.unit_price,
           totalPrice: item.total_price,
-          type: item.item_type as 'plant' | 'product'
+          type: item.item_type as 'cultivar' | 'product'
         })) || [],
         subtotal: order.subtotal,
         shipping: 0,
