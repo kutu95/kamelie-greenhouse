@@ -5,7 +5,7 @@ interface InvoiceItem {
   quantity: number
   unitPrice: number
   totalPrice: number
-  type: 'plant' | 'product'
+  type: 'cultivar' | 'product'
 }
 
 interface InvoiceData {
