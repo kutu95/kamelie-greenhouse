@@ -210,7 +210,7 @@ export const useCartStore = create<CartState>()(
         }
       },
       calculateItemPrice: async (item: CartItem) => {
-        if (item.type === 'cultivar' && item.cultivar?.price_group) {
+        if (item.type === 'cultivar' && item.cultivar?.price_group && item.age_years) {
           try {
             return await calculatePlantPrice(item.cultivar.price_group as 'A' | 'B' | 'C', item.age_years)
           } catch (error) {
