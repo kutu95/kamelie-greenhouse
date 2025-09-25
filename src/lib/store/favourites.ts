@@ -63,11 +63,11 @@ export const useFavouritesStore = create<FavouritesState>()(
         const favouriteItem: FavouriteItem = {
           id: product.id,
           type: 'product',
-          name: product.name,
+          name: product.name_de,
           price: product.price_euros,
           product: product,
           image_url: product.image_url || undefined,
-          description: product.description || undefined
+          description: product.description_de || undefined
         }
         
         const existingItem = get().items.find(
