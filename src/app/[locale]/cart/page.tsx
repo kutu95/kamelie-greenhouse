@@ -197,7 +197,7 @@ export default function CartPage() {
                           />
                         ) : (
                           <div className="flex items-center justify-center h-full">
-                            {item.type === 'plant' ? (
+                            {item.type === 'cultivar' ? (
                               <Flower className="h-10 w-10 text-green-600" />
                             ) : (
                               <Package className="h-10 w-10 text-green-600" />
@@ -219,11 +219,11 @@ export default function CartPage() {
                             
                             {/* Item Type Badge */}
                             <Badge 
-                              variant={item.type === 'plant' ? 'default' : 'secondary'}
+                              variant={item.type === 'cultivar' ? 'default' : 'secondary'}
                               className="text-xs"
                             >
-                              {item.type === 'plant' 
-                                ? (isGerman ? 'Pflanze' : 'Plant')
+                              {item.type === 'cultivar' 
+                                ? (isGerman ? 'Sorte' : 'Cultivar')
                                 : (isGerman ? 'Produkt' : 'Product')
                               }
                             </Badge>
