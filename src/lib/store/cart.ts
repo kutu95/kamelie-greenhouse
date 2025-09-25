@@ -53,11 +53,9 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       addCultivar: async (cultivar, age_years, quantity = 1) => {
-        console.log('Adding cultivar to cart:', { cultivar: cultivar.cultivar_name, age_years, quantity })
         try {
           // Calculate price based on cultivar price_group and age
           const price = await calculatePlantPrice(cultivar.price_group as 'A' | 'B' | 'C', age_years)
-          console.log('Calculated price:', price)
           
           const cartItem: CartItem = {
             id: `${cultivar.id}-${age_years}`, // Unique ID for cultivar + age combination
@@ -71,14 +69,11 @@ export const useCartStore = create<CartState>()(
             description: `${cultivar.species.scientific_name} - ${age_years} years`
           }
           
-          console.log('Created cart item:', cartItem)
-          
           const existingItem = get().items.find(
             (item) => item.id === cartItem.id && item.type === 'cultivar'
           )
           
           if (existingItem) {
-            console.log('Updating existing item quantity')
             set((state) => ({
               items: state.items.map((item) =>
                 item.id === cartItem.id && item.type === 'cultivar'
@@ -87,11 +82,8 @@ export const useCartStore = create<CartState>()(
               ),
             }))
           } else {
-            console.log('Adding new item to cart')
             set((state) => ({ items: [...state.items, cartItem] }))
           }
-          
-          console.log('Cart after adding:', get().items)
         } catch (error) {
           console.error('Error calculating price for cultivar:', error)
           // Add with price 0 if calculation fails
@@ -106,7 +98,6 @@ export const useCartStore = create<CartState>()(
             image_url: cultivar.photo_url || undefined,
             description: `${cultivar.species.scientific_name} - ${age_years} years`
           }
-          console.log('Adding cultivar with fallback price 0:', cartItem)
           set((state) => ({ items: [...state.items, cartItem] }))
         }
       },
@@ -167,14 +158,12 @@ export const useCartStore = create<CartState>()(
       },
       cleanInvalidItems: () => {
         const currentItems = get().items
-        console.log('Cleaning invalid items. Current items:', currentItems)
         const validItems = currentItems.filter(item => {
           if (item.type === 'cultivar') {
             // For cultivars, check if the ID format is correct (cultivar_id-age)
             // UUIDs have 5 hyphens, so we need to split from the last hyphen
             const lastHyphenIndex = item.id.lastIndexOf('-')
             if (lastHyphenIndex === -1) {
-              console.log(`Cultivar item ${item.id} has no hyphens`)
               return false
             }
             
@@ -184,28 +173,15 @@ export const useCartStore = create<CartState>()(
             const age = parseInt(ageStr)
             const isValidAge = !isNaN(age) && age > 0
             
-            console.log(`Cultivar item ${item.id} validation:`, { 
-              cultivarId, 
-              ageStr,
-              isValidUUID, 
-              isValidAge,
-              age,
-              isValid: isValidUUID && isValidAge
-            })
-            
             return isValidUUID && isValidAge
           } else if (item.type === 'product') {
             // For products, check if it's a valid UUID
             const isValid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id)
-            console.log(`Product item ${item.id} validation:`, isValid)
             return isValid
           }
-          console.log(`Unknown item type ${item.type} for item ${item.id}`)
           return false
         })
-        console.log('Valid items after filtering:', validItems)
         if (validItems.length !== currentItems.length) {
-          console.log(`Removed ${currentItems.length - validItems.length} invalid cart items`)
           set({ items: validItems })
         }
       },

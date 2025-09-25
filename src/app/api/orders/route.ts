@@ -65,17 +65,14 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  console.log('=== ORDERS API CALLED ===')
   try {
     const supabase = await createClient()
     
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      console.log('Auth error:', authError)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    console.log('User authenticated:', user.id)
 
     const body = await request.json()
     const {
@@ -142,8 +139,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Create order items
-    console.log('Items being processed:', items.map((item: any) => ({ id: item.id, type: item.type, name: item.name })))
-    console.log('Full item structure for debugging:', JSON.stringify(items[0], null, 2))
     
     const orderItems = items.map((item: any) => {
       // For cultivars, extract the cultivar_id from the item.id (format: cultivar_id-age)
@@ -168,8 +163,6 @@ export async function POST(request: NextRequest) {
         age_years: item.age_years || 3
       }
     })
-    
-    console.log('Order items to be created:', JSON.stringify(orderItems, null, 2))
 
     const { error: itemsError } = await supabase
       .from('order_items')
