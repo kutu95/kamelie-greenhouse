@@ -14,7 +14,7 @@ export interface CartItem {
   name: string
   price: number
   quantity: number
-  age_years: number
+  age_years?: number // Optional - only required for cultivars
   
   // For cultivars
   cultivar?: Cultivar & {
