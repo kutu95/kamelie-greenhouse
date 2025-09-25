@@ -26,6 +26,9 @@ export interface Plant {
     foliage_type: string
     growth_habit: string
     special_characteristics: string
+    photo_url: string | null
+    photo_alt_text_de: string | null
+    photo_alt_text_en: string | null
     species: {
       id: string
       scientific_name: string
