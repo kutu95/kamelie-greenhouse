@@ -207,7 +207,8 @@ export default function CheckoutPage() {
             image_url: item.image_url,
             price: item.price,
             quantity: item.quantity,
-            plant: item.plant
+            cultivar: item.cultivar,
+            age_years: item.age_years
           }))
         })
       })
