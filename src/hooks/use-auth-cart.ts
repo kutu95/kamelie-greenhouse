@@ -16,10 +16,11 @@ export function useAuthCart() {
   const params = useParams()
   const locale = params.locale as string
   const supabase = createClient()
-  const { addPlant, addProduct } = useCartStore()
+  const { addCultivar, addProduct } = useCartStore()
 
-  const checkAuthAndAddPlant = useCallback(async (
-    plant: Plant & { cultivar: Cultivar & { species: Species } }, 
+  const checkAuthAndAddCultivar = useCallback(async (
+    cultivar: Cultivar & { species: Species }, 
+    age_years: number,
     quantity?: number
   ) => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -27,17 +28,18 @@ export function useAuthCart() {
     if (!user) {
       // Store the intended action and redirect to login
       localStorage.setItem('pendingCartAction', JSON.stringify({
-        type: 'plant',
-        data: plant,
+        type: 'cultivar',
+        data: cultivar,
+        age_years: age_years,
         quantity: quantity || 1
       }))
       router.push(`/${locale}/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`)
       return false
     }
 
-    addPlant(plant, quantity)
+    addCultivar(cultivar, age_years, quantity)
     return true
-  }, [supabase.auth, router, locale, addPlant])
+  }, [supabase.auth, router, locale, addCultivar])
 
   const checkAuthAndAddProduct = useCallback(async (
     product: Product, 
@@ -61,7 +63,7 @@ export function useAuthCart() {
   }, [supabase.auth, router, locale, addProduct])
 
   return {
-    addPlant: checkAuthAndAddPlant,
+    addCultivar: checkAuthAndAddCultivar,
     addProduct: checkAuthAndAddProduct,
   }
 }
