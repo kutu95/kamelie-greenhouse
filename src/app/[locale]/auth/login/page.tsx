@@ -26,7 +26,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams()
   const t = useTranslations('auth')
   const supabase = createClient()
-  const { addPlant, addProduct } = useCartStore()
+  const { addCultivar, addProduct } = useCartStore()
 
   useEffect(() => {
     // Check for pending cart action
@@ -67,8 +67,8 @@ export default function LoginPage() {
         // Process pending cart action if exists
         if (pendingCartAction) {
           try {
-            if (pendingCartAction.type === 'plant') {
-              addPlant(pendingCartAction.data, pendingCartAction.quantity)
+            if (pendingCartAction.type === 'cultivar') {
+              addCultivar(pendingCartAction.data, pendingCartAction.age_years || 3, pendingCartAction.quantity)
             } else if (pendingCartAction.type === 'product') {
               addProduct(pendingCartAction.data, pendingCartAction.quantity)
             }
