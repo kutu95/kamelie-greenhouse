@@ -37,8 +37,6 @@ interface FormData {
   breeder: string
   year_introduced: string
   hardiness_rating: string
-  description_de: string
-  description_en: string
   price_group: string | null
   photo_url: string | null
   photo_alt_text_de: string
@@ -67,8 +65,6 @@ export default function NewVariety() {
     breeder: '',
     year_introduced: '',
     hardiness_rating: '',
-    description_de: '',
-    description_en: '',
     price_group: null,
     photo_url: null,
     photo_alt_text_de: '',
@@ -145,7 +141,7 @@ export default function NewVariety() {
         .from('cultivars')
         .insert({
           cultivar_name: formData.cultivar_name,
-          species_id: parseInt(formData.species_id),
+          species_id: formData.species_id || null,
           flower_color: formData.flower_color || null,
           flower_form: formData.flower_form || null,
           growth_habit: formData.growth_habit || null,
@@ -153,10 +149,8 @@ export default function NewVariety() {
           breeder: formData.breeder || null,
           year_introduced: formData.year_introduced || null,
           hardiness_rating: formData.hardiness_rating || null,
-          description_de: formData.description_de || null,
-          description_en: formData.description_en || null,
           price_group: formData.price_group || null,
-          photo_url: formData.photo_url,
+          photo_url: formData.photo_url || null,
           photo_alt_text_de: formData.photo_alt_text_de || null,
           photo_alt_text_en: formData.photo_alt_text_en || null,
           created_at: new Date().toISOString(),
@@ -470,39 +464,6 @@ export default function NewVariety() {
               </CardContent>
             </Card>
 
-            {/* Descriptions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>{locale === 'de' ? 'Beschreibungen' : 'Descriptions'}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="description_de">
-                    {locale === 'de' ? 'Deutsche Beschreibung' : 'German Description'}
-                  </Label>
-                  <Textarea
-                    id="description_de"
-                    value={formData.description_de}
-                    onChange={(e) => handleInputChange('description_de', e.target.value)}
-                    placeholder={locale === 'de' ? 'Deutsche Beschreibung der Sorte...' : 'German description of the variety...'}
-                    rows={4}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description_en">
-                    {locale === 'de' ? 'Englische Beschreibung' : 'English Description'}
-                  </Label>
-                  <Textarea
-                    id="description_en"
-                    value={formData.description_en}
-                    onChange={(e) => handleInputChange('description_en', e.target.value)}
-                    placeholder={locale === 'de' ? 'Englische Beschreibung der Sorte...' : 'English description of the variety...'}
-                    rows={4}
-                  />
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Image Section */}

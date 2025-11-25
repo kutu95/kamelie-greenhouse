@@ -3,11 +3,14 @@
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/lib/store/auth'
+import { useCartStore } from '@/lib/store/cart'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, setProfile, setLoading, isLoggingOut, resetLogoutState } = useAuthStore()
+  const { loadCartFromDatabase } = useCartStore()
   const [hasMounted, setHasMounted] = useState(false)
   const profileFetchingRef = useRef(false)
+  const cartLoadedRef = useRef(false)
 
   useEffect(() => {
     // Track when component has mounted (prevents hydration mismatch)
@@ -111,7 +114,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const loadUser = async () => {
       try {
         console.log('AuthProvider - Loading user session...')
-        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        // Add timeout to prevent hanging on slow/unreachable Supabase
+        const sessionPromise = supabase.auth.getSession()
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Session fetch timeout')), 5000)
+        )
+        
+        let sessionResult: any
+        try {
+          sessionResult = await Promise.race([sessionPromise, timeoutPromise])
+        } catch (timeoutError: any) {
+          if (timeoutError?.message === 'Session fetch timeout') {
+            console.warn('AuthProvider - Session fetch timed out, continuing without session')
+            sessionResult = { data: { session: null }, error: null }
+          } else {
+            throw timeoutError
+          }
+        }
+        
+        const { data: { session }, error } = sessionResult
         console.log('AuthProvider - Session result:', { session: !!session, error, userId: session?.user?.id })
         
         if (error) {
@@ -134,9 +156,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               console.error('AuthProvider - Background profile fetch error:', profileError)
               // Don't set profile to null here as it might be a temporary error
             })
+            
+            // Load cart from database when user is logged in
+            if (!cartLoadedRef.current) {
+              console.log('AuthProvider - Loading cart from database for user:', session.user.id)
+              cartLoadedRef.current = true
+              loadCartFromDatabase().catch((cartError) => {
+                console.error('AuthProvider - Error loading cart from database:', cartError)
+                cartLoadedRef.current = false // Reset so we can try again
+              })
+            }
           } else {
             console.log('AuthProvider - No session user, setting profile to null')
             setProfile(null)
+            cartLoadedRef.current = false // Reset cart loaded flag when user logs out
           }
         }
       } catch (err) {
@@ -172,6 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(null)
           setProfile(null)
           setLoading(false)
+          cartLoadedRef.current = false // Reset cart loaded flag
           return
         }
         
@@ -191,6 +225,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             })
           } else {
             console.log('AuthProvider - Auth state change: Profile already loaded for user:', session.user.id)
+          }
+          
+          // Load cart from database when user signs in
+          if (!cartLoadedRef.current) {
+            console.log('AuthProvider - Auth state change: Loading cart from database for user:', session.user.id)
+            cartLoadedRef.current = true
+            loadCartFromDatabase().catch((cartError) => {
+              console.error('AuthProvider - Error loading cart from database:', cartError)
+              cartLoadedRef.current = false // Reset so we can try again
+            })
           }
         }
       } catch (error) {

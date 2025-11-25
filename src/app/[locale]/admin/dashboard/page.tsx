@@ -77,15 +77,38 @@ export default function AdminDashboard() {
       }
 
       // Load dashboard statistics
-      const [plantsResult, usersResult, ordersResult, blogResult] = await Promise.all([
-        supabase.from('plants').select('id', { count: 'exact' }),
-        supabase.from('user_profiles').select('id', { count: 'exact' }),
-        supabase.from('orders').select('id', { count: 'exact' }),
-        supabase.from('blog_posts').select('id', { count: 'exact' })
+      // For admins, we should be able to count all plants via the admin RLS policy
+      // But we'll count available plants to match the "Available in catalog" label
+      const [plantsResult, allPlantsResult, usersResult, ordersResult, blogResult] = await Promise.all([
+        supabase.from('plants').select('id', { count: 'exact', head: true }).eq('status', 'available'),
+        supabase.from('plants').select('id', { count: 'exact', head: true }), // Try to get all plants for admin
+        supabase.from('user_profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('orders').select('id', { count: 'exact', head: true }),
+        supabase.from('blog_posts').select('id', { count: 'exact', head: true })
       ])
+      
+      // Use available count, or fall back to all plants count if available count fails
+      const plantsCount = plantsResult.count ?? allPlantsResult.count ?? 0
+      
+      // Log results for debugging
+      if (plantsResult.error || allPlantsResult.error) {
+        console.error('Dashboard plants query error:', {
+          availableError: plantsResult.error,
+          allPlantsError: allPlantsResult.error
+        })
+      }
+      
+      console.log('Dashboard stats:', {
+        availablePlants: plantsResult.count,
+        allPlants: allPlantsResult.count,
+        finalCount: plantsCount,
+        users: usersResult.count,
+        orders: ordersResult.count,
+        blog: blogResult.count
+      })
 
       setStats({
-        totalTreeDeciduous: plantsResult.count || 0,
+        totalTreeDeciduous: plantsCount,
         totalUsers: usersResult.count || 0,
         totalOrders: ordersResult.count || 0,
         totalBlogPosts: blogResult.count || 0

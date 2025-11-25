@@ -31,8 +31,9 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[]
-  addCultivar: (cultivar: Cultivar & { species: Species }, age_years: number, quantity?: number) => void
-  addProduct: (product: Product, quantity?: number) => void
+  isSyncing: boolean
+  addCultivar: (cultivar: Cultivar & { species: Species }, age_years: number, quantity?: number) => Promise<void>
+  addProduct: (product: Product, quantity?: number) => Promise<void>
   removeItem: (itemId: string) => void
   updateQuantity: (itemId: string, quantity: number) => void
   clearCart: () => void
@@ -40,6 +41,8 @@ interface CartState {
   getTotalPrice: () => number
   cleanInvalidItems: () => void
   calculateItemPrice: (item: CartItem) => Promise<number>
+  syncCartToDatabase: () => Promise<void>
+  loadCartFromDatabase: () => Promise<void>
 }
 
 // Helper function to validate UUID format
@@ -52,6 +55,80 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      isSyncing: false,
+      syncCartToDatabase: async () => {
+        // Only sync if not already syncing
+        if (get().isSyncing) return
+        
+        set({ isSyncing: true })
+        try {
+          const response = await fetch('/api/cart', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ items: get().items }),
+          })
+          
+          const data = await response.json()
+          
+          if (!response.ok) {
+            console.error('Failed to sync cart to database:', data)
+          } else if (data.message && !data.success) {
+            console.warn('Cart sync warning:', data.message)
+          }
+        } catch (error) {
+          console.error('Error syncing cart to database:', error)
+        } finally {
+          set({ isSyncing: false })
+        }
+      },
+      loadCartFromDatabase: async () => {
+        // Only load if not already syncing
+        if (get().isSyncing) return
+        
+        set({ isSyncing: true })
+        try {
+          const response = await fetch('/api/cart', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+          
+          const data = await response.json()
+          
+          if (response.ok && data.items && Array.isArray(data.items)) {
+            if (data.items.length > 0) {
+              // Merge with existing items, prioritizing database items
+              const dbItems = data.items
+              const localItems = get().items
+              
+              // Create a map of existing local items by ID
+              const localItemsMap = new Map(localItems.map(item => [item.id, item]))
+              
+              // For each DB item, either replace local item or add new one
+              const mergedItems = dbItems.map((dbItem: CartItem) => {
+                const localItem = localItemsMap.get(dbItem.id)
+                // Prefer DB item, but keep local item's updated price if it exists
+                return localItem ? { ...dbItem, price: localItem.price } : dbItem
+              })
+              
+              // Add any local items that aren't in DB (for anonymous users who just logged in)
+              dbItems.forEach((dbItem: CartItem) => localItemsMap.delete(dbItem.id))
+              localItemsMap.forEach((item) => mergedItems.push(item))
+              
+              set({ items: mergedItems })
+              // Sync back to ensure DB has all items
+              await get().syncCartToDatabase()
+            }
+          }
+        } catch (error) {
+          console.error('Error loading cart from database:', error)
+        } finally {
+          set({ isSyncing: false })
+        }
+      },
       addCultivar: async (cultivar, age_years, quantity = 1) => {
         try {
           // Calculate price based on cultivar price_group and age
@@ -84,6 +161,9 @@ export const useCartStore = create<CartState>()(
           } else {
             set((state) => ({ items: [...state.items, cartItem] }))
           }
+          
+          // Sync to database after adding
+          await get().syncCartToDatabase()
         } catch (error) {
           console.error('Error calculating price for cultivar:', error)
           // Add with price 0 if calculation fails
@@ -99,9 +179,11 @@ export const useCartStore = create<CartState>()(
             description: `${cultivar.species.scientific_name} - ${age_years} years`
           }
           set((state) => ({ items: [...state.items, cartItem] }))
+          // Sync to database after adding
+          await get().syncCartToDatabase()
         }
       },
-      addProduct: (product, quantity = 1) => {
+      addProduct: async (product, quantity = 1) => {
         const cartItem: CartItem = {
           id: product.id,
           type: 'product',
@@ -128,15 +210,20 @@ export const useCartStore = create<CartState>()(
         } else {
           set((state) => ({ items: [...state.items, cartItem] }))
         }
+        
+        // Sync to database after adding
+        await get().syncCartToDatabase()
       },
-      removeItem: (itemId) => {
+      removeItem: async (itemId) => {
         set((state) => ({
           items: state.items.filter((item) => item.id !== itemId),
         }))
+        // Sync to database after removing
+        await get().syncCartToDatabase()
       },
-      updateQuantity: (itemId, quantity) => {
+      updateQuantity: async (itemId, quantity) => {
         if (quantity <= 0) {
-          get().removeItem(itemId)
+          await get().removeItem(itemId)
           return
         }
         
@@ -145,8 +232,14 @@ export const useCartStore = create<CartState>()(
             item.id === itemId ? { ...item, quantity } : item
           ),
         }))
+        // Sync to database after updating
+        await get().syncCartToDatabase()
       },
-      clearCart: () => set({ items: [] }),
+      clearCart: async () => {
+        set({ items: [] })
+        // Sync to database after clearing
+        await get().syncCartToDatabase()
+      },
       getTotalItems: () => {
         return get().items.reduce((total, item) => total + item.quantity, 0)
       },
