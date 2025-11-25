@@ -9,7 +9,6 @@ import {
   Upload, 
   Image as ImageIcon,
   X,
-  Search,
   AlertCircle,
   Flower,
   User,
@@ -24,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/types/database'
+import { ImageSelector } from '@/components/ui/image-selector'
 
 type Species = Database['public']['Tables']['species']['Row']
 
@@ -72,15 +72,11 @@ export default function NewVariety() {
   })
 
   const [showImageSelector, setShowImageSelector] = useState(false)
-  const [galleryImages, setGalleryImages] = useState<string[]>([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [loadingImages, setLoadingImages] = useState(false)
   
   const supabase = createClient()
 
   useEffect(() => {
     loadSpecies()
-    loadGalleryImages()
   }, [])
 
   const loadSpecies = async () => {
@@ -99,23 +95,6 @@ export default function NewVariety() {
     }
   }
 
-  const loadGalleryImages = async () => {
-    setLoadingImages(true)
-    try {
-      const response = await fetch('/api/gallery-images')
-      if (!response.ok) {
-        throw new Error('Failed to fetch gallery images')
-      }
-      const data = await response.json()
-      setGalleryImages(data.images || [])
-    } catch (err) {
-      console.error('Error loading gallery images:', err)
-      // Fallback to empty array if API fails
-      setGalleryImages([])
-    } finally {
-      setLoadingImages(false)
-    }
-  }
 
   const handleInputChange = (field: keyof FormData, value: string | null) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -173,13 +152,12 @@ export default function NewVariety() {
     }
   }
 
-  const handleImageSelect = (imageName: string) => {
-    const imageUrl = `/images/gallery/${imageName}`
+  const handleImageSelect = (imageUrl: string) => {
     setFormData(prev => ({
       ...prev,
       photo_url: imageUrl,
-      photo_alt_text_de: `Kamelie ${formData.cultivar_name || 'Neue Sorte'}`,
-      photo_alt_text_en: `Camellia ${formData.cultivar_name || 'New Variety'}`
+      photo_alt_text_de: prev.photo_alt_text_de || `Kamelie ${formData.cultivar_name || 'Neue Sorte'}`,
+      photo_alt_text_en: prev.photo_alt_text_en || `Camellia ${formData.cultivar_name || 'New Variety'}`
     }))
     setShowImageSelector(false)
   }
@@ -193,9 +171,6 @@ export default function NewVariety() {
     }))
   }
 
-  const filteredImages = galleryImages.filter(image =>
-    image.toLowerCase().includes(searchTerm.toLowerCase())
-  )
 
   if (loading) {
     return (
@@ -558,83 +533,13 @@ export default function NewVariety() {
         </div>
 
         {/* Image Selector Modal */}
-        {showImageSelector && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold">
-                    {locale === 'de' ? 'Bild auswählen' : 'Select Image'}
-                  </h2>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowImageSelector(false)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder={locale === 'de' ? 'Bilder durchsuchen...' : 'Search images...'}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-
-                  {loadingImages ? (
-                    <div className="flex items-center justify-center py-12">
-                      <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
-                        <p className="text-sm text-gray-600">
-                          {locale === 'de' ? 'Lade Bilder...' : 'Loading images...'}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
-                      {filteredImages.map((imageName) => (
-                        <div
-                          key={imageName}
-                          className="cursor-pointer hover:ring-2 hover:ring-green-500 transition-all"
-                          onClick={() => handleImageSelect(imageName)}
-                        >
-                          <div className="aspect-square bg-gradient-to-br from-green-100 to-green-200 rounded-lg overflow-hidden mb-2">
-                            <img
-                              src={`/images/gallery/${imageName}`}
-                              alt={imageName}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement
-                                target.style.display = 'none'
-                              }}
-                            />
-                          </div>
-                          <div className="text-xs text-gray-600 truncate px-1">
-                            {imageName}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {!loadingImages && filteredImages.length === 0 && (
-                    <div className="text-center py-12">
-                      <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">
-                        {locale === 'de' ? 'Keine Bilder gefunden' : 'No images found'}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <ImageSelector
+          isOpen={showImageSelector}
+          onClose={() => setShowImageSelector(false)}
+          onSelect={handleImageSelect}
+          currentValue={formData.photo_url || undefined}
+          folder="gallery"
+        />
       </main>
     </div>
   )
